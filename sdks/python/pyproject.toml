@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "inrent"
+version = "0.1.0"
+description = "Official Python SDK for the INRENT API — one OpenAI-compatible API for many AI models."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.9"
+dependencies = ["httpx>=0.25,<1"]
+keywords = ["inrent", "ai", "llm", "openai-compatible", "sdk"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Typing :: Typed",
+  "License :: OSI Approved :: Apache Software License",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.urls]
+Homepage = "https://inrent.ai"
+Documentation = "https://inrent.ai/docs/sdks"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/inrent"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

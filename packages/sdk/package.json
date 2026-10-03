@@ -6,15 +6,29 @@
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
-  "exports": { ".": "./src/index.ts" },
-  "files": ["dist", "README.md"],
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "sideEffects": false,
   "publishConfig": {
     "access": "public",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "exports": {
-      ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js", "require": "./dist/index.cjs" }
+      ".": {
+        "import": {
+          "types": "./dist/index.d.ts",
+          "default": "./dist/index.js"
+        },
+        "require": {
+          "types": "./dist/index.d.cts",
+          "default": "./dist/index.cjs"
+        }
+      }
     }
   },
   "scripts": {
@@ -29,6 +43,14 @@
     "tsup": "^8.5.0",
     "vitest": "^4.1.11"
   },
-  "engines": { "node": ">=18" },
-  "keywords": ["inrent", "ai", "llm", "openai-compatible", "sdk"]
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "inrent",
+    "ai",
+    "llm",
+    "openai-compatible",
+    "sdk"
+  ]
 }
