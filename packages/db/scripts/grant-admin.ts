@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- command-line script output */
 /**
  * Grants a platform (admin console) role to an existing user.
  *   pnpm admin:grant --email you@company.com --role SUPER_ADMIN

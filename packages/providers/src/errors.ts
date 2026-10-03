@@ -5,7 +5,7 @@ export function redactSecrets(text: string): string {
   return text
     .replace(/\b(sk|rk|pk|whsec|sk-ant|sk-proj|sk-or|gsk|xai|hf)[-_][A-Za-z0-9_\-*.]{6,}/g, "[redacted]")
     .replace(/\bAIza[0-9A-Za-z_-]{20,}/g, "[redacted]")
-    .replace(/Bearer\s+[A-Za-z0-9._\-]+/gi, "Bearer [redacted]")
+    .replace(/Bearer\s+[A-Za-z0-9._-]+/gi, "Bearer [redacted]")
     .slice(0, 1_000);
 }
 

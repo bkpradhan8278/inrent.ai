@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
-import { CommandPalette } from "@/components/command-palette";
+import { CommandPalette } from "@/components/command-palette-host";
 import { MotionProvider } from "@/components/motion";
 import { getDocsNav } from "@/lib/docs-structure";
 import { site } from "@/lib/site";
@@ -9,7 +9,8 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const interTight = Inter_Tight({ subsets: ["latin"], variable: "--font-inter-tight", display: "swap", weight: ["500", "600", "700"] });
-const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap" });
+// Code font: not preloaded (not needed for first paint; falls back to the system monospace).
+const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap", preload: false });
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),

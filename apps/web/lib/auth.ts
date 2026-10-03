@@ -41,7 +41,8 @@ export const auth = betterAuth({
   trustedOrigins: [baseURL],
   advanced: {
     database: { generateId: () => randomUUID() },
-    useSecureCookies: isProduction,
+    // Secure cookies whenever the app is served over https (also covers staging); plain http only for local builds.
+    useSecureCookies: baseURL.startsWith("https://"),
     cookiePrefix: "inrent",
   },
   session: {

@@ -4,7 +4,7 @@ import { Command } from "cmdk";
 import { Dialog as DialogPrimitive } from "radix-ui";
 import { ArrowRight, BarChart3, BookOpen, Boxes, CreditCard, KeyRound, LayoutDashboard, MessagesSquare, ScrollText, Search, Settings, Cpu, Activity } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { Kbd } from "@/components/ui/misc";
 
 interface DocEntry {
@@ -27,44 +27,23 @@ const ACTIONS = [
   { label: "System status", href: "/status", icon: Activity, keywords: "uptime incidents" },
 ];
 
-/** Global command palette: ⌘K / Ctrl+K anywhere, "/" for docs search. */
-export function CommandPalette({ docs }: { docs: DocEntry[] }) {
-  const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<"all" | "docs">("all");
-  const router = useRouter();
+export interface DocEntryProps {
+  docs: DocEntry[];
+  open: boolean;
+  mode: "all" | "docs";
+  setOpen: (open: boolean) => void;
+}
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      const typing = target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setMode("all");
-        setOpen((o) => !o);
-      } else if (e.key === "/" && !typing && !e.metaKey && !e.ctrlKey && !window.location.pathname.startsWith("/docs")) {
-        e.preventDefault();
-        setMode("docs");
-        setOpen(true);
-      }
-    };
-    const onOpen = (e: Event) => {
-      setMode(((e as CustomEvent<string>).detail as "all" | "docs") ?? "all");
-      setOpen(true);
-    };
-    window.addEventListener("keydown", onKey);
-    window.addEventListener("inrent:command", onOpen);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("inrent:command", onOpen);
-    };
-  }, []);
+/** The palette UI (cmdk). Loaded on first use by CommandPalette in command-palette-host.tsx. */
+export function CommandPaletteDialog({ docs, open, mode, setOpen }: DocEntryProps) {
+  const router = useRouter();
 
   const go = useCallback(
     (href: string) => {
       setOpen(false);
       router.push(href);
     },
-    [router],
+    [router, setOpen],
   );
 
   return (
@@ -125,6 +104,3 @@ export function CommandPalette({ docs }: { docs: DocEntry[] }) {
   );
 }
 
-export function openCommandPalette(mode: "all" | "docs" = "all") {
-  window.dispatchEvent(new CustomEvent("inrent:command", { detail: mode }));
-}

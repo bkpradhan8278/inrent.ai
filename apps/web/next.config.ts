@@ -11,6 +11,8 @@ try {
 }
 
 const isDev = process.env.NODE_ENV !== "production";
+// HTTPS-only directives apply when the app is served over https (not for local production builds on http://localhost).
+const servedOverHttps = (process.env.NEXT_PUBLIC_APP_URL ?? "https://inrent.ai").startsWith("https://");
 const apiOrigin = (() => {
   try {
     return new URL(process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://api.inrent.ai/v1").origin;
@@ -35,7 +37,7 @@ const csp = [
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",
-  ...(isDev ? [] : ["upgrade-insecure-requests"]),
+  ...(servedOverHttps && !isDev ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
 
 const securityHeaders = [
@@ -45,7 +47,7 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(self)" },
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-  ...(isDev ? [] : [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" }]),
+  ...(servedOverHttps && !isDev ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" }] : []),
 ];
 
 const nextConfig: NextConfig = {

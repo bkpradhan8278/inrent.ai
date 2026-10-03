@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Logo } from "@/components/brand/logo";
-import { openCommandPalette } from "@/components/command-palette";
+import { openCommandPalette } from "@/lib/command-events";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, SheetContent } from "@/components/ui/dialog";

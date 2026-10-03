@@ -9,7 +9,9 @@
   "exports": {
     ".": "./src/index.ts",
     "./server": "./src/server.ts",
-    "./openapi": "./src/openapi.ts"
+    "./openapi": "./src/openapi.ts",
+    "./catalog": "./src/catalog.ts",
+    "./rbac": "./src/rbac.ts"
   },
   "scripts": {
     "test": "vitest run",

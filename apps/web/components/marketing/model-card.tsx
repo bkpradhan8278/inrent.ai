@@ -1,6 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import { CAPABILITIES } from "@inrent/core";
+import { CAPABILITIES } from "@inrent/core/catalog";
 import type { PublicModel } from "@inrent/services";
 import { VendorMark } from "@/components/brand/icons";
 import { Badge } from "@/components/ui/badge";

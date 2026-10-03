@@ -35,7 +35,7 @@ export function SiteFooter() {
           <p>© {new Date().getFullYear()} INRENT. All rights reserved.</p>
           <p>
             Model names and trademarks belong to their respective owners. Listing a provider does not imply a partnership.{" "}
-            <a href={`mailto:${site.supportEmail}`} className="text-fg-muted hover:text-fg">
+            <a href={`mailto:${site.supportEmail}`} className="text-fg-muted underline underline-offset-2 hover:text-fg">
               {site.supportEmail}
             </a>
           </p>

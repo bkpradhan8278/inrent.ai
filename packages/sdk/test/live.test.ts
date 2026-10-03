@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { Inrent, InrentError } from "../src";
 
 /**
@@ -9,7 +9,10 @@ const key = process.env.INRENT_LIVE_API_KEY;
 const baseURL = process.env.INRENT_LIVE_BASE_URL ?? "http://localhost:8080/v1";
 
 describe.skipIf(!key)("live gateway", () => {
-  const client = new Inrent({ apiKey: key, baseURL, maxRetries: 0 });
+  let client: Inrent;
+  beforeAll(() => {
+    client = new Inrent({ apiKey: key, baseURL, maxRetries: 0 });
+  });
 
   it("chat completion with metadata", async () => {
     const r = await client.chat.completions.create({ model: "inrent/mock-echo", messages: [{ role: "user", content: "ping" }] });

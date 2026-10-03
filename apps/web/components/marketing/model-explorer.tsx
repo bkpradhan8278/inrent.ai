@@ -3,7 +3,7 @@
 import { ArrowUpDown, Check, LayoutGrid, List, Search, SlidersHorizontal, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import type { PublicModel } from "@inrent/services";
 import { VendorMark } from "@/components/brand/icons";
 import { Badge } from "@/components/ui/badge";
@@ -49,8 +49,27 @@ function bestLatency(m: PublicModel): number | null {
   return l.length ? Math.min(...l) : null;
 }
 
+type Params = Pick<URLSearchParams, "get" | "toString">;
+const NO_PARAMS: Params = new URLSearchParams();
+
+/**
+ * Model catalog with search, filters and comparison. The Suspense fallback renders the same
+ * grid without URL state, so the server HTML matches the hydrated layout (no layout shift).
+ */
 export function ModelExplorer({ models }: { models: PublicModel[] }) {
+  return (
+    <Suspense fallback={<ExplorerView models={models} params={NO_PARAMS} />}>
+      <ExplorerWithParams models={models} />
+    </Suspense>
+  );
+}
+
+function ExplorerWithParams({ models }: { models: PublicModel[] }) {
   const params = useSearchParams();
+  return <ExplorerView models={models} params={params} />;
+}
+
+function ExplorerView({ models, params }: { models: PublicModel[]; params: Params }) {
   const router = useRouter();
   const [q, setQ] = useState(params.get("q") ?? "");
   const [vendors, setVendors] = useState<string[]>([]);

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { ModelExplorer } from "@/components/marketing/model-explorer";
 import { Eyebrow } from "@/components/ui/misc";
 import { safePublicModels } from "@/lib/catalog";
@@ -23,9 +22,8 @@ export default async function ModelsPage() {
           Every model uses the same OpenAI-compatible API. Availability shows whether a model is served with INRENT credits, with your own provider key, or not yet enabled. Prices appear once verified against the provider&apos;s current price list.
         </p>
       </div>
-      <Suspense>
-        <ModelExplorer models={models} />
-      </Suspense>
+      <h2 className="sr-only">Models</h2>
+      <ModelExplorer models={models} />
     </div>
   );
 }

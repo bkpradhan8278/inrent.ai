@@ -42,26 +42,26 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(92_235_192/0.13),transparent)]" aria-hidden />
         <div className="container-page relative grid items-center gap-12 pb-20 pt-14 lg:grid-cols-[1.05fr_1fr] lg:pb-28 lg:pt-20">
           <div className="flex min-w-0 flex-col gap-7">
-            <Reveal>
+            <div className="rise">
               <Link href="/changelog" className="group inline-flex w-fit items-center gap-2 rounded-full border border-border bg-surface/60 py-1 pl-1 pr-3 text-[12.5px] text-fg-muted backdrop-blur transition-colors hover:border-border-strong">
                 <span className="rounded-full bg-accent-soft px-2 py-0.5 font-mono text-[10.5px] text-accent">New</span>
                 OpenAI-compatible API · streaming, routing, BYOK
                 <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
               </Link>
-            </Reveal>
-            <Reveal delay={0.05}>
+            </div>
+            <div>
               <h1 className="text-display text-[2.9rem] text-fg sm:text-6xl lg:text-[4.4rem]">
                 One API.
                 <br />
                 <span className="text-gradient">Every AI model.</span>
               </h1>
-            </Reveal>
-            <Reveal delay={0.1}>
+            </div>
+            <div>
               <p className="max-w-xl text-[16.5px] leading-relaxed text-fg-muted">
                 Connect your application to leading AI models through one developer-first API — with unified billing, routing, observability and infrastructure.
               </p>
-            </Reveal>
-            <Reveal delay={0.15}>
+            </div>
+            <div className="rise" style={{ animationDelay: "150ms" }}>
               <div className="flex flex-wrap items-center gap-3">
                 <Button asChild size="lg">
                   <Link href="/sign-up">
@@ -75,18 +75,18 @@ export default async function HomePage() {
                   View documentation <ArrowRight className="size-3.5" />
                 </Link>
               </div>
-            </Reveal>
-            <Reveal delay={0.2}>
+            </div>
+            <div className="rise" style={{ animationDelay: "200ms" }}>
               <div className="flex w-fit max-w-full items-center gap-3 rounded-lg border border-border bg-bg-elevated/80 py-1.5 pl-3.5 pr-1.5 font-mono text-[12.5px] backdrop-blur">
                 <span className="text-fg-subtle">base_url</span>
                 <span className="truncate text-fg">{site.apiBaseUrl}</span>
                 <CopyButton value={site.apiBaseUrl} label="Copy base URL" />
               </div>
-            </Reveal>
+            </div>
           </div>
-          <Reveal delay={0.1} y={24}>
+          <div className="rise" style={{ animationDelay: "120ms" }}>
             <RoutingVisual />
-          </Reveal>
+          </div>
         </div>
       </section>
 

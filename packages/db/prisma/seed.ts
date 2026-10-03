@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- command-line script output */
 /**
  * Seed script — idempotent.
  *

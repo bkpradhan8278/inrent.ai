@@ -55,8 +55,8 @@ export function MetricAreaChart({ data, metric, height = 220 }: { data: ChartPoi
             </linearGradient>
           </defs>
           <CartesianGrid stroke="rgb(255 255 255 / 0.05)" vertical={false} />
-          <XAxis dataKey="date" tickFormatter={shortDate} tick={{ fill: "#6c7383", fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={24} />
-          <YAxis tickFormatter={(v: number) => formatValue(metric, v)} tick={{ fill: "#6c7383", fontSize: 11 }} axisLine={false} tickLine={false} width={metric === "spendUsd" ? 72 : 56} />
+          <XAxis dataKey="date" tickFormatter={shortDate} tick={{ fill: "#808899", fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={24} />
+          <YAxis tickFormatter={(v: number) => formatValue(metric, v)} tick={{ fill: "#808899", fontSize: 11 }} axisLine={false} tickLine={false} width={metric === "spendUsd" ? 72 : 56} />
           <Tooltip content={<ChartTooltip metric={metric} />} cursor={{ stroke: "rgb(255 255 255 / 0.15)" }} />
           <Area type="monotone" dataKey={metric} stroke={color} strokeWidth={1.75} fill={`url(#${id})`} isAnimationActive={false} connectNulls />
         </AreaChart>
@@ -72,8 +72,8 @@ export function StackedErrorsChart({ data, height = 200 }: { data: ChartPoint[];
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={rows} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
           <CartesianGrid stroke="rgb(255 255 255 / 0.05)" vertical={false} />
-          <XAxis dataKey="date" tickFormatter={shortDate} tick={{ fill: "#6c7383", fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={24} />
-          <YAxis tickFormatter={(v: number) => formatCompact(v)} tick={{ fill: "#6c7383", fontSize: 11 }} axisLine={false} tickLine={false} width={48} />
+          <XAxis dataKey="date" tickFormatter={shortDate} tick={{ fill: "#808899", fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={24} />
+          <YAxis tickFormatter={(v: number) => formatCompact(v)} tick={{ fill: "#808899", fontSize: 11 }} axisLine={false} tickLine={false} width={48} />
           <Tooltip
             cursor={{ fill: "rgb(255 255 255 / 0.03)" }}
             content={({ active, payload, label }) =>

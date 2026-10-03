@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
 import { prisma } from "@inrent/db";
 import { PageHeader } from "@/components/dashboard/ui";
 import { ModelExplorer } from "@/components/marketing/model-explorer";
@@ -30,9 +29,8 @@ export default async function DashboardModelsPage() {
           </div>
         }
       />
-      <Suspense>
-        <ModelExplorer models={models} />
-      </Suspense>
+      <h2 className="sr-only">Models</h2>
+      <ModelExplorer models={models} />
     </>
   );
 }

@@ -3,7 +3,7 @@
 import { KeyRound, MoreHorizontal, Pencil, Plus, RefreshCw, ShieldOff, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
-import { API_KEY_PERMISSIONS, type ApiKeyPermission } from "@inrent/core";
+import { API_KEY_PERMISSIONS, type ApiKeyPermission } from "@inrent/core/rbac";
 import { ConfirmDialog, PlainCode, SecretDialog, useAction } from "@/components/dashboard/client-kit";
 import { EmptyState } from "@/components/dashboard/ui";
 import { Badge } from "@/components/ui/badge";
