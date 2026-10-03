@@ -1,0 +1,39 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# builds
+.next/
+dist/
+out/
+build/
+*.tsbuildinfo
+.turbo/
+
+# env & secrets — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+secrets/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# tooling
+coverage/
+playwright-report/
+test-results/
+.DS_Store
+*.log
+.vercel
+.idea/
+.vscode/*
+!.vscode/extensions.json

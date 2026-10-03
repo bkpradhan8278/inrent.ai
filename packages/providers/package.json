@@ -1,0 +1,23 @@
+{
+  "name": "@inrent/providers",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Provider adapters (OpenAI-compatible, Anthropic, LiteLLM, dev mock) and GPU provider interfaces.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src test"
+  },
+  "dependencies": {
+    "@inrent/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@inrent/config": "workspace:*",
+    "@types/node": "^22.18.0",
+    "vitest": "^4.1.11"
+  }
+}

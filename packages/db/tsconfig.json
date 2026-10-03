@@ -1,0 +1,4 @@
+{
+  "extends": "@inrent/config/tsconfig.node.json",
+  "include": ["src", "prisma", "scripts"]
+}

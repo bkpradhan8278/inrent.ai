@@ -1,0 +1,35 @@
+{
+  "name": "@inrent/gateway",
+  "version": "0.1.0",
+  "private": true,
+  "description": "INRENT API gateway — OpenAI-compatible /v1 endpoints.",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=../../.env src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsup",
+    "test": "vitest run test/unit",
+    "test:integration": "vitest run test/integration",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src test"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.5",
+    "@inrent/core": "workspace:*",
+    "@inrent/db": "workspace:*",
+    "@inrent/observability": "workspace:*",
+    "@inrent/providers": "workspace:*",
+    "@inrent/services": "workspace:*",
+    "hono": "^4.10.0",
+    "ioredis": "^5.8.1",
+    "prom-client": "^15.1.3",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@inrent/config": "workspace:*",
+    "@types/node": "^22.18.0",
+    "tsup": "^8.5.0",
+    "tsx": "^4.23.15",
+    "vitest": "^4.1.11"
+  }
+}

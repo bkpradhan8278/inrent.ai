@@ -1,0 +1,1151 @@
+// INRENT data model.
+//
+// Conventions
+// - Domain tables use UUID primary keys and created/updated timestamps.
+// - Money is stored as BigInt "nano-USD" (1 USD = 1_000_000_000 nano) so ledger math is exact.
+// - Catalog prices are Decimal USD per 1M tokens (human-editable); the pricing engine converts them.
+// - Auth tables (user/session/account/verification) follow the Better Auth schema.
+// - Soft delete via `deletedAt` where records are referenced by history (keys, projects, orgs).
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = []
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Auth (Better Auth)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum PlatformRole {
+  USER
+  READ_ONLY
+  DEVELOPER
+  SUPPORT
+  FINANCE
+  ADMIN
+  SUPER_ADMIN
+}
+
+model User {
+  id            String       @id
+  name          String
+  email         String       @unique
+  emailVerified Boolean      @default(false)
+  image         String?
+  platformRole  PlatformRole @default(USER)
+  deletedAt     DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  sessions      Session[]
+  accounts      Account[]
+  memberships   Membership[]
+  apiKeys       ApiKey[]      @relation("ApiKeyCreatedBy")
+  notifications Notification[]
+  savedPrompts  SavedPrompt[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Organizations, members, projects
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum OrgType {
+  PERSONAL
+  TEAM
+  ENTERPRISE
+}
+
+enum MemberRole {
+  OWNER
+  ADMIN
+  DEVELOPER
+  BILLING
+  VIEWER
+}
+
+enum RoutingPolicy {
+  BALANCED
+  LOWEST_COST
+  LOWEST_LATENCY
+  BEST_QUALITY
+  CUSTOM
+}
+
+model Plan {
+  id                String   @id @default(uuid()) @db.Uuid
+  slug              String   @unique
+  name              String
+  description       String
+  // Null price = not yet announced / contact sales. Never invent a price.
+  priceMonthlyCents Int?
+  isPayAsYouGo      Boolean  @default(false)
+  rpmLimit          Int
+  tpmLimit          Int
+  maxProjects       Int
+  maxMembers        Int
+  logRetentionDays  Int      @default(30)
+  features          String[]
+  highlighted       Boolean  @default(false)
+  available         Boolean  @default(true)
+  contactSales      Boolean  @default(false)
+  sortOrder         Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  organizations Organization[]
+}
+
+model Organization {
+  id                        String        @id @default(uuid()) @db.Uuid
+  name                      String
+  slug                      String        @unique
+  type                      OrgType       @default(PERSONAL)
+  planId                    String?       @db.Uuid
+  plan                      Plan?         @relation(fields: [planId], references: [id])
+  isDemo                    Boolean       @default(false)
+  // Privacy — defaults minimise retention of sensitive data.
+  promptLogging             Boolean       @default(false)
+  responseLogging           Boolean       @default(false)
+  logRetentionDays          Int           @default(30)
+  zeroRetention             Boolean       @default(false)
+  // Routing defaults
+  routingPolicy             RoutingPolicy @default(BALANCED)
+  preferByok                Boolean       @default(true)
+  // Spend controls (nano-USD)
+  monthlySpendCapNano       BigInt?
+  lowBalanceThresholdNano   BigInt?
+  autoRechargeEnabled       Boolean       @default(false)
+  autoRechargeThresholdNano BigInt?
+  autoRechargeAmountNano    BigInt?
+  billingEmail              String?
+  billingCustomerRef        String?
+  billingProvider           String?
+  // Suspension for abuse / chargebacks
+  suspendedAt               DateTime?
+  suspensionReason          String?
+  createdAt                 DateTime      @default(now())
+  updatedAt                 DateTime      @updatedAt
+  deletedAt                 DateTime?
+
+  memberships     Membership[]
+  invitations     Invitation[]
+  projects        Project[]
+  apiKeys         ApiKey[]
+  creditBalance   CreditBalance?
+  transactions    CreditTransaction[]
+  payments        Payment[]
+  invoices        Invoice[]
+  webhooks        Webhook[]
+  byokCredentials ByokCredential[]
+  mcpServers      McpServer[]
+  agents          Agent[]
+  requests        Request[]
+  auditLogs       AuditLog[]
+  notifications   Notification[]
+  savedPrompts    SavedPrompt[]
+  gpuInstances    GpuInstance[]
+  supportTickets  SupportTicket[]
+
+  @@index([planId])
+}
+
+model Membership {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           MemberRole   @default(DEVELOPER)
+  budgetNano     BigInt?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, userId])
+  @@index([userId])
+}
+
+model Invitation {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String
+  role           MemberRole   @default(DEVELOPER)
+  tokenHash      String       @unique
+  invitedById    String
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  revokedAt      DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
+  @@index([email])
+}
+
+model Project {
+  id                String       @id @default(uuid()) @db.Uuid
+  organizationId    String       @db.Uuid
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name              String
+  slug              String
+  description       String?
+  isDefault         Boolean      @default(false)
+  monthlyBudgetNano BigInt?
+  // Empty = every model the organization can access.
+  allowedModels     String[]
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  deletedAt         DateTime?
+
+  apiKeys  ApiKey[]
+  requests Request[]
+  webhooks Webhook[]
+  agents   Agent[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// API keys — only an HMAC-SHA256 digest of the secret is stored.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum KeyEnvironment {
+  DEVELOPMENT
+  STAGING
+  PRODUCTION
+}
+
+enum ApiKeyScope {
+  PROJECT
+  PERSONAL
+  TEAM
+}
+
+model ApiKey {
+  id             String         @id @default(uuid()) @db.Uuid
+  organizationId String         @db.Uuid
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  projectId      String         @db.Uuid
+  project        Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdById    String?
+  createdBy      User?          @relation("ApiKeyCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  name           String
+  // Display prefix, e.g. "sk-inrent-prod-a1B2" — never enough to reconstruct the key.
+  displayPrefix  String
+  lastFour       String
+  keyHash        String         @unique
+  environment    KeyEnvironment @default(DEVELOPMENT)
+  scope          ApiKeyScope    @default(PROJECT)
+  // e.g. ["inference"], ["inference","keys:read","keys:write","usage:read","logs:read"]
+  permissions    String[]       @default(["inference"])
+  allowedModels  String[]
+  spendLimitNano BigInt?
+  rpmLimit       Int?
+  tpmLimit       Int?
+  expiresAt      DateTime?
+  revokedAt      DateTime?
+  revokedReason  String?
+  lastUsedAt     DateTime?
+  rotatedFromId  String?        @db.Uuid
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
+
+  requests Request[]
+
+  @@index([organizationId])
+  @@index([projectId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Providers & catalog
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum IntegrationMode {
+  DIRECT_RESALE
+  AUTHORIZED_RESELLER
+  BYOK
+  CUSTOM_ENTERPRISE
+  SELF_HOSTED
+  OPEN_WEIGHT
+}
+
+enum ProviderAdapterType {
+  OPENAI_COMPATIBLE
+  ANTHROPIC
+  LITELLM
+  MOCK
+}
+
+enum HealthStatus {
+  UNKNOWN
+  HEALTHY
+  DEGRADED
+  DOWN
+}
+
+model Provider {
+  id                  String              @id @default(uuid()) @db.Uuid
+  slug                String              @unique
+  name                String
+  description         String?
+  websiteUrl          String?
+  adapter             ProviderAdapterType @default(OPENAI_COMPATIBLE)
+  baseUrl             String
+  // Reference to where the platform credential lives (env var name or secret-manager path).
+  // The secret itself is never stored here and never sent to the browser.
+  credentialRef       String?
+  integrationMode     IntegrationMode     @default(BYOK)
+  // Set only after the provider's commercial terms (or a signed agreement) have been reviewed.
+  resaleVerified      Boolean             @default(false)
+  termsUrl            String?
+  termsReviewedAt     DateTime?
+  termsNotes          String?
+  byokSupported       Boolean             @default(true)
+  enabled             Boolean             @default(false)
+  priority            Int                 @default(100)
+  costMultiplier      Decimal             @default(1) @db.Decimal(8, 4)
+  rpmLimit            Int?
+  supportedEndpoints  String[]            @default(["chat"])
+  healthStatus        HealthStatus        @default(UNKNOWN)
+  lastHealthCheckAt   DateTime?
+  latencyP50Ms        Int?
+  errorRate           Float?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  credentials     ProviderCredential[]
+  endpoints       ModelProvider[]
+  byokCredentials ByokCredential[]
+  healthChecks    ProviderHealthCheck[]
+}
+
+model ProviderCredential {
+  id            String    @id @default(uuid()) @db.Uuid
+  providerId    String    @db.Uuid
+  provider      Provider  @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  label         String
+  // e.g. "env:OPENAI_API_KEY" or "vault:secret/data/providers/openai#key"
+  secretRef     String
+  active        Boolean   @default(true)
+  rotatedAt     DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([providerId])
+}
+
+model ProviderHealthCheck {
+  id         String       @id @default(uuid()) @db.Uuid
+  providerId String       @db.Uuid
+  provider   Provider     @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  status     HealthStatus
+  latencyMs  Int?
+  error      String?
+  checkedAt  DateTime     @default(now())
+
+  @@index([providerId, checkedAt])
+}
+
+enum ModelStatus {
+  ACTIVE
+  BETA
+  PREVIEW
+  DEPRECATED
+  DISABLED
+}
+
+enum VerificationStatus {
+  VERIFIED
+  NEEDS_REVIEW
+  RESTRICTED
+  DISABLED
+}
+
+model Model {
+  id                 String             @id @default(uuid()) @db.Uuid
+  // Public identifier, e.g. "openai/gpt-4.1" or "qwen/qwen3-32b"
+  slug               String             @unique
+  displayName        String
+  vendor             String
+  family             String?
+  description        String
+  modalitiesIn       String[]           @default(["text"])
+  modalitiesOut      String[]           @default(["text"])
+  // chat, reasoning, coding, embedding, tools, structured_output, json_mode, streaming, vision, image_generation, audio
+  capabilities       String[]
+  contextLength      Int?
+  maxOutputTokens    Int?
+  license            String?
+  licenseUrl         String?
+  weightsLicense     String?
+  // null = unknown. Unknown is treated as "not allowed" for platform-funded serving.
+  commercialUse      Boolean?
+  resaleAllowed      Boolean?
+  openWeights        Boolean            @default(false)
+  status             ModelStatus        @default(PREVIEW)
+  verificationStatus VerificationStatus @default(NEEDS_REVIEW)
+  verificationNotes  String?
+  lastVerifiedAt     DateTime?
+  documentationUrl   String?
+  featured           Boolean            @default(false)
+  isPublic           Boolean            @default(true)
+  // Development-only mock models are hidden and refused in production.
+  isDevOnly          Boolean            @default(false)
+  qualityTier        Int                @default(2)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  endpoints ModelProvider[]
+
+  @@index([vendor])
+  @@index([status, verificationStatus])
+}
+
+model ModelProvider {
+  id                       String       @id @default(uuid()) @db.Uuid
+  modelId                  String       @db.Uuid
+  model                    Model        @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  providerId               String       @db.Uuid
+  provider                 Provider     @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  providerModelId          String
+  enabled                  Boolean      @default(false)
+  priority                 Int          @default(100)
+  contextLength            Int?
+  maxOutputTokens          Int?
+  supportsTools            Boolean      @default(false)
+  supportsStreaming        Boolean      @default(true)
+  supportsJsonMode         Boolean      @default(false)
+  supportsStructuredOutput Boolean      @default(false)
+  supportsVision           Boolean      @default(false)
+  region                   String?
+  quantization             String?
+  rpmLimit                 Int?
+  healthStatus             HealthStatus @default(UNKNOWN)
+  latencyP50Ms             Int?
+  ttftP50Ms                Int?
+  createdAt                DateTime     @default(now())
+  updatedAt                DateTime     @updatedAt
+
+  prices ModelPrice[]
+
+  @@unique([modelId, providerId, providerModelId])
+  @@index([providerId])
+}
+
+model ModelPrice {
+  id                 String        @id @default(uuid()) @db.Uuid
+  modelProviderId    String        @db.Uuid
+  modelProvider      ModelProvider @relation(fields: [modelProviderId], references: [id], onDelete: Cascade)
+  currency           String        @default("USD")
+  // Provider cost, USD per 1M tokens (null = not applicable / not configured)
+  inputPerMTok       Decimal?      @db.Decimal(18, 6)
+  outputPerMTok      Decimal?      @db.Decimal(18, 6)
+  cachedInputPerMTok Decimal?      @db.Decimal(18, 6)
+  reasoningPerMTok   Decimal?      @db.Decimal(18, 6)
+  // Non-token units
+  perImage           Decimal?      @db.Decimal(18, 6)
+  perAudioMinute     Decimal?      @db.Decimal(18, 6)
+  perMChars          Decimal?      @db.Decimal(18, 6)
+  perVideoSecond     Decimal?      @db.Decimal(18, 6)
+  perRequest         Decimal?      @db.Decimal(18, 6)
+  // Platform markup in percent (e.g. 5.5 = 5.5%). Applied on top of provider cost.
+  platformMarkupPct  Decimal       @default(0) @db.Decimal(6, 3)
+  pricingSource      String?
+  lastVerifiedAt     DateTime?
+  effectiveFrom      DateTime      @default(now())
+  effectiveTo        DateTime?
+  active             Boolean       @default(true)
+  createdById        String?
+  createdAt          DateTime      @default(now())
+
+  @@index([modelProviderId, active])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Requests, usage, spend counters
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum RequestStatus {
+  SUCCESS
+  ERROR
+  CANCELLED
+}
+
+enum BillingMode {
+  PLATFORM
+  BYOK
+}
+
+model Request {
+  id                String        @id @default(uuid()) @db.Uuid
+  // Public request identifier returned to the caller (x-request-id), e.g. "req_01J…"
+  requestId         String        @unique
+  traceId           String?
+  organizationId    String        @db.Uuid
+  organization      Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  projectId         String        @db.Uuid
+  project           Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  apiKeyId          String?       @db.Uuid
+  apiKey            ApiKey?       @relation(fields: [apiKeyId], references: [id], onDelete: SetNull)
+  userId            String?
+  source            String        @default("api")
+  endpoint          String
+  modelRequested    String
+  modelSlug         String?
+  providerSlug      String?
+  modelProviderId   String?       @db.Uuid
+  providerModelId   String?
+  billingMode       BillingMode   @default(PLATFORM)
+  status            RequestStatus
+  httpStatus        Int
+  errorType         String?
+  errorCode         String?
+  errorMessage      String?
+  stream            Boolean       @default(false)
+  finishReason      String?
+  inputTokens       Int           @default(0)
+  outputTokens      Int           @default(0)
+  cachedTokens      Int           @default(0)
+  reasoningTokens   Int           @default(0)
+  totalTokens       Int           @default(0)
+  units             Int           @default(0)
+  usageEstimated    Boolean       @default(false)
+  providerCostNano  BigInt        @default(0)
+  userChargeNano    BigInt        @default(0)
+  marginNano        BigInt        @default(0)
+  latencyMs         Int?
+  ttftMs            Int?
+  providerLatencyMs Int?
+  fallbackCount     Int           @default(0)
+  // Routing decision trail: candidates, attempts, reasons. Never contains secrets.
+  routing           Json?
+  // Only populated when the organization opted in and zero-retention is off.
+  promptPayload     Json?
+  responsePayload   Json?
+  ipHash            String?
+  userAgent         String?
+  isDemo            Boolean       @default(false)
+  createdAt         DateTime      @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([projectId, createdAt])
+  @@index([apiKeyId, createdAt])
+  @@index([modelSlug, createdAt])
+  @@index([providerSlug, createdAt])
+  @@index([createdAt])
+}
+
+model UsageDaily {
+  id               String      @id @default(uuid()) @db.Uuid
+  date             DateTime    @db.Date
+  organizationId   String      @db.Uuid
+  projectId        String      @db.Uuid
+  // "" when the request did not use an API key (e.g. dashboard playground)
+  apiKeyId         String      @default("")
+  modelSlug        String
+  providerSlug     String
+  billingMode      BillingMode
+  requests         Int         @default(0)
+  errors           Int         @default(0)
+  inputTokens      BigInt      @default(0)
+  outputTokens     BigInt      @default(0)
+  cachedTokens     BigInt      @default(0)
+  providerCostNano BigInt      @default(0)
+  userChargeNano   BigInt      @default(0)
+  latencyMsSum     BigInt      @default(0)
+  isDemo           Boolean     @default(false)
+  updatedAt        DateTime    @updatedAt
+
+  @@unique([date, organizationId, projectId, apiKeyId, modelSlug, providerSlug, billingMode])
+  @@index([organizationId, date])
+}
+
+// Atomic spend counters used for budgets: scope = org | project | key | member, period = "YYYY-MM" | "total"
+model SpendCounter {
+  scope     String
+  scopeId   String
+  period    String
+  spentNano BigInt   @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@id([scope, scopeId, period])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Billing
+// ─────────────────────────────────────────────────────────────────────────────
+
+model CreditBalance {
+  organizationId String       @id @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  balanceNano    BigInt       @default(0)
+  updatedAt      DateTime     @updatedAt
+}
+
+enum CreditTransactionType {
+  PURCHASE
+  USAGE
+  REFUND
+  ADJUSTMENT
+  PROMO
+  AUTO_RECHARGE
+}
+
+model CreditTransaction {
+  id               String                @id @default(uuid()) @db.Uuid
+  organizationId   String                @db.Uuid
+  organization     Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  type             CreditTransactionType
+  // Signed: positive grants credit, negative consumes it.
+  amountNano       BigInt
+  balanceAfterNano BigInt
+  description      String
+  // Unique key that makes every ledger write idempotent (request id, payment id, …).
+  idempotencyKey   String                @unique
+  requestId        String?
+  paymentId        String?               @db.Uuid
+  createdById      String?
+  metadata         Json?
+  createdAt        DateTime              @default(now())
+
+  @@index([organizationId, createdAt])
+}
+
+enum PaymentProviderType {
+  STRIPE
+  RAZORPAY
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  CANCELED
+}
+
+model Payment {
+  id                String              @id @default(uuid()) @db.Uuid
+  organizationId    String              @db.Uuid
+  organization      Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  provider          PaymentProviderType
+  providerPaymentId String
+  amountCents       Int
+  currency          String              @default("usd")
+  creditsNano       BigInt
+  status            PaymentStatus       @default(PENDING)
+  failureReason     String?
+  isAutoRecharge    Boolean             @default(false)
+  createdById       String?
+  metadata          Json?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@unique([provider, providerPaymentId])
+  @@index([organizationId, createdAt])
+}
+
+// Verified payment-provider webhook events, recorded once to make processing idempotent.
+model PaymentEvent {
+  id          String              @id @default(uuid()) @db.Uuid
+  provider    PaymentProviderType
+  eventId     String
+  type        String
+  processedAt DateTime            @default(now())
+
+  @@unique([provider, eventId])
+}
+
+enum InvoiceStatus {
+  DRAFT
+  OPEN
+  PAID
+  VOID
+}
+
+model Invoice {
+  id             String        @id @default(uuid()) @db.Uuid
+  organizationId String        @db.Uuid
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  number         String        @unique
+  periodStart    DateTime
+  periodEnd      DateTime
+  amountCents    Int
+  currency       String        @default("usd")
+  status         InvoiceStatus @default(DRAFT)
+  paymentId      String?       @db.Uuid
+  externalUrl    String?
+  createdAt      DateTime      @default(now())
+
+  @@index([organizationId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Webhooks
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum DeliveryStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+}
+
+model Webhook {
+  id              String       @id @default(uuid()) @db.Uuid
+  organizationId  String       @db.Uuid
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  projectId       String?      @db.Uuid
+  project         Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  url             String
+  description     String?
+  events          String[]
+  // AES-256-GCM encrypted signing secret
+  secretEncrypted String
+  secretHint      String
+  enabled         Boolean      @default(true)
+  failureCount    Int          @default(0)
+  disabledReason  String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  deletedAt       DateTime?
+
+  deliveries WebhookDelivery[]
+
+  @@index([organizationId])
+}
+
+model WebhookDelivery {
+  id             String         @id @default(uuid()) @db.Uuid
+  webhookId      String         @db.Uuid
+  webhook        Webhook        @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+  eventId        String
+  eventType      String
+  payload        Json
+  status         DeliveryStatus @default(PENDING)
+  attempts       Int            @default(0)
+  responseStatus Int?
+  responseBody   String?
+  durationMs     Int?
+  lastError      String?
+  nextAttemptAt  DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@unique([webhookId, eventId])
+  @@index([webhookId, createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BYOK
+// ─────────────────────────────────────────────────────────────────────────────
+
+model ByokCredential {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  providerId     String       @db.Uuid
+  provider       Provider     @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  label          String
+  // AES-256-GCM envelope; plaintext is never returned after storage.
+  encryptedKey   String
+  keyHint        String
+  enabled        Boolean      @default(true)
+  lastTestedAt   DateTime?
+  lastTestOk     Boolean?
+  lastTestError  String?
+  createdById    String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?
+
+  @@index([organizationId, providerId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MCP & agents
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum McpServerKind {
+  GITHUB
+  SLACK
+  NOTION
+  GOOGLE_DRIVE
+  POSTGRES
+  FILESYSTEM
+  CUSTOM
+}
+
+enum McpTransport {
+  STREAMABLE_HTTP
+  SSE
+  STDIO
+}
+
+enum PermissionLevel {
+  READ
+  WRITE
+  ADMIN
+}
+
+model McpServer {
+  id                      String          @id @default(uuid()) @db.Uuid
+  organizationId          String          @db.Uuid
+  organization            Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name                    String
+  kind                    McpServerKind
+  transport               McpTransport    @default(STREAMABLE_HTTP)
+  url                     String?
+  authEncrypted           String?
+  // Maximum permission any tool on this server may be granted.
+  maxPermission           PermissionLevel @default(READ)
+  requireApprovalForWrite Boolean         @default(true)
+  enabled                 Boolean         @default(false)
+  createdById             String?
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
+  deletedAt               DateTime?
+
+  tools McpTool[]
+
+  @@index([organizationId])
+}
+
+model McpTool {
+  id           String          @id @default(uuid()) @db.Uuid
+  serverId     String          @db.Uuid
+  server       McpServer       @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  name         String
+  description  String?
+  permission   PermissionLevel @default(READ)
+  destructive  Boolean         @default(false)
+  // Tools are never enabled automatically.
+  enabled      Boolean         @default(false)
+  approvedById String?
+  approvedAt   DateTime?
+  inputSchema  Json?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@unique([serverId, name])
+}
+
+enum AgentStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+model Agent {
+  id             String         @id @default(uuid()) @db.Uuid
+  organizationId String         @db.Uuid
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  projectId      String?        @db.Uuid
+  project        Project?       @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  name           String
+  description    String?
+  status         AgentStatus    @default(DRAFT)
+  createdById    String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
+
+  versions AgentVersion[]
+
+  @@index([organizationId])
+}
+
+model AgentVersion {
+  id            String   @id @default(uuid()) @db.Uuid
+  agentId       String   @db.Uuid
+  agent         Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  version       Int
+  modelSlug     String
+  systemPrompt  String
+  temperature   Float    @default(0.7)
+  maxSteps      Int      @default(8)
+  budgetNano    BigInt?
+  tools         Json?
+  mcpServerIds  String[]
+  memoryEnabled Boolean  @default(false)
+  knowledge     Json?
+  createdById   String?
+  createdAt     DateTime @default(now())
+
+  @@unique([agentId, version])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Platform operations
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum ActorType {
+  USER
+  API_KEY
+  ADMIN
+  SYSTEM
+}
+
+model AuditLog {
+  id             String        @id @default(uuid()) @db.Uuid
+  organizationId String?       @db.Uuid
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  actorType      ActorType
+  actorId        String?
+  action         String
+  targetType     String?
+  targetId       String?
+  metadata       Json?
+  ipHash         String?
+  userAgent      String?
+  createdAt      DateTime      @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([action, createdAt])
+  @@index([actorId, createdAt])
+}
+
+model FeatureFlag {
+  id             String   @id @default(uuid()) @db.Uuid
+  key            String   @unique
+  description    String
+  enabled        Boolean  @default(false)
+  // Organizations that get the flag even when it is globally disabled.
+  orgAllowlist   String[]
+  updatedById    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Notification {
+  id             String        @id @default(uuid()) @db.Uuid
+  organizationId String?       @db.Uuid
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String?
+  user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type           String
+  title          String
+  body           String
+  link           String?
+  dedupeKey      String?       @unique
+  readAt         DateTime?
+  createdAt      DateTime      @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([userId, createdAt])
+}
+
+model SavedPrompt {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  payload        Json
+  shareToken     String?      @unique
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId, userId])
+}
+
+enum TicketStatus {
+  OPEN
+  PENDING
+  RESOLVED
+  CLOSED
+}
+
+model SupportTicket {
+  id             String        @id @default(uuid()) @db.Uuid
+  organizationId String?       @db.Uuid
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  userId         String?
+  email          String
+  subject        String
+  body           String
+  category       String        @default("general")
+  priority       String        @default("normal")
+  status         TicketStatus  @default(OPEN)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([status, createdAt])
+}
+
+enum IncidentStatus {
+  INVESTIGATING
+  IDENTIFIED
+  MONITORING
+  RESOLVED
+}
+
+enum IncidentImpact {
+  NONE
+  MINOR
+  MAJOR
+  CRITICAL
+}
+
+model Incident {
+  id         String         @id @default(uuid()) @db.Uuid
+  title      String
+  body       String
+  status     IncidentStatus @default(INVESTIGATING)
+  impact     IncidentImpact @default(MINOR)
+  components String[]
+  startedAt  DateTime       @default(now())
+  resolvedAt DateTime?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@index([startedAt])
+}
+
+enum WaitlistProduct {
+  GPU_CLOUD
+  MODEL_HOSTING
+  MARKETPLACE
+  ENTERPRISE
+}
+
+model WaitlistEntry {
+  id            String          @id @default(uuid()) @db.Uuid
+  email         String
+  userId        String?
+  product       WaitlistProduct @default(GPU_CLOUD)
+  useCase       String?
+  gpuType       String?
+  expectedHours Int?
+  company       String?
+  createdAt     DateTime        @default(now())
+
+  @@unique([email, product])
+  @@index([product, createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GPU Cloud (future — interfaces only; not live)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum GpuAdapterType {
+  MOCK
+  VAST
+  RUNPOD
+  LAMBDA
+  COREWEAVE
+  INRENT
+}
+
+enum GpuInstanceStatus {
+  PROVISIONING
+  RUNNING
+  STOPPED
+  FAILED
+  TERMINATED
+}
+
+model GpuProvider {
+  id            String         @id @default(uuid()) @db.Uuid
+  slug          String         @unique
+  name          String
+  adapter       GpuAdapterType
+  credentialRef String?
+  enabled       Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  offers    GpuOffer[]
+  instances GpuInstance[]
+}
+
+model GpuOffer {
+  id                String      @id @default(uuid()) @db.Uuid
+  gpuProviderId     String      @db.Uuid
+  gpuProvider       GpuProvider @relation(fields: [gpuProviderId], references: [id], onDelete: Cascade)
+  externalId        String
+  gpuModel          String
+  gpuCount          Int
+  vramGb            Int
+  cpuCores          Int?
+  ramGb             Int?
+  diskGb            Int?
+  region            String?
+  pricePerHourNano  BigInt?
+  interruptible     Boolean     @default(false)
+  available         Boolean     @default(false)
+  fetchedAt         DateTime    @default(now())
+
+  @@unique([gpuProviderId, externalId])
+}
+
+model GpuInstance {
+  id             String            @id @default(uuid()) @db.Uuid
+  organizationId String            @db.Uuid
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  gpuProviderId  String            @db.Uuid
+  gpuProvider    GpuProvider       @relation(fields: [gpuProviderId], references: [id], onDelete: Cascade)
+  externalId     String?
+  status         GpuInstanceStatus @default(PROVISIONING)
+  gpuModel       String
+  gpuCount       Int               @default(1)
+  image          String
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([organizationId])
+}
