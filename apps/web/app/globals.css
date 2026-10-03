@@ -1,0 +1,353 @@
+@import "tailwindcss";
+
+/*
+ * INRENT design tokens. Dark-first, restrained palette: near-black surfaces, hairline
+ * borders, one signal accent (mint) used sparingly, iris for depth, amber for compute.
+ */
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-inter-tight), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --color-bg: #06070a;
+  --color-bg-elevated: #0a0c11;
+  --color-surface: #0e1117;
+  --color-surface-2: #131720;
+  --color-surface-3: #1a1f2b;
+  --color-border: rgb(255 255 255 / 0.075);
+  --color-border-strong: rgb(255 255 255 / 0.13);
+  --color-fg: #eceef3;
+  --color-fg-muted: #a3aab7;
+  --color-fg-subtle: #6c7383;
+  --color-accent: #5cebc0;
+  --color-accent-strong: #33d9a8;
+  --color-accent-fg: #03140e;
+  --color-accent-soft: rgb(92 235 192 / 0.1);
+  --color-iris: #8e96ff;
+  --color-iris-soft: rgb(142 150 255 / 0.12);
+  --color-amber: #f5b455;
+  --color-amber-soft: rgb(245 180 85 / 0.12);
+  --color-danger: #ff6b6b;
+  --color-danger-soft: rgb(255 107 107 / 0.12);
+  --color-warning: #f5b455;
+  --color-success: #4ade9c;
+  --color-success-soft: rgb(74 222 156 / 0.12);
+  --color-info: #6fa8ff;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-2xl: 18px;
+
+  --shadow-glow: 0 0 0 1px rgb(92 235 192 / 0.22), 0 10px 40px -14px rgb(92 235 192 / 0.45);
+  --shadow-panel: 0 1px 0 0 rgb(255 255 255 / 0.04) inset, 0 24px 60px -30px rgb(0 0 0 / 0.8);
+
+  --tracking-display: -0.035em;
+
+  --animate-flow: flow 2.4s linear infinite;
+  --animate-pulse-soft: pulse-soft 3s ease-in-out infinite;
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.2s linear infinite;
+  --animate-blink: blink 1.05s step-end infinite;
+  --animate-fade-in: fade-in 0.4s ease-out both;
+
+  @keyframes flow {
+    to {
+      stroke-dashoffset: -48;
+    }
+  }
+  @keyframes pulse-soft {
+    0%,
+    100% {
+      opacity: 0.55;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+  @keyframes shimmer {
+    from {
+      background-position: -200% 0;
+    }
+    to {
+      background-position: 200% 0;
+    }
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
+  }
+  body {
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01", "ss03";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  * {
+    border-color: var(--color-border);
+  }
+  /* Grid items may shrink below their content (code blocks scroll instead of overflowing). */
+  .grid > * {
+    min-width: 0;
+  }
+  ::selection {
+    background: rgb(92 235 192 / 0.25);
+    color: #fff;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  code,
+  kbd,
+  pre {
+    font-family: var(--font-mono);
+    font-feature-settings: "calt" 1, "liga" 0;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(255 255 255 / 0.08);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(255 255 255 / 0.16);
+    background-clip: padding-box;
+    border: 2px solid transparent;
+  }
+}
+
+@utility container-page {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  @media (width >= 40rem) {
+    padding-inline: 1.5rem;
+  }
+}
+
+@utility text-display {
+  font-family: var(--font-display);
+  letter-spacing: var(--tracking-display);
+  line-height: 1.02;
+  font-weight: 600;
+}
+
+/* Fine engineering grid that fades out toward the edges. */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 30%, transparent 75%);
+}
+
+@utility bg-dots {
+  background-image: radial-gradient(rgb(255 255 255 / 0.08) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+@utility text-gradient {
+  background: linear-gradient(100deg, #ffffff 10%, #b9f7e4 45%, var(--color-accent) 70%, var(--color-iris) 110%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility text-gradient-amber {
+  background: linear-gradient(100deg, #fff 10%, #ffe2b3 50%, var(--color-amber) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility glass {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0.015));
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid var(--color-border);
+}
+
+/* Panel with a subtle top highlight — the base for "infrastructure component" cards. */
+@utility panel {
+  background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-bg-elevated) 100%);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-panel);
+}
+
+@utility hairline-top {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgb(92 235 192 / 0.5), transparent);
+  }
+}
+
+@utility shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.06) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+/* Shiki output sits on our own surfaces. */
+.shiki,
+.shiki span {
+  background-color: transparent !important;
+}
+.shiki {
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* Docs prose */
+.prose-docs {
+  color: var(--color-fg-muted);
+  line-height: 1.75;
+  font-size: 15px;
+}
+.prose-docs h1 {
+  color: var(--color-fg);
+  font-size: 2.25rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.75rem;
+}
+.prose-docs h2 {
+  color: var(--color-fg);
+  letter-spacing: -0.012em;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 2.5rem 0 0.75rem;
+  padding-top: 0.5rem;
+}
+.prose-docs h3 {
+  color: var(--color-fg);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 1.75rem 0 0.5rem;
+}
+.prose-docs p {
+  margin: 0.85rem 0;
+}
+.prose-docs a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-color: rgb(92 235 192 / 0.35);
+  text-underline-offset: 3px;
+}
+.prose-docs a:hover {
+  text-decoration-color: var(--color-accent);
+}
+.prose-docs strong {
+  color: var(--color-fg);
+  font-weight: 600;
+}
+.prose-docs ul,
+.prose-docs ol {
+  margin: 0.85rem 0;
+  padding-left: 1.25rem;
+}
+.prose-docs ul {
+  list-style: disc;
+}
+.prose-docs ol {
+  list-style: decimal;
+}
+.prose-docs li {
+  margin: 0.3rem 0;
+}
+.prose-docs li::marker {
+  color: var(--color-fg-subtle);
+}
+.prose-docs :not(pre) > code {
+  color: var(--color-fg);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.85em;
+}
+.prose-docs table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-size: 14px;
+}
+.prose-docs th {
+  text-align: left;
+  color: var(--color-fg);
+  font-weight: 500;
+  border-bottom: 1px solid var(--color-border-strong);
+  padding: 0.55rem 0.75rem;
+}
+.prose-docs td {
+  border-bottom: 1px solid var(--color-border);
+  padding: 0.55rem 0.75rem;
+  vertical-align: top;
+}
+.prose-docs hr {
+  margin: 2rem 0;
+  border-color: var(--color-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

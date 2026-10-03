@@ -1,6 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 
-export * from "@prisma/client";
+export { Prisma, PrismaClient };
+export type * from "@prisma/client";
 
 declare global {
   var __inrentPrisma: PrismaClient | undefined;
@@ -22,8 +23,4 @@ if (process.env.NODE_ENV !== "production") {
   globalThis.__inrentPrisma = prisma;
 }
 
-export type { PrismaClient };
-export type TransactionClient = Omit<
-  PrismaClient,
-  "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends"
->;
+export type TransactionClient = Omit<PrismaClient, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">;

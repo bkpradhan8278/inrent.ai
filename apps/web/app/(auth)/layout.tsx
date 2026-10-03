@@ -1,0 +1,31 @@
+import Link from "next/link";
+import { Logo } from "@/components/brand/logo";
+
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative flex min-h-dvh flex-col">
+      <div className="bg-grid pointer-events-none absolute inset-0" aria-hidden />
+      <div className="pointer-events-none absolute left-1/2 top-0 h-[480px] w-[760px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(92_235_192/0.1),transparent)]" aria-hidden />
+      <header className="container-page relative flex h-16 items-center justify-between">
+        <Logo />
+        <Link href="/docs" className="text-sm text-fg-muted hover:text-fg">
+          Docs
+        </Link>
+      </header>
+      <main id="main" className="relative flex flex-1 items-center justify-center px-4 py-10">
+        {children}
+      </main>
+      <footer className="relative py-6 text-center text-xs text-fg-subtle">
+        By continuing you agree to the{" "}
+        <Link href="/terms" className="underline hover:text-fg-muted">
+          Terms
+        </Link>{" "}
+        and{" "}
+        <Link href="/privacy" className="underline hover:text-fg-muted">
+          Privacy Policy
+        </Link>
+        .
+      </footer>
+    </div>
+  );
+}
