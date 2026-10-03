@@ -1,0 +1,17 @@
+# Local Prometheus for the INRENT stack (docker compose --profile observability up).
+# In production, set METRICS_TOKEN on the gateway and configure `authorization` below.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: inrent-gateway
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["gateway:8080"]
+    # authorization:
+    #   type: Bearer
+    #   credentials_file: /etc/prometheus/secrets/metrics-token
+
+rule_files:
+  - /etc/prometheus/alerts.yml

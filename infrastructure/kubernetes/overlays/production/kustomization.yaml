@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: inrent-production
+resources:
+  - ../../base
+# CI sets immutable tags (git SHA) with: kustomize edit set image ghcr.io/inrent/gateway=ghcr.io/inrent/gateway:<sha> …
+images:
+  - { name: ghcr.io/inrent/gateway, newTag: latest }
+  - { name: ghcr.io/inrent/worker, newTag: latest }
+  - { name: ghcr.io/inrent/web, newTag: latest }
+  - { name: ghcr.io/inrent/migrate, newTag: latest }
+patches:
+  - target: { kind: ConfigMap, name: inrent-config }
+    patch: |-
+      - { op: replace, path: /data/INRENT_ENV, value: production }
+      - { op: replace, path: /data/NEXT_PUBLIC_APP_URL, value: https://inrent.ai }
+      - { op: replace, path: /data/APP_URL, value: https://inrent.ai }
+      - { op: replace, path: /data/BETTER_AUTH_URL, value: https://inrent.ai }
+      - { op: replace, path: /data/NEXT_PUBLIC_API_BASE_URL, value: https://api.inrent.ai/v1 }
+      - { op: replace, path: /data/API_PUBLIC_URL, value: https://api.inrent.ai/v1 }
+  - target: { kind: HorizontalPodAutoscaler, name: inrent-gateway }
+    patch: |-
+      - { op: replace, path: /spec/minReplicas, value: 3 }
+  - target: { kind: Ingress, name: inrent }
+    patch: |-
+      - { op: replace, path: /spec/tls/0/hosts, value: [inrent.ai, api.inrent.ai] }
+      - { op: replace, path: /spec/rules/0/host, value: inrent.ai }
+      - { op: replace, path: /spec/rules/1/host, value: api.inrent.ai }

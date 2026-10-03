@@ -1,0 +1,31 @@
+# Example alerting rules. Thresholds are starting points — tune them to your traffic.
+groups:
+  - name: inrent-gateway
+    rules:
+      - alert: InrentHighErrorRate
+        expr: |
+          sum(rate(inrent_requests_total{status="error"}[5m])) / clamp_min(sum(rate(inrent_requests_total[5m])), 1e-9) > 0.05
+        for: 10m
+        labels: { severity: page }
+        annotations:
+          summary: "Gateway error rate above 5% for 10 minutes (includes client errors; check by provider)"
+      - alert: InrentHighLatencyP95
+        expr: |
+          histogram_quantile(0.95, sum by (le) (rate(inrent_request_duration_seconds_bucket{stream="false"}[5m]))) > 20
+        for: 15m
+        labels: { severity: ticket }
+        annotations:
+          summary: "p95 non-streaming latency above 20s"
+      - alert: InrentProviderErrors
+        expr: sum by (provider) (rate(inrent_provider_errors_total[5m])) > 1
+        for: 10m
+        labels: { severity: ticket }
+        annotations:
+          summary: "Provider {{ $labels.provider }} failing more than once per second"
+      - alert: InrentNegativeMargin
+        expr: |
+          sum(increase(inrent_revenue_nano_usd_total[1h])) < sum(increase(inrent_provider_cost_nano_usd_total[1h]))
+        for: 30m
+        labels: { severity: page }
+        annotations:
+          summary: "Provider cost exceeded customer charges over the last hour"

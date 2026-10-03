@@ -1,0 +1,149 @@
+# INRENT local stack.
+#
+#   docker compose up --build                       # postgres, redis, migrations + seed, gateway, worker, web
+#   docker compose --profile observability up       # + Prometheus (9090) and Grafana (3001)
+#   docker compose --profile litellm up             # + LiteLLM proxy (4000) as an optional upstream
+#
+# Development defaults below are marked "dev-only"; the services refuse to start with them when
+# INRENT_ENV=production. Override any value in a local `.env` (never commit it).
+
+x-app-env: &app-env
+  INRENT_ENV: ${INRENT_ENV:-development}
+  DATABASE_URL: postgresql://inrent:${POSTGRES_PASSWORD:-inrent}@postgres:5432/inrent
+  REDIS_URL: redis://redis:6379/0
+  NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+  NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080/v1}
+  APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+  API_PUBLIC_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080/v1}
+  GATEWAY_INTERNAL_URL: http://gateway:8080
+  BETTER_AUTH_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+  BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-only-better-auth-secret-change-me-000000000000}
+  API_KEY_PEPPER: ${API_KEY_PEPPER:-dev-only-api-key-pepper-change-me-00000000000000}
+  INTERNAL_SERVICE_SECRET: ${INTERNAL_SERVICE_SECRET:-dev-only-internal-secret-change-me-0000000000000}
+  INRENT_ENCRYPTION_KEYS: ${INRENT_ENCRYPTION_KEYS:-dev-only:ZGV2LW9ubHktZW5jcnlwdGlvbi1rZXktMzJieXRlcyE=}
+  IP_HASH_SALT: ${IP_HASH_SALT:-dev-only-ip-salt}
+  INRENT_ENABLE_MOCK_PROVIDER: ${INRENT_ENABLE_MOCK_PROVIDER:-true}
+  DEFAULT_PLATFORM_MARKUP_PCT: ${DEFAULT_PLATFORM_MARKUP_PCT:-5.5}
+  EMAIL_PROVIDER: ${EMAIL_PROVIDER:-console}
+  STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+  STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+  RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-}
+  RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-}
+  RAZORPAY_WEBHOOK_SECRET: ${RAZORPAY_WEBHOOK_SECRET:-}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: inrent
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-inrent}
+      POSTGRES_DB: inrent
+    ports: ["127.0.0.1:5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U inrent -d inrent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    ports: ["127.0.0.1:6379:6379"]
+    volumes: [redisdata:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # One-off: apply migrations, then seed (seed data is development-only and skipped in production).
+  migrate:
+    build: { context: ., target: migrate }
+    image: inrent/migrate:local
+    environment:
+      <<: *app-env
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
+    command:
+      ["sh", "-c", "pnpm --filter @inrent/db migrate:deploy && pnpm --filter @inrent/db seed"]
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: "no"
+
+  gateway:
+    build: { context: ., target: gateway }
+    image: inrent/gateway:local
+    init: true
+    environment:
+      <<: *app-env
+      GATEWAY_PORT: 8080
+    ports: ["127.0.0.1:8080:8080"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    restart: unless-stopped
+
+  worker:
+    build: { context: ., target: worker }
+    image: inrent/worker:local
+    init: true
+    environment: *app-env
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      target: web
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080/v1}
+    image: inrent/web:local
+    init: true
+    environment: *app-env
+    ports: ["127.0.0.1:3000:3000"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      gateway: { condition: service_started }
+    restart: unless-stopped
+
+  # ── Optional: LiteLLM as an upstream (register it in Admin → Providers as base URL http://litellm:4000/v1)
+  litellm:
+    profiles: ["litellm"]
+    image: ghcr.io/berriai/litellm:main-stable
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    environment:
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-dev-only-litellm-master-key}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    volumes: ["./infrastructure/litellm/config.yaml:/app/config.yaml:ro"]
+    ports: ["127.0.0.1:4000:4000"]
+
+  # ── Optional: metrics
+  prometheus:
+    profiles: ["observability"]
+    image: prom/prometheus:v3.5.0
+    volumes:
+      - ./infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infrastructure/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+    ports: ["127.0.0.1:9090:9090"]
+    depends_on: [gateway]
+
+  grafana:
+    profiles: ["observability"]
+    image: grafana/grafana:12.1.0
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-dev-only-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./infrastructure/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infrastructure/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports: ["127.0.0.1:3001:3000"]
+    depends_on: [prometheus]
+
+volumes:
+  pgdata:
+  redisdata:

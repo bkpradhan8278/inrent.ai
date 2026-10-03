@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: inrent
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    # Streaming responses: disable buffering and allow long-lived connections.
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [inrent.ai, api.inrent.ai]
+      secretName: inrent-tls
+  rules:
+    - host: inrent.ai
+      http:
+        paths:
+          - {
+              path: /,
+              pathType: Prefix,
+              backend: { service: { name: inrent-web, port: { name: http } } },
+            }
+    - host: api.inrent.ai
+      http:
+        paths:
+          - {
+              path: /,
+              pathType: Prefix,
+              backend: { service: { name: inrent-gateway, port: { name: http } } },
+            }

@@ -1,0 +1,18 @@
+# Never send secrets or local state to the build context
+.env
+.env.*
+!.env.example
+**/*.pem
+**/*.key
+.git
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+**/coverage
+**/.pytest_cache
+**/__pycache__
+**/.venv
+sdks/python
+*.log
+.DS_Store

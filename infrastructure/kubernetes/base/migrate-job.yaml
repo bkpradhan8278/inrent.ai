@@ -1,0 +1,28 @@
+# Run before each rollout (e.g. as an Argo CD PreSync hook or a CI step). Migrations are
+# forward-only and must be backwards compatible with the previous release.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels: { app.kubernetes.io/component: migration }
+  name: inrent-migrate
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      securityContext:
+        { runAsNonRoot: true, runAsUser: 1000, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: migrate
+          image: ghcr.io/inrent/migrate:latest
+          envFrom:
+            - configMapRef: { name: inrent-config }
+            - secretRef: { name: inrent-secrets }
+          securityContext: { allowPrivilegeEscalation: false, capabilities: { drop: ["ALL"] } }
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { memory: 512Mi }

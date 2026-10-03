@@ -1,0 +1,23 @@
+# Optional LiteLLM proxy as an INRENT upstream (docker compose --profile litellm up).
+# Register it in Admin → Providers with adapter LITELLM / OpenAI-compatible, base URL
+# http://litellm:4000/v1 and credential reference env:LITELLM_MASTER_KEY.
+#
+# Only route platform-funded traffic through models whose provider terms permit it —
+# INRENT's integration-mode policy still applies to everything behind LiteLLM.
+model_list:
+  - model_name: openai/gpt-4.1-mini
+    litellm_params:
+      model: openai/gpt-4.1-mini
+      api_key: os.environ/OPENAI_API_KEY
+  - model_name: anthropic/claude-sonnet-4
+    litellm_params:
+      model: anthropic/claude-sonnet-4-20250514
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+litellm_settings:
+  drop_params: true
+  # INRENT logs requests itself; keep LiteLLM from storing prompts.
+  turn_off_message_logging: true
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY

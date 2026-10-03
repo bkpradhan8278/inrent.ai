@@ -1,0 +1,24 @@
+# Non-secret configuration. Secrets come from `inrent-secrets`, which must be created from your
+# secret manager (External Secrets Operator, Sealed Secrets, CSI driver…) — never commit it.
+# Required keys in inrent-secrets: DATABASE_URL, REDIS_URL, BETTER_AUTH_SECRET, API_KEY_PEPPER,
+# INTERNAL_SERVICE_SECRET, INRENT_ENCRYPTION_KEYS, IP_HASH_SALT, METRICS_TOKEN
+# Optional: STRIPE_*, RAZORPAY_*, RESEND_API_KEY / SENDGRID_API_KEY, SENTRY_DSN, provider API keys.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels: { app.kubernetes.io/component: config }
+  name: inrent-config
+data:
+  INRENT_ENV: production
+  NODE_ENV: production
+  LOG_LEVEL: info
+  NEXT_PUBLIC_APP_URL: https://inrent.ai
+  NEXT_PUBLIC_API_BASE_URL: https://api.inrent.ai/v1
+  APP_URL: https://inrent.ai
+  API_PUBLIC_URL: https://api.inrent.ai/v1
+  BETTER_AUTH_URL: https://inrent.ai
+  GATEWAY_INTERNAL_URL: http://inrent-gateway:8080
+  TRUST_PROXY: "true"
+  EMAIL_PROVIDER: resend
+  DEFAULT_PLATFORM_MARKUP_PCT: "5.5"
+  INRENT_ENABLE_MOCK_PROVIDER: "false"

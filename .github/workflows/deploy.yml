@@ -1,0 +1,123 @@
+name: Deploy
+
+# Builds immutable images (tagged with the commit SHA), deploys to staging automatically, and
+# deploys the same images to production only after approval. Configure required reviewers on
+# the `production` environment (Settings → Environments). Nothing deploys without the secrets
+# below, so forks and fresh clones are safe.
+#
+# Required environment secrets: KUBE_CONFIG (base64 kubeconfig for that cluster/namespace).
+# Images are pushed to GHCR with the workflow's GITHUB_TOKEN.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref to deploy (defaults to the triggering commit)
+        required: false
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  images:
+    name: Build & push images
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      matrix:
+        target: [gateway, worker, migrate]
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: "${{ inputs.ref || github.sha }}" }
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          {
+            registry: ghcr.io,
+            username: "${{ github.actor }}",
+            password: "${{ secrets.GITHUB_TOKEN }}",
+          }
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: ${{ matrix.target }}
+          push: true
+          tags: ${{ env.REGISTRY }}/inrent-${{ matrix.target }}:${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.target }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.target }}
+          provenance: true
+          sbom: true
+
+  # The web image inlines NEXT_PUBLIC_* at build time, so it is built per environment.
+  web-image:
+    name: Build & push web (${{ matrix.env }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      matrix:
+        include:
+          - {
+              env: staging,
+              app_url: "https://staging.inrent.ai",
+              api_url: "https://api.staging.inrent.ai/v1",
+            }
+          - { env: production, app_url: "https://inrent.ai", api_url: "https://api.inrent.ai/v1" }
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: "${{ inputs.ref || github.sha }}" }
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          {
+            registry: ghcr.io,
+            username: "${{ github.actor }}",
+            password: "${{ secrets.GITHUB_TOKEN }}",
+          }
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: web
+          push: true
+          build-args: |
+            NEXT_PUBLIC_APP_URL=${{ matrix.app_url }}
+            NEXT_PUBLIC_API_BASE_URL=${{ matrix.api_url }}
+          tags: ${{ env.REGISTRY }}/inrent-web:${{ github.sha }}-${{ matrix.env }}
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
+
+  staging:
+    name: Deploy to staging
+    needs: [images, web-image]
+    runs-on: ubuntu-latest
+    environment: { name: staging, url: "https://staging.inrent.ai" }
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: "${{ inputs.ref || github.sha }}" }
+      - name: Deploy
+        env: { KUBE_CONFIG: "${{ secrets.KUBE_CONFIG }}", ENVIRONMENT: staging }
+        run: ./scripts/deploy.sh
+
+  production:
+    name: Deploy to production
+    needs: [staging]
+    runs-on: ubuntu-latest
+    # Requires approval from the reviewers configured on the `production` environment.
+    environment: { name: production, url: "https://inrent.ai" }
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: "${{ inputs.ref || github.sha }}" }
+      - name: Deploy
+        env: { KUBE_CONFIG: "${{ secrets.KUBE_CONFIG }}", ENVIRONMENT: production }
+        run: ./scripts/deploy.sh

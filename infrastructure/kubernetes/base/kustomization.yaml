@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: inrent
+labels:
+  - pairs: { app.kubernetes.io/part-of: inrent }
+    includeSelectors: false
+resources:
+  - namespace.yaml
+  - config.yaml
+  - migrate-job.yaml
+  - gateway.yaml
+  - worker.yaml
+  - web.yaml
+  - network-policy.yaml
+  - ingress.yaml

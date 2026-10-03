@@ -1,0 +1,12 @@
+# Gitleaks configuration (used by CI). Extends the default rules; allowlists only test fixtures,
+# which contain obviously fake credentials. Never add real secrets anywhere in the repository.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Fake credentials in test fixtures"
+paths = [
+  '''(^|/)vitest\.config\.ts$''',
+  '''(^|/)test/.+\.test\.ts$''',
+  '''(^|/)tests/.+\.py$''',
+]
