@@ -299,3 +299,29 @@ export async function computeFinOpsAlerts(): Promise<FinOpsAlert[]> {
   }
   return alerts;
 }
+
+// ── Incidents (status page) ──────────────────────────────────────────────────
+
+const STATUS_COMPONENTS = ["api", "gateway", "models", "billing", "dashboard", "docs"];
+
+export async function createIncident(adminId: string, input: { title: string; body: string; impact: "NONE" | "MINOR" | "MAJOR" | "CRITICAL"; components: string[] }) {
+  await requireAdminPermission(adminId, "incidents:write");
+  const title = input.title.trim();
+  const body = input.body.trim();
+  if (title.length < 4 || title.length > 160) throw new ValidationError("Title must be 4–160 characters.");
+  if (body.length < 4 || body.length > 5000) throw new ValidationError("Describe the incident (4–5000 characters).");
+  const components = input.components.filter((c) => STATUS_COMPONENTS.includes(c));
+  if (!components.length) throw new ValidationError("Choose at least one affected component.");
+  const incident = await prisma.incident.create({ data: { title, body, impact: input.impact, components } });
+  await recordAudit({ actorType: "ADMIN", actorId: adminId, action: "incident.created", targetType: "incident", targetId: incident.id, metadata: { impact: input.impact, components } });
+  return incident;
+}
+
+export async function updateIncident(adminId: string, incidentId: string, input: { status: "INVESTIGATING" | "IDENTIFIED" | "MONITORING" | "RESOLVED"; body?: string }) {
+  await requireAdminPermission(adminId, "incidents:write");
+  const before = await prisma.incident.findUnique({ where: { id: incidentId } });
+  if (!before) throw new NotFoundError("Incident");
+  const update = input.body?.trim() ? `${before.body}\n\n[${new Date().toISOString()}] ${input.status}: ${input.body.trim()}`.slice(-20_000) : undefined;
+  await prisma.incident.update({ where: { id: incidentId }, data: { status: input.status, body: update, resolvedAt: input.status === "RESOLVED" ? new Date() : null } });
+  await recordAudit({ actorType: "ADMIN", actorId: adminId, action: "incident.updated", targetType: "incident", targetId: incidentId, metadata: { from: before.status, to: input.status } });
+}

@@ -99,6 +99,7 @@ export const ADMIN_PERMISSIONS = [
   "tickets:read",
   "tickets:write",
   "health:read",
+  "incidents:write",
   "gpu:read",
   "waitlist:read",
 ] as const;
@@ -111,7 +112,7 @@ const PLATFORM_ROLE_PERMISSIONS: Record<PlatformRole, ReadonlySet<AdminPermissio
   USER: new Set(),
   READ_ONLY: new Set(ADMIN_READ),
   DEVELOPER: new Set<AdminPermission>(["admin:access", "providers:read", "models:read", "health:read", "flags:read", "requests:read", "gpu:read"]),
-  SUPPORT: new Set<AdminPermission>(["admin:access", "users:read", "orgs:read", "requests:read", "tickets:read", "tickets:write", "health:read", "waitlist:read"]),
+  SUPPORT: new Set<AdminPermission>(["admin:access", "users:read", "orgs:read", "requests:read", "tickets:read", "tickets:write", "health:read", "incidents:write", "waitlist:read"]),
   FINANCE: new Set<AdminPermission>(["admin:access", "orgs:read", "billing:read", "refunds:write", "revenue:read", "models:read", "providers:read"]),
   ADMIN: new Set(ADMIN_PERMISSIONS.filter((p) => p !== "admin:roles")),
   SUPER_ADMIN: new Set(ADMIN_PERMISSIONS),
