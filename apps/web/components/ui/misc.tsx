@@ -20,8 +20,8 @@ export function Kbd({ className, ...props }: React.HTMLAttributes<HTMLElement>) 
 
 export function Eyebrow({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
-    <div className={cn("inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-accent", className)}>
-      <span className="h-px w-6 bg-gradient-to-r from-transparent to-accent" aria-hidden />
+    <div className={cn("inline-flex items-center gap-2.5 font-mono text-[11.5px] uppercase tracking-[0.18em] text-accent", className)}>
+      <span className="h-px w-7 bg-current" aria-hidden />
       {children}
     </div>
   );
@@ -31,8 +31,8 @@ export function SectionHeading({ eyebrow, title, description, align = "left", cl
   return (
     <div className={cn("flex max-w-2xl flex-col gap-4", align === "center" && "mx-auto items-center text-center", className)}>
       {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
-      <h2 className="text-display text-3xl text-fg sm:text-[2.6rem]">{title}</h2>
-      {description ? <p className="text-[15px] leading-relaxed text-fg-muted sm:text-base">{description}</p> : null}
+      <h2 className="text-display text-[2rem] leading-[1.04] tracking-[-0.04em] text-fg sm:text-[clamp(34px,4.2vw,52px)]">{title}</h2>
+      {description ? <p className="text-[15px] leading-relaxed text-fg-muted sm:text-[17px]">{description}</p> : null}
     </div>
   );
 }

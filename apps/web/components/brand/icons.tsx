@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 /** Third-party marks used only on their own sign-in buttons, per their brand guidelines. */
 export function GitHubIcon({ className }: { className?: string }) {
   return (
@@ -29,18 +31,80 @@ const VENDOR_TINT: Record<string, string> = {
   meta: "#7fb2ff",
   xai: "#d6d9e0",
   moonshotai: "#c9b8ff",
+  vllm: "#f5b455",
   inrent: "#5cebc0",
   cohere: "#ff9fb0",
   groq: "#ff9a7a",
 };
 
-/** Neutral monogram for a model vendor — we avoid reproducing third-party logos. */
+/**
+ * Vendor/provider → logo file in /public/brands (see ATTRIBUTION.md there). Logos are used only to
+ * identify the vendor of a model or integration; they are trademarks of their respective owners.
+ */
+export const BRAND_LOGOS: Record<string, string> = {
+  openai: "/brands/openai.png",
+  anthropic: "/brands/anthropic.png",
+  google: "/brands/gemini.png",
+  gemini: "/brands/gemini.png",
+  deepseek: "/brands/deepseek.png",
+  qwen: "/brands/qwen.png",
+  zai: "/brands/zai.png",
+  mistral: "/brands/mistral.png",
+  meta: "/brands/meta.png",
+  xai: "/brands/xai.png",
+  moonshotai: "/brands/moonshot.png",
+  vllm: "/brands/vllm.png",
+  github: "/brands/github.png",
+  mcp: "/brands/mcp.png",
+  slack: "/brands/slack.svg",
+  notion: "/brands/notion.svg",
+  postgres: "/brands/postgres.svg",
+  "google-drive": "/brands/google-drive.svg",
+};
+
+/** Soft brand tint used for card glows and logo tiles. */
+export const BRAND_TINT: Record<string, string> = {
+  anthropic: "217 119 87",
+  openai: "236 238 243",
+  google: "71 150 227",
+  deepseek: "77 107 254",
+  meta: "0 129 251",
+  qwen: "97 92 237",
+  zai: "160 170 190",
+  mistral: "250 82 15",
+  xai: "220 222 228",
+  moonshotai: "160 140 255",
+  vllm: "245 180 85",
+  inrent: "92 235 192",
+};
+
+/** Plain logo image (no tile), for inline use in rows and chips. */
+export function BrandLogo({ brand, size = 20, className }: { brand: string; size?: number; className?: string }) {
+  const src = BRAND_LOGOS[brand];
+  if (!src) return null;
+  // eslint-disable-next-line @next/next/no-img-element -- tiny static brand marks; the optimizer adds nothing here.
+  return <img src={src} alt="" width={size} height={size} loading="lazy" decoding="async" className={className} style={{ width: size, height: size, objectFit: "contain" }} aria-hidden />;
+}
+
+/** Vendor mark: the vendor's logo on a tinted tile, or a neutral monogram when we have no logo. */
 export function VendorMark({ vendor, className }: { vendor: string; className?: string }) {
   const tint = VENDOR_TINT[vendor] ?? "#a3aab7";
+  const src = BRAND_LOGOS[vendor];
+  if (src) {
+    return (
+      <span
+        className={cn("inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-border-strong bg-[linear-gradient(180deg,#1c2130,#10131b)] p-[18%]", className)}
+        aria-hidden
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element -- tiny static brand marks */}
+        <img src={src} alt="" loading="lazy" decoding="async" className="size-full object-contain" />
+      </span>
+    );
+  }
   const label = vendor === "zai" ? "Z" : vendor === "xai" ? "x" : vendor.slice(0, 1).toUpperCase();
   return (
     <span
-      className={`inline-flex size-8 shrink-0 items-center justify-center rounded-md border font-mono text-[13px] font-semibold ${className ?? ""}`}
+      className={cn("inline-flex size-8 shrink-0 items-center justify-center rounded-md border font-mono text-[13px] font-semibold", className)}
       style={{ color: tint, borderColor: `${tint}33`, background: `linear-gradient(180deg, ${tint}1f, ${tint}08)` }}
       aria-hidden
     >

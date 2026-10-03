@@ -4,6 +4,7 @@ import { ChevronDown, Menu, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { BrandLogo } from "@/components/brand/icons";
 import { Logo } from "@/components/brand/logo";
 import { openCommandPalette } from "@/lib/command-events";
 import { Button } from "@/components/ui/button";
@@ -44,12 +45,17 @@ export function SiteHeader() {
                   {item.label}
                   <ChevronDown className="size-3.5 opacity-60" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-80 p-1.5">
+                <DropdownMenuContent align="start" className="w-[340px] p-1.5">
                   {item.items.map((sub) => (
-                    <DropdownMenuItem key={sub.href} asChild className="flex-col items-start gap-0.5 px-3 py-2.5">
+                    <DropdownMenuItem key={sub.href} asChild className="items-start gap-3 rounded-lg px-3 py-2.5">
                       <Link href={sub.href}>
-                        <span className="text-[13.5px] font-medium text-fg">{sub.label}</span>
-                        {sub.description ? <span className="text-xs text-fg-subtle">{sub.description}</span> : null}
+                        <span className="mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-white/[.08] bg-bg">
+                          {sub.brand ? <BrandLogo brand={sub.brand} size={16} /> : <span className="size-1.5 rounded-full bg-accent" />}
+                        </span>
+                        <span className="flex min-w-0 flex-col gap-0.5">
+                          <span className="text-[13.5px] font-medium text-fg">{sub.label}</span>
+                          {sub.description ? <span className="text-xs leading-snug text-fg-muted">{sub.description}</span> : null}
+                        </span>
                       </Link>
                     </DropdownMenuItem>
                   ))}

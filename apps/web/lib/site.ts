@@ -13,7 +13,7 @@ export const site = {
   salesEmail: "sales@inrent.ai",
 } as const;
 
-export type NavLink = { label: string; href: string; description?: string; badge?: string };
+export type NavLink = { label: string; href: string; description?: string; badge?: string; /** Key into BRAND_LOGOS, for menu icons. */ brand?: string };
 
 export const mainNav: Array<NavLink | { label: string; items: NavLink[] }> = [
   { label: "Models", href: "/models" },
@@ -26,9 +26,9 @@ export const mainNav: Array<NavLink | { label: string; items: NavLink[] }> = [
     label: "Solutions",
     items: [
       { label: "Unified AI API", href: "/solutions/unified-ai-api", description: "One integration for many model providers." },
-      { label: "OpenAI-compatible API", href: "/solutions/openai-compatible-api", description: "Change the base URL, keep your code." },
+      { label: "OpenAI-compatible API", href: "/solutions/openai-compatible-api", description: "Change the base URL, keep your code.", brand: "openai" },
       { label: "LLM routing & fallback", href: "/solutions/llm-routing", description: "Cost, latency and availability-aware routing." },
-      { label: "AI agents & MCP", href: "/mcp", description: "Connect models to tools with guardrails." },
+      { label: "AI agents & MCP", href: "/mcp", description: "Connect models to tools with guardrails.", brand: "mcp" },
       { label: "Enterprise", href: "/enterprise", description: "Controls, budgets and dedicated options." },
     ],
   },

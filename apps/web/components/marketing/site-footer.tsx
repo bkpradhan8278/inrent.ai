@@ -34,7 +34,7 @@ export function SiteFooter() {
         <div className="container-page flex flex-col gap-3 py-6 text-xs text-fg-subtle sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} INRENT. All rights reserved.</p>
           <p>
-            Model names and trademarks belong to their respective owners. Listing a provider does not imply a partnership.{" "}
+            Model names, logos and trademarks belong to their respective owners and indicate integrations, not endorsement or partnership.{" "}
             <a href={`mailto:${site.supportEmail}`} className="text-fg-muted underline underline-offset-2 hover:text-fg">
               {site.supportEmail}
             </a>

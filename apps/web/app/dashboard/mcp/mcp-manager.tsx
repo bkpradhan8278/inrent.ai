@@ -1,7 +1,8 @@
 "use client";
 
-import { AlertTriangle, Plus, ShieldCheck, Trash2, Wrench } from "lucide-react";
+import { AlertTriangle, FolderOpen, Plus, ShieldCheck, Trash2, Wrench } from "lucide-react";
 import * as React from "react";
+import { BrandLogo } from "@/components/brand/icons";
 import { ConfirmDialog, useAction } from "@/components/dashboard/client-kit";
 import { EmptyState } from "@/components/dashboard/ui";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +39,29 @@ interface Server {
 
 const LEVEL_VARIANT = { READ: "neutral", WRITE: "amber", ADMIN: "danger" } as const;
 
+const KIND_BRAND: Record<Kind, { brand?: string; tint: string }> = {
+  GITHUB: { brand: "github", tint: "236 238 243" },
+  SLACK: { brand: "slack", tint: "224 30 90" },
+  NOTION: { brand: "notion", tint: "236 238 243" },
+  GOOGLE_DRIVE: { brand: "google-drive", tint: "66 133 244" },
+  POSTGRES: { brand: "postgres", tint: "51 103 145" },
+  FILESYSTEM: { tint: "169 151 255" },
+  CUSTOM: { brand: "mcp", tint: "142 150 255" },
+};
+
+function ServerKindMark({ kind, className }: { kind: Kind; className?: string }) {
+  const k = KIND_BRAND[kind];
+  return (
+    <span
+      className={`ico inline-flex size-10 shrink-0 items-center justify-center rounded-[11px] border ${className ?? ""}`}
+      style={{ borderColor: `rgb(${k.tint} / .3)`, background: `radial-gradient(circle at 30% 20%, rgb(${k.tint} / .22), #0c0f15 72%)` }}
+      aria-hidden
+    >
+      {k.brand ? <BrandLogo brand={k.brand} size={20} /> : <FolderOpen className="size-5 text-[#c4b8ff]" strokeWidth={1.8} />}
+    </span>
+  );
+}
+
 export function McpManager({ canWrite, isAdmin, templates, servers }: { canWrite: boolean; isAdmin: boolean; templates: Array<{ kind: Kind; name: string; description: string; transport: Transport; defaultPermission: Level }>; servers: Server[] }) {
   const { pending, run } = useAction();
   const [creating, setCreating] = React.useState<(typeof templates)[number] | null>(null);
@@ -61,13 +85,18 @@ export function McpManager({ canWrite, isAdmin, templates, servers }: { canWrite
                   setCreating(t);
                   setForm({ name: t.name, url: "", authToken: "", maxPermission: t.defaultPermission });
                 }}
-                className="panel group rounded-xl p-4 text-left transition-colors hover:border-border-strong"
+                className="lift group relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-white/[.08] bg-[linear-gradient(180deg,#10141b,#0b0d12)] p-4 text-left"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-fg">{t.name}</span>
-                  <Plus className="size-4 text-fg-subtle group-hover:text-accent" />
+                  <ServerKindMark kind={t.kind} />
+                  <span className="inline-flex size-7 items-center justify-center rounded-lg border border-white/[.08] text-fg-subtle transition-colors group-hover:border-[rgb(92_235_192/.4)] group-hover:text-accent">
+                    <Plus className="size-4" />
+                  </span>
                 </div>
-                <p className="mt-1 text-[12.5px] text-fg-muted">{t.description}</p>
+                <div>
+                  <span className="text-sm font-medium text-fg">{t.name}</span>
+                  <p className="mt-1 text-[12.5px] leading-relaxed text-fg-muted">{t.description}</p>
+                </div>
               </button>
             ))}
           </div>
@@ -83,6 +112,7 @@ export function McpManager({ canWrite, isAdmin, templates, servers }: { canWrite
             {servers.map((s) => (
               <li key={s.id} className="panel rounded-xl">
                 <div className="flex flex-wrap items-start gap-3 p-4">
+                  <ServerKindMark kind={s.kind} />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-medium text-fg">{s.name}</span>
