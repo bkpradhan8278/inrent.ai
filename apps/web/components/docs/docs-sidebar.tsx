@@ -3,9 +3,10 @@
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, SheetContent } from "@/components/ui/dialog";
+import { useResetOnChange } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 
 type Nav = Array<{ title: string; pages: Array<{ title: string; href: string }> }>;
@@ -56,7 +57,7 @@ export function DocsSidebar({ nav, search }: { nav: Nav; search: React.ReactNode
 export function DocsMobileNav({ nav, search }: { nav: Nav; search: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  useEffect(() => setOpen(false), [pathname]);
+  useResetOnChange(pathname, () => setOpen(false));
   return (
     <div className="flex items-center gap-2 lg:hidden">
       <Dialog open={open} onOpenChange={setOpen}>

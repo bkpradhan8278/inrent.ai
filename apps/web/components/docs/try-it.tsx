@@ -1,9 +1,10 @@
 "use client";
 
 import { Loader2, Play } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
+import { useStoredValue } from "@/lib/hooks";
 
 const KEY_STORAGE = "inrent:try-it-key";
 
@@ -12,19 +13,13 @@ const KEY_STORAGE = "inrent:try-it-key";
  * directly from the browser to the API (the gateway allows CORS for bearer requests).
  */
 export function TryIt({ method, path, apiBase, exampleBody, needsAuth }: { method: string; path: string; apiBase: string; exampleBody?: string; needsAuth: boolean }) {
-  const [key, setKey] = useState("");
+  const storedKey = useStoredValue("session", KEY_STORAGE, "inrent:try-key");
+  const [editedKey, setKey] = useState<string | null>(null);
+  const key = editedKey ?? storedKey;
   const [body, setBody] = useState(exampleBody ?? "");
   const [pathValue, setPathValue] = useState(path);
   const [result, setResult] = useState<{ status: number; ms: number; headers: string; body: string } | null>(null);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    try {
-      setKey(sessionStorage.getItem(KEY_STORAGE) ?? "");
-    } catch {
-      /* storage unavailable */
-    }
-  }, []);
 
   const run = async () => {
     setLoading(true);

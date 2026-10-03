@@ -1,6 +1,6 @@
 "use client";
 
-import { useInView } from "motion/react";
+import { useInView, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
 type Line = { kind: "cmd" | "out" | "ok" | "dim"; text: string };
@@ -24,15 +24,15 @@ const SCRIPT: Line[] = [
 export function Terminal() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
-  const [visible, setVisible] = useState<number>(0);
+  const [shown, setVisible] = useState<number>(0);
   const [typed, setTyped] = useState("");
 
+  const reduced = useReducedMotion();
+  // Reduced motion: show the full session immediately, no typing animation.
+  const visible = reduced ? SCRIPT.length : shown;
+
   useEffect(() => {
-    if (!inView) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setVisible(SCRIPT.length);
-      return;
-    }
+    if (!inView || reduced) return;
     let cancelled = false;
     (async () => {
       for (let i = 0; i < SCRIPT.length && !cancelled; i++) {
@@ -53,7 +53,7 @@ export function Terminal() {
     return () => {
       cancelled = true;
     };
-  }, [inView]);
+  }, [inView, reduced]);
 
   const next = SCRIPT[visible];
   return (

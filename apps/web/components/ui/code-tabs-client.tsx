@@ -1,42 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useStoredValue } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 import { CopyButton } from "./copy-button";
 
 const STORAGE_KEY = "inrent:code-lang";
 
 export function CodeTabsClient({ tabs, className, title }: { tabs: Array<{ label: string; code: string; html: string }>; className?: string; title?: string }) {
-  const [active, setActive] = useState(0);
-
-  // Remember the reader's preferred language across code samples.
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      const idx = saved ? tabs.findIndex((t) => t.label === saved) : -1;
-      if (idx >= 0) setActive(idx);
-    } catch {
-      /* storage unavailable */
-    }
-    const onChange = (e: Event) => {
-      const label = (e as CustomEvent<string>).detail;
-      const idx = tabs.findIndex((t) => t.label === label);
-      if (idx >= 0) setActive(idx);
-    };
-    window.addEventListener("inrent:code-lang", onChange);
-    return () => window.removeEventListener("inrent:code-lang", onChange);
-  }, [tabs]);
+  // The reader's preferred language is shared across every code sample on the page.
+  const preferred = useStoredValue("local", STORAGE_KEY, "inrent:code-lang");
+  // Fallback when storage is unavailable (private mode, blocked site data).
+  const [local, setLocal] = useState<string | null>(null);
+  const active = Math.max(0, tabs.findIndex((t) => t.label === (local ?? preferred)));
 
   const select = (i: number) => {
-    setActive(i);
     const label = tabs[i]?.label;
     if (!label) return;
     try {
       localStorage.setItem(STORAGE_KEY, label);
+      setLocal(null);
     } catch {
-      /* storage unavailable */
+      setLocal(label);
     }
-    window.dispatchEvent(new CustomEvent("inrent:code-lang", { detail: label }));
+    window.dispatchEvent(new Event("inrent:code-lang"));
   };
 
   const current = tabs[active] ?? tabs[0];

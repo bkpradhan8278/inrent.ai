@@ -371,8 +371,8 @@ async function seedDemoUsage(organizationId: string, projectId: string) {
   const backup = endpoints.find((e) => e.provider.slug === "inrent-mock-backup");
   if (!primary || !backup) return;
   const day = 24 * 60 * 60 * 1000;
-  const today = new Date();
-  today.setUTCHours(0, 0, 0, 0);
+  // Spread over the 30 days ending now — never in the future.
+  const now = Date.now();
   const rows: Prisma.RequestCreateManyInput[] = [];
   for (let d = 29; d >= 0; d--) {
     const count = 20 + Math.floor(rand() * 40) + (29 - d);
@@ -385,7 +385,7 @@ async function seedDemoUsage(organizationId: string, projectId: string) {
       // Demo prices $0.50 / $1.50 per 1M tokens → 500 / 1500 nano-USD per token, 5.5% markup.
       const providerCost = BigInt(input * 500 + output * 1500);
       const userCharge = (providerCost * 1055n + 999n) / 1000n;
-      const createdAt = new Date(today.getTime() - d * day + Math.floor(rand() * day));
+      const createdAt = new Date(now - d * day - Math.floor(rand() * day));
       rows.push({
         requestId: `req_demo_${d}_${i}`,
         organizationId,

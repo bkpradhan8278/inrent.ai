@@ -25,18 +25,17 @@ const POLICIES = [
 
 export function RoutingDemo() {
   const [policy, setPolicy] = useState<(typeof POLICIES)[number]["id"]>("balanced");
-  const [failed, setFailed] = useState(false);
+  // Each selection is a "run"; the fallback animation fails the primary 900ms into its run.
+  const [run, setRun] = useState(0);
+  const [failedRun, setFailedRun] = useState(-1);
+  const failed = policy === "fallback" && failedRun === run;
   const current = POLICIES.find((p) => p.id === policy)!;
 
   useEffect(() => {
-    if (policy !== "fallback") {
-      setFailed(false);
-      return;
-    }
-    setFailed(false);
-    const t = setTimeout(() => setFailed(true), 900);
+    if (policy !== "fallback") return;
+    const t = setTimeout(() => setFailedRun(run), 900);
     return () => clearTimeout(t);
-  }, [policy]);
+  }, [policy, run]);
 
   const chosen = policy === "fallback" ? (failed ? "a" : "b") : current.pick;
 
@@ -47,7 +46,10 @@ export function RoutingDemo() {
           <button
             key={p.id}
             type="button"
-            onClick={() => setPolicy(p.id)}
+            onClick={() => {
+              setPolicy(p.id);
+              setRun((r) => r + 1);
+            }}
             aria-pressed={policy === p.id}
             className={cn(
               "h-8 rounded-md px-3 text-[13px] transition-colors",

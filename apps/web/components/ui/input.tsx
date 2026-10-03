@@ -28,7 +28,6 @@ export function NativeSelect({ className, children, ...props }: React.SelectHTML
 }
 
 export function Label({ className, ...props }: React.LabelHTMLAttributes<HTMLLabelElement>) {
-  // eslint-disable-next-line jsx-a11y/label-has-associated-control
   return <label className={cn("text-[13px] font-medium text-fg", className)} {...props} />;
 }
 

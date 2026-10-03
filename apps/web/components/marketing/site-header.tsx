@@ -12,6 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Kbd } from "@/components/ui/misc";
 import { useSession } from "@/lib/auth-client";
 import { mainNav } from "@/lib/site";
+import { useResetOnChange } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 
 export function SiteHeader() {
@@ -104,7 +105,7 @@ export function SiteHeader() {
 function MobileNav({ signedIn }: { signedIn: boolean }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  useEffect(() => setOpen(false), [pathname]);
+  useResetOnChange(pathname, () => setOpen(false));
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
