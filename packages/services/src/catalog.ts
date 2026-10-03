@@ -68,6 +68,7 @@ export interface PublicModel {
   lastVerifiedAt: string | null;
   isDevOnly: boolean;
   featured: boolean;
+  createdAt: string;
   availability: Availability;
   /** Customer price per 1M tokens incl. platform markup, from the cheapest eligible endpoint. */
   pricing: { input: string | null; output: string | null; cachedInput: string | null; perImage: string | null; source: string | null; lastVerifiedAt: string | null } | null;
@@ -184,6 +185,7 @@ function toPublic(model: ServingModel, environment: ReturnType<typeof getServerE
     lastVerifiedAt: model.lastVerifiedAt?.toISOString() ?? null,
     isDevOnly: model.isDevOnly,
     featured: model.featured,
+    createdAt: model.createdAt.toISOString(),
     availability: modelAvailability,
     pricing: chosen ? { input: chosen.input, output: chosen.output, cachedInput: chosen.cachedInput, perImage: chosen.perImage, source: chosen.source, lastVerifiedAt: chosen.lastVerifiedAt } : null,
     providers,

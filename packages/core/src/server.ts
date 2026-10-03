@@ -4,3 +4,4 @@ export * from "./crypto/apiKeys";
 export * from "./crypto/encryption";
 export * from "./crypto/webhooks";
 export * from "./security/ssrf";
+export * from "./crypto/internalAssertion";

@@ -251,6 +251,8 @@ export interface ApiKeyAuth {
   spendLimitNano: string | null;
   projectBudgetNano: string | null;
   orgMonthlyCapNano: string | null;
+  lowBalanceThresholdNano: string | null;
+  autoRechargeEnabled: boolean;
   rpmLimit: number | null;
   tpmLimit: number | null;
   planRpm: number;
@@ -287,6 +289,8 @@ export async function loadApiKeyAuth(keyHash: string): Promise<ApiKeyAuth | null
     spendLimitNano: key.spendLimitNano?.toString() ?? null,
     projectBudgetNano: key.project.monthlyBudgetNano?.toString() ?? null,
     orgMonthlyCapNano: key.organization.monthlySpendCapNano?.toString() ?? null,
+    lowBalanceThresholdNano: key.organization.lowBalanceThresholdNano?.toString() ?? null,
+    autoRechargeEnabled: key.organization.autoRechargeEnabled,
     rpmLimit: key.rpmLimit,
     tpmLimit: key.tpmLimit,
     planRpm: key.organization.plan?.rpmLimit ?? 20,

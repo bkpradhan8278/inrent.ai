@@ -75,6 +75,7 @@ export async function createMockCatalog(opts: MockCatalogOptions = {}) {
         enabled: opts.providerEnabled ?? true,
         priority,
         healthStatus: "HEALTHY",
+        supportedEndpoints: ["chat", "embeddings", "responses"],
       },
     });
   const primary = await mk("mock-primary", opts.primaryFail ?? "never", 1);

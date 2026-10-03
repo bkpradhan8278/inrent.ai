@@ -119,3 +119,21 @@ describe("webhook signatures", () => {
     expect(safeEqual("abc", "abcd")).toBe(false);
   });
 });
+
+import { signInternalAssertion, verifyInternalAssertion } from "../src/server";
+
+describe("internal assertions", () => {
+  const secret = "s".repeat(40);
+  it("round-trips and expires", () => {
+    const token = signInternalAssertion({ organizationId: "o", projectId: "p", userId: "u", source: "playground" }, secret, 60);
+    expect(verifyInternalAssertion(token, secret)?.projectId).toBe("p");
+    expect(verifyInternalAssertion(token, "x".repeat(40))).toBeNull();
+    expect(verifyInternalAssertion(token, secret, Math.floor(Date.now() / 1000) + 3600)).toBeNull();
+  });
+  it("rejects tampered payloads", () => {
+    const token = signInternalAssertion({ organizationId: "o", projectId: "p", userId: "u", source: "playground" }, secret);
+    const [body, sig] = token.split(".");
+    const forged = Buffer.from(JSON.stringify({ ...JSON.parse(Buffer.from(body!, "base64url").toString()), organizationId: "victim" })).toString("base64url");
+    expect(verifyInternalAssertion(`${forged}.${sig}`, secret)).toBeNull();
+  });
+});

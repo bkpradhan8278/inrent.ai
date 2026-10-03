@@ -8,7 +8,8 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./server": "./src/server.ts"
+    "./server": "./src/server.ts",
+    "./openapi": "./src/openapi.ts"
   },
   "scripts": {
     "test": "vitest run",

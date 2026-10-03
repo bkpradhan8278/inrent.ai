@@ -2,7 +2,7 @@
   "name": "@inrent/gateway",
   "version": "0.1.0",
   "private": true,
-  "description": "INRENT API gateway — OpenAI-compatible /v1 endpoints.",
+  "description": "INRENT API gateway \u2014 OpenAI-compatible /v1 endpoints.",
   "type": "module",
   "scripts": {
     "dev": "tsx watch --env-file-if-exists=../../.env src/index.ts",
@@ -20,9 +20,16 @@
     "@inrent/observability": "workspace:*",
     "@inrent/providers": "workspace:*",
     "@inrent/services": "workspace:*",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.222.0",
+    "@opentelemetry/sdk-node": "^0.222.0",
+    "@prisma/client": "6.19.3",
+    "bullmq": "^5.61.0",
     "hono": "^4.10.0",
     "ioredis": "^5.8.1",
+    "pino": "^10.1.0",
     "prom-client": "^15.1.3",
+    "stripe": "^19.1.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {
