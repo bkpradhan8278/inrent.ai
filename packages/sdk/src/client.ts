@@ -15,7 +15,7 @@ export interface ClientOptions {
   baseURL?: string;
   /** Per-attempt timeout in milliseconds. Default 600 000 (10 min) for long generations. */
   timeout?: number;
-  /** Retries for 408/409/429/5xx and connection errors (exponential backoff, honours Retry-After). Default 2. Failed requests are not billed. */
+  /** Retries for 408/409/429/5xx and connection errors (exponential backoff, honours Retry-After). Default 2. Requests that fail before producing output are not billed. */
   maxRetries?: number;
   defaultHeaders?: Record<string, string>;
   /** Custom fetch implementation (tests, proxies, older runtimes). */

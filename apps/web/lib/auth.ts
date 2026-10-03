@@ -16,6 +16,11 @@ import { sendTemplateEmail } from "@inrent/services/email";
  */
 
 const isProduction = process.env.INRENT_ENV === "production" || process.env.NODE_ENV === "production";
+// Runtime guard (INRENT_ENV is set by deployments, not during `next build`).
+if (process.env.INRENT_ENV === "production") {
+  const secret = process.env.BETTER_AUTH_SECRET ?? "";
+  if (secret.length < 32 || /dev-only|change-me/i.test(secret)) throw new Error("BETTER_AUTH_SECRET must be a random value of at least 32 characters in production");
+}
 const baseURL = process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 const socialProviders: Parameters<typeof betterAuth>[0]["socialProviders"] = {};

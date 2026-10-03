@@ -51,7 +51,11 @@ export class RazorpayPaymentProvider implements PaymentProvider {
     if (!signature || !safeEqual(expected, signature)) throw new PaymentSignatureError();
     const body = JSON.parse(rawBody) as {
       event: string;
-      payload?: { payment?: { entity?: { id: string; order_id?: string; amount?: number; currency?: string; error_description?: string } }; order?: { entity?: { id: string; amount_paid?: number; currency?: string } } };
+      payload?: {
+        payment?: { entity?: { id: string; order_id?: string; amount?: number; currency?: string; error_description?: string; refund_status?: string | null } };
+        order?: { entity?: { id: string; amount_paid?: number; currency?: string } };
+        refund?: { entity?: { id: string } };
+      };
     };
     const eventId = headers.get("x-razorpay-event-id") ?? `${body.event}:${body.payload?.payment?.entity?.id ?? body.payload?.order?.entity?.id}`;
     if (body.event === "order.paid") {
@@ -61,6 +65,11 @@ export class RazorpayPaymentProvider implements PaymentProvider {
     if (body.event === "payment.failed") {
       const p = body.payload?.payment?.entity;
       return { eventId, type: "failed", rawType: body.event, providerPaymentId: p?.order_id, failureReason: p?.error_description ?? "payment_failed" };
+    }
+    // Only full refunds reverse credits automatically; partial refunds are reconciled by an admin adjustment.
+    if (body.event === "refund.processed" && body.payload?.payment?.entity?.refund_status === "full") {
+      const p = body.payload.payment.entity;
+      return { eventId, type: "refunded", rawType: body.event, providerPaymentId: p.order_id };
     }
     return { eventId, type: "ignored", rawType: body.event };
   }

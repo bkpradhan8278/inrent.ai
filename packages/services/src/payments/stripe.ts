@@ -99,6 +99,18 @@ export class StripePaymentProvider implements PaymentProvider {
         if (pi.metadata?.auto_recharge !== "true") return { eventId: event.id, type: "ignored", rawType: event.type };
         return { eventId: event.id, type: "failed", rawType: event.type, providerPaymentId: pi.id, failureReason: pi.last_payment_error?.message ?? "payment_failed" };
       }
+      case "charge.refunded": {
+        // Only full refunds reverse credits automatically; partial refunds are reconciled by an admin adjustment.
+        const charge = event.data.object;
+        const intentId = typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id;
+        if (!charge.refunded || !intentId) return { eventId: event.id, type: "ignored", rawType: event.type };
+        const pi = await this.stripe.paymentIntents.retrieve(intentId);
+        if (pi.metadata?.auto_recharge === "true") return { eventId: event.id, type: "refunded", rawType: event.type, providerPaymentId: pi.id };
+        const sessions = await this.stripe.checkout.sessions.list({ payment_intent: intentId, limit: 1 });
+        const session = sessions.data[0];
+        if (!session) return { eventId: event.id, type: "ignored", rawType: event.type };
+        return { eventId: event.id, type: "refunded", rawType: event.type, providerPaymentId: session.id };
+      }
       default:
         return { eventId: event.id, type: "ignored", rawType: event.type };
     }

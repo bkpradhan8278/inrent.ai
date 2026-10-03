@@ -33,7 +33,7 @@ except InrentError as e:
 
 Responses are plain `dict`s (the exact API JSON) with INRENT metadata on `.meta`. Also available: `client.responses`, `client.embeddings`, `client.images`, `client.models`, `client.keys` (`current`, `list`, `create`, `revoke`), `client.usage.retrieve(days=…)` and `client.requests` (`list`, `retrieve`).
 
-Retries: 408/409/429/5xx and connection errors are retried with exponential backoff (honouring `Retry-After`), `max_retries=2` by default. Failed requests are not billed.
+Retries: 408/409/429/5xx and connection errors are retried with exponential backoff (honouring `Retry-After`), `max_retries=2` by default. Requests that fail before producing output are not billed.
 
 ## Development
 
