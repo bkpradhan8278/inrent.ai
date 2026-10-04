@@ -97,11 +97,11 @@ export function VendorMark({ vendor, className }: { vendor: string; className?: 
   if (src) {
     return (
       <span
-        className={cn("inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-border-strong bg-[linear-gradient(180deg,#1c2130,#10131b)] p-[18%]", className)}
+        className={cn("inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-border-strong overflow-hidden bg-[linear-gradient(180deg,#1c2130,#10131b)]", className)}
         aria-hidden
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- tiny static brand marks */}
-        <img src={src} alt="" loading="lazy" decoding="async" className="size-full object-contain" />
+        <img src={src} alt="" loading="lazy" decoding="async" className="size-[64%] object-contain" />
       </span>
     );
   }
