@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Logo } from "@/components/brand/logo";
+import { ThemeToggle } from "@/components/theme";
 import { openCommandPalette } from "@/lib/command-events";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -214,7 +215,7 @@ export function DashboardShell({ data, children }: { data: ShellData; children: 
     <div className="min-h-dvh bg-bg lg:grid lg:grid-cols-[248px_1fr]">
       <aside className="sticky top-0 hidden h-dvh border-r border-border bg-bg-elevated lg:block">{sidebar}</aside>
       <div className="flex min-w-0 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border bg-[rgb(6_7_10/0.85)] px-3 backdrop-blur-xl sm:px-5">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border bg-header px-3 backdrop-blur-xl sm:px-5">
           <Dialog open={mobileOpen} onOpenChange={setMobileOpen}>
             <DialogTrigger asChild>
               <Button variant="ghost" size="icon-sm" className="lg:hidden" aria-label="Open navigation">
@@ -275,6 +276,7 @@ export function DashboardShell({ data, children }: { data: ShellData; children: 
             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
               <Link href="/docs">Docs</Link>
             </Button>
+            <ThemeToggle />
             <Notifications items={data.notifications} />
             <DropdownMenu>
               <DropdownMenuTrigger className="ml-1 flex size-8 items-center justify-center overflow-hidden rounded-full border border-border-strong bg-surface-2 text-xs font-medium text-fg" aria-label="Account menu">

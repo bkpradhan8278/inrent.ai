@@ -64,6 +64,16 @@ export const BRAND_LOGOS: Record<string, string> = {
   "google-drive": "/brands/google-drive.svg",
 };
 
+/**
+ * Logos drawn in white for dark backgrounds. In light mode they render black (the `logo-mono` rule
+ * in globals.css), matching the dark-on-light versions these brands publish.
+ */
+const MONO_LOGOS = new Set(["openai", "anthropic", "xai", "zai", "groq", "moonshotai", "github", "mcp", "notion"]);
+
+function logoClass(brand: string) {
+  return MONO_LOGOS.has(brand) ? "logo-mono" : undefined;
+}
+
 /** Soft brand tint used for card glows and logo tiles. */
 export const BRAND_TINT: Record<string, string> = {
   anthropic: "217 119 87",
@@ -87,7 +97,7 @@ export function BrandLogo({ brand, size = 20, className }: { brand: string; size
   const src = BRAND_LOGOS[brand];
   if (!src) return null;
   // eslint-disable-next-line @next/next/no-img-element -- tiny static brand marks; the optimizer adds nothing here.
-  return <img src={src} alt="" width={size} height={size} loading="lazy" decoding="async" className={className} style={{ width: size, height: size, objectFit: "contain" }} aria-hidden />;
+  return <img src={src} alt="" width={size} height={size} loading="lazy" decoding="async" className={cn(logoClass(brand), className)} style={{ width: size, height: size, objectFit: "contain" }} aria-hidden />;
 }
 
 /** Vendor mark: the vendor's logo on a tinted tile, or a neutral monogram when we have no logo. */
@@ -97,11 +107,11 @@ export function VendorMark({ vendor, className }: { vendor: string; className?: 
   if (src) {
     return (
       <span
-        className={cn("inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-border-strong overflow-hidden bg-[linear-gradient(180deg,#1c2130,#10131b)]", className)}
+        className={cn("inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-border-strong overflow-hidden bg-[linear-gradient(180deg,var(--color-surface-3),var(--color-surface))]", className)}
         aria-hidden
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- tiny static brand marks */}
-        <img src={src} alt="" loading="lazy" decoding="async" className="size-[64%] object-contain" />
+        <img src={src} alt="" loading="lazy" decoding="async" className={cn("size-[64%] object-contain", logoClass(vendor))} />
       </span>
     );
   }
@@ -109,7 +119,7 @@ export function VendorMark({ vendor, className }: { vendor: string; className?: 
   return (
     <span
       className={cn("inline-flex size-8 shrink-0 items-center justify-center rounded-md border font-mono text-[13px] font-semibold", className)}
-      style={{ color: tint, borderColor: `${tint}33`, background: `linear-gradient(180deg, ${tint}1f, ${tint}08)` }}
+      style={{ color: `color-mix(in oklab, ${tint} 62%, var(--color-fg))`, borderColor: `${tint}55`, background: `linear-gradient(180deg, ${tint}26, ${tint}0a)` }}
       aria-hidden
     >
       {label}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Logo } from "@/components/brand/logo";
+import { ThemeToggle } from "@/components/theme";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTitle, DialogTrigger, SheetContent } from "@/components/ui/dialog";
@@ -99,7 +100,7 @@ export function AdminShell({ role, permissions, user, children }: { role: string
     <div className="min-h-dvh bg-bg lg:grid lg:grid-cols-[248px_1fr]">
       <aside className="sticky top-0 hidden h-dvh border-r border-border bg-bg-elevated lg:block">{sidebar}</aside>
       <div className="flex min-w-0 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border bg-[rgb(6_7_10/0.85)] px-3 backdrop-blur-xl sm:px-5">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border bg-header px-3 backdrop-blur-xl sm:px-5">
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button variant="ghost" size="icon-sm" className="lg:hidden" aria-label="Open navigation">
@@ -113,6 +114,7 @@ export function AdminShell({ role, permissions, user, children }: { role: string
           </Dialog>
           <span className="text-[13px] text-fg-muted">INRENT Admin Console</span>
           <span className="ml-auto hidden text-[12px] text-fg-subtle sm:block">All admin actions are audit-logged.</span>
+          <ThemeToggle className="ml-auto sm:ml-0" />
         </header>
         <main id="main" className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
           {children}

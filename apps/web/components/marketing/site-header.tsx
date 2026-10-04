@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BrandLogo } from "@/components/brand/icons";
 import { Logo } from "@/components/brand/logo";
+import { ThemeSegmented, ThemeToggle } from "@/components/theme";
 import { openCommandPalette } from "@/lib/command-events";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, SheetContent } from "@/components/ui/dialog";
@@ -32,7 +33,7 @@ export function SiteHeader() {
     <header
       className={cn(
         "sticky top-0 z-40 w-full border-b transition-[background-color,border-color,backdrop-filter] duration-300",
-        scrolled ? "border-border bg-[rgb(6_7_10/0.78)] backdrop-blur-xl" : "border-transparent bg-transparent",
+        scrolled ? "border-border bg-header backdrop-blur-xl" : "border-transparent bg-transparent",
       )}
     >
       <div className="container-page flex h-16 items-center gap-6">
@@ -41,7 +42,7 @@ export function SiteHeader() {
           {mainNav.map((item) =>
             "items" in item ? (
               <DropdownMenu key={item.label}>
-                <DropdownMenuTrigger className="inline-flex h-8 items-center gap-1 rounded-md px-3 text-[13.5px] text-fg-muted transition-colors hover:text-fg data-[state=open]:text-fg">
+                <DropdownMenuTrigger className="inline-flex h-8 items-center gap-1 whitespace-nowrap rounded-md px-3 text-[13.5px] text-fg-muted transition-colors hover:text-fg data-[state=open]:text-fg">
                   {item.label}
                   <ChevronDown className="size-3.5 opacity-60" />
                 </DropdownMenuTrigger>
@@ -66,7 +67,7 @@ export function SiteHeader() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "inline-flex h-8 items-center rounded-md px-3 text-[13.5px] transition-colors hover:text-fg",
+                  "inline-flex h-8 items-center whitespace-nowrap rounded-md px-3 text-[13.5px] transition-colors hover:text-fg",
                   pathname === item.href || (item.href !== "/" && pathname.startsWith(`${item.href}/`)) ? "text-fg" : "text-fg-muted",
                 )}
               >
@@ -87,6 +88,7 @@ export function SiteHeader() {
             Search
             <Kbd className="ml-3">⌘K</Kbd>
           </button>
+          <ThemeToggle className="hidden sm:inline-flex" />
           {session ? (
             <Button asChild size="sm">
               <Link href="/dashboard">Dashboard</Link>
@@ -143,6 +145,7 @@ function MobileNav({ signedIn }: { signedIn: boolean }) {
           )}
         </nav>
         <div className="flex flex-col gap-2 border-t border-border p-4">
+          <ThemeSegmented className="mb-1 self-start" />
           {signedIn ? (
             <Button asChild>
               <Link href="/dashboard">Open dashboard</Link>

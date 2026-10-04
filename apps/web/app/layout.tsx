@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Funnel_Display, Geist, JetBrains_Mono } from "next/font/google";
-import { Toaster } from "sonner";
 import { CommandPalette } from "@/components/command-palette-host";
 import { MotionProvider } from "@/components/motion";
+import { ThemedToaster } from "@/components/theme";
 import { getDocsNav } from "@/lib/docs-structure";
 import { site } from "@/lib/site";
+import { themeInitScript } from "@/lib/theme";
 import "./globals.css";
 
 const sans = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
@@ -31,8 +32,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#06070a",
-  colorScheme: "dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6f7f9" },
+    { media: "(prefers-color-scheme: dark)", color: "#06070a" },
+  ],
+  colorScheme: "dark light",
   width: "device-width",
   initialScale: 1,
 };
@@ -48,14 +52,18 @@ const jsonLd = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const docs = getDocsNav().flatMap((s) => s.pages.map((p) => ({ title: p.title, href: p.href, section: s.title })));
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable}`} suppressHydrationWarning>
+    <html lang="en" data-theme="dark" className={`${sans.variable} ${display.variable} ${mono.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Sets data-theme from the saved preference before first paint (no flash of the wrong theme). */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className="min-h-dvh bg-bg text-fg">
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-accent focus:px-3 focus:py-2 focus:text-accent-fg">
           Skip to content
         </a>
         <MotionProvider>{children}</MotionProvider>
         <CommandPalette docs={docs} />
-        <Toaster theme="dark" position="bottom-right" toastOptions={{ classNames: { toast: "!bg-surface-2 !border-border-strong !text-fg" } }} />
+        <ThemedToaster />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </body>
     </html>
