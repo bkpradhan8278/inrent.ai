@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { usd } from "@/lib/dashboard";
 import { formatDateTime, formatMs, formatNumber } from "@/lib/format";
+import { NativeSelect } from "@/components/ui/input";
 import { requireAdmin } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Requests" };
@@ -32,11 +33,11 @@ export default async function AdminRequests({ searchParams }: { searchParams: Pr
     <>
       <PageHeader title="Requests" description="Platform-wide request metadata for debugging and support. Payloads are never shown in the admin console." />
       <AdminSearch action="/admin/requests" q={q} placeholder="Request ID (req_…), model, provider slug or org slug">
-        <select name="status" defaultValue={sp.status ?? ""} className="h-9 rounded-md border border-border-strong bg-bg-elevated px-3 text-sm text-fg" aria-label="Status">
+        <NativeSelect name="status" defaultValue={sp.status ?? ""} className="w-auto min-w-36" aria-label="Status">
           <option value="">All</option>
           <option value="SUCCESS">Success</option>
           <option value="ERROR">Error</option>
-        </select>
+        </NativeSelect>
       </AdminSearch>
       <div className="panel overflow-hidden rounded-xl">
         <Table>

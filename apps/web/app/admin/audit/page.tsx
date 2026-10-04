@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/dashboard/ui";
 import { Badge } from "@/components/ui/badge";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { formatDateTime } from "@/lib/format";
+import { NativeSelect } from "@/components/ui/input";
 import { requireAdmin } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Audit log" };
@@ -26,12 +27,12 @@ export default async function AdminAudit({ searchParams }: { searchParams: Promi
     <>
       <PageHeader title="Audit log" description="Append-only record of security-relevant actions by customers, staff and the system. Metadata never includes secrets." />
       <AdminSearch action="/admin/audit" q={q} placeholder="Action prefix, e.g. pricing. or provider.updated">
-        <select name="actor" defaultValue={sp.actor ?? ""} className="h-9 rounded-md border border-border-strong bg-bg-elevated px-3 text-sm text-fg" aria-label="Actor type">
+        <NativeSelect name="actor" defaultValue={sp.actor ?? ""} className="w-auto min-w-36" aria-label="Actor type">
           <option value="">All actors</option>
           <option value="ADMIN">Staff</option>
           <option value="USER">Customers</option>
           <option value="SYSTEM">System</option>
-        </select>
+        </NativeSelect>
       </AdminSearch>
       <div className="panel overflow-hidden rounded-xl">
         <Table>

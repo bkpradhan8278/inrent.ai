@@ -4,6 +4,7 @@ import { ChevronDown, Menu, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { BrandLogo } from "@/components/brand/icons";
 import { Logo } from "@/components/brand/logo";
 import { openCommandPalette } from "@/lib/command-events";
 import { Button } from "@/components/ui/button";
@@ -44,12 +45,17 @@ export function SiteHeader() {
                   {item.label}
                   <ChevronDown className="size-3.5 opacity-60" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-[min(20rem,calc(100vw-2rem))] max-h-[min(70dvh,var(--radix-dropdown-menu-content-available-height))] p-1.5">
+                <DropdownMenuContent align="start" className="w-[min(340px,calc(100vw-2rem))] max-h-[min(70dvh,var(--radix-dropdown-menu-content-available-height))] p-1.5">
                   {item.items.map((sub) => (
-                    <DropdownMenuItem key={sub.href} asChild className="w-full min-w-0 flex-col items-start gap-0.5 whitespace-normal px-3 py-2.5">
+                    <DropdownMenuItem key={sub.href} asChild className="min-w-0 items-start gap-3 whitespace-normal rounded-lg px-3 py-2.5">
                       <Link href={sub.href} target={sub.href.startsWith("https://") ? "_blank" : undefined} rel={sub.href.startsWith("https://") ? "noreferrer" : undefined}>
-                        <span className="w-full break-words text-[13.5px] font-medium text-fg">{sub.label}</span>
-                        {sub.description ? <span className="w-full break-words text-xs leading-relaxed text-fg-subtle">{sub.description}</span> : null}
+                        <span className="mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-white/[.08] bg-bg">
+                          {sub.brand ? <BrandLogo brand={sub.brand} size={16} /> : <span className="size-1.5 rounded-full bg-accent" />}
+                        </span>
+                        <span className="flex min-w-0 flex-col gap-0.5">
+                          <span className="break-words text-[13.5px] font-medium text-fg">{sub.label}</span>
+                          {sub.description ? <span className="break-words text-xs leading-snug text-fg-muted">{sub.description}</span> : null}
+                        </span>
                       </Link>
                     </DropdownMenuItem>
                   ))}

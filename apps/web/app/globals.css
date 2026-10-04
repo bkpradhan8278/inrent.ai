@@ -5,8 +5,8 @@
  * borders, one signal accent (mint) used sparingly, iris for depth, amber for compute.
  */
 @theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: var(--font-inter-tight), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-funnel), var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   --color-bg: #06070a;
@@ -125,13 +125,32 @@
     background: var(--color-bg);
     color: var(--color-fg);
     font-family: var(--font-sans);
-    font-feature-settings: "cv11", "ss01", "ss03";
+    font-feature-settings: "ss01";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
   * {
     border-color: var(--color-border);
+  }
+  /* Native dropdowns: the option list is drawn by the OS (white on Windows) unless styled, which
+     left light text on a light popup in the dashboard, admin and filters. Force a dark list. */
+  select {
+    color-scheme: dark;
+    background-color: var(--color-surface);
+    color: var(--color-fg);
+  }
+  select option,
+  select optgroup {
+    background-color: var(--color-surface-2);
+    color: var(--color-fg);
+  }
+  select option:checked {
+    background-color: var(--color-surface-3);
+    color: #ffffff;
+  }
+  select option:disabled {
+    color: var(--color-fg-subtle);
   }
   /* Grid items may shrink below their content (code blocks scroll instead of overflowing). */
   .grid > * {
@@ -255,6 +274,149 @@
   background: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.06) 50%, transparent 100%);
   background-size: 200% 100%;
   animation: var(--animate-shimmer);
+}
+
+/* ── Landing motion (ported from the redesign canvas). All collapse under reduced motion. ── */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes packet {
+  from {
+    stroke-dashoffset: 40;
+  }
+  to {
+    stroke-dashoffset: -560;
+  }
+}
+@keyframes scan {
+  0%,
+  100% {
+    background: rgb(92 235 192 / 0);
+  }
+  12% {
+    background: rgb(92 235 192 / 0.13);
+  }
+  30% {
+    background: rgb(92 235 192 / 0);
+  }
+}
+@keyframes ping-ring {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes lane {
+  0% {
+    left: 0;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+@keyframes gpu-pulse {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@utility marquee {
+  animation: marquee 46s linear infinite;
+}
+.marquee-host:hover .marquee {
+  animation-play-state: paused;
+}
+@utility pk-on {
+  stroke-dasharray: 26 700;
+  animation: packet 1.5s cubic-bezier(0.5, 0, 0.2, 1) infinite;
+}
+@utility pk-idle {
+  stroke-dasharray: 6 700;
+  animation: packet 4.8s linear infinite;
+}
+@utility pk-off {
+  stroke-dasharray: 0 700;
+}
+@utility scan {
+  animation: scan 2.6s ease-in-out infinite;
+}
+@utility ping-ring {
+  animation: ping-ring 2.6s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+@utility breathe {
+  animation: breathe 2.6s ease-in-out infinite;
+}
+@utility pop {
+  animation: pop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@utility lane {
+  animation: lane 1.6s cubic-bezier(0.5, 0, 0.3, 1) infinite;
+}
+@utility gpu-on {
+  animation: gpu-pulse 3s ease-in-out infinite;
+}
+/* Card hover: lift, brighten border, intensify the brand-tint glow. */
+@utility lift {
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.3s,
+    background 0.3s,
+    box-shadow 0.4s;
+  &:hover {
+    transform: translateY(-4px);
+    border-color: rgb(255 255 255 / 0.16);
+    box-shadow:
+      0 30px 60px -30px rgb(0 0 0 / 0.9),
+      0 0 0 1px rgb(255 255 255 / 0.04);
+  }
+  &:hover .glow {
+    opacity: 0.55;
+  }
+  &:hover .ico {
+    transform: translateY(-2px) scale(1.06);
+  }
+}
+.glow {
+  transition: opacity 0.5s;
+}
+.ico {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Shiki output sits on our own surfaces. */

@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, SheetContent } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Input, Label } from "@/components/ui/input";
+import { Input, Label, NativeSelect } from "@/components/ui/input";
 import { Kbd } from "@/components/ui/misc";
 import { signOut } from "@/lib/auth-client";
 import { formatRelative } from "@/lib/format";
@@ -170,7 +170,7 @@ function Notifications({ items }: { items: ShellData["notifications"] }) {
           <ul className="max-h-96 overflow-y-auto">
             {items.map((n) => (
               <li key={n.id} className="border-b border-border last:border-0">
-                <Link href={n.link ?? "/dashboard"} className="block px-3 py-2.5 hover:bg-surface-2">
+                <Link href={n.link ?? "/dashboard"} className="block px-3 py-2.5 hover:bg-[#1b2130]">
                   <div className="flex items-center gap-2 text-sm text-fg">
                     {!n.read ? <span className="size-1.5 rounded-full bg-accent" /> : null}
                     {n.title}
@@ -229,7 +229,7 @@ export function DashboardShell({ data, children }: { data: ShellData; children: 
           <label className="sr-only" htmlFor="project-select">
             Project
           </label>
-          <select
+          <NativeSelect
             id="project-select"
             value={data.activeProjectId}
             disabled={pending}
@@ -239,18 +239,18 @@ export function DashboardShell({ data, children }: { data: ShellData; children: 
                 router.refresh();
               })
             }
-            className="h-8 max-w-40 truncate rounded-md border border-border bg-surface px-2 text-[13px] text-fg focus-visible:outline-none sm:max-w-52"
+            className="h-8 w-auto max-w-40 truncate border-border [background-color:var(--color-surface)] pl-2.5 text-[13px] sm:max-w-52"
           >
             {data.projects.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}
               </option>
             ))}
-          </select>
+          </NativeSelect>
           <label className="sr-only" htmlFor="env-select">
             Environment
           </label>
-          <select
+          <NativeSelect
             id="env-select"
             value={data.environment}
             disabled={pending}
@@ -260,13 +260,13 @@ export function DashboardShell({ data, children }: { data: ShellData; children: 
                 router.refresh();
               })
             }
-            className="hidden h-8 rounded-md border border-border bg-surface px-2 text-[13px] text-fg focus-visible:outline-none sm:block"
+            className="hidden h-8 w-auto border-border [background-color:var(--color-surface)] pl-2.5 text-[13px] sm:block"
           >
             <option value="all">All environments</option>
             <option value="DEVELOPMENT">Development</option>
             <option value="STAGING">Staging</option>
             <option value="PRODUCTION">Production</option>
-          </select>
+          </NativeSelect>
           {data.isDemo ? <Badge variant="amber" className="hidden md:inline-flex">Demo workspace</Badge> : null}
           <div className="ml-auto flex items-center gap-1">
             <button type="button" onClick={() => openCommandPalette()} className="hidden h-8 items-center gap-2 rounded-md border border-border px-2.5 text-[12.5px] text-fg-subtle hover:text-fg-muted md:inline-flex">

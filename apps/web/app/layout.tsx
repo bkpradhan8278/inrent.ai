@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
+import { Funnel_Display, Geist, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { CommandPalette } from "@/components/command-palette-host";
 import { MotionProvider } from "@/components/motion";
@@ -7,8 +7,8 @@ import { getDocsNav } from "@/lib/docs-structure";
 import { site } from "@/lib/site";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const interTight = Inter_Tight({ subsets: ["latin"], variable: "--font-inter-tight", display: "swap", weight: ["500", "600", "700"] });
+const sans = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
+const display = Funnel_Display({ subsets: ["latin"], variable: "--font-funnel", display: "swap", weight: ["500", "600", "700"] });
 // Code font: not preloaded (not needed for first paint; falls back to the system monospace).
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap", preload: false });
 
@@ -48,7 +48,7 @@ const jsonLd = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const docs = getDocsNav().flatMap((s) => s.pages.map((p) => ({ title: p.title, href: p.href, section: s.title })));
   return (
-    <html lang="en" className={`${inter.variable} ${interTight.variable} ${mono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable}`} suppressHydrationWarning>
       <body className="min-h-dvh bg-bg text-fg">
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-accent focus:px-3 focus:py-2 focus:text-accent-fg">
           Skip to content

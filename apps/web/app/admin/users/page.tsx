@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { formatDate } from "@/lib/format";
 import { requireAdmin } from "@/lib/session";
+import { NativeSelect } from "@/components/ui/input";
 import { RoleSelect } from "./role-select";
 
 export const metadata: Metadata = { title: "Users" };
@@ -33,10 +34,10 @@ export default async function AdminUsers({ searchParams }: { searchParams: Promi
     <>
       <PageHeader title="Users" description="Search accounts and manage platform (staff) roles. Customer roles inside organizations are managed by their owners." />
       <AdminSearch action="/admin/users" q={q} placeholder="Search by email or name">
-        <select name="role" defaultValue={sp.role ?? ""} className="h-9 rounded-md border border-border-strong bg-bg-elevated px-3 text-sm text-fg" aria-label="Role filter">
+        <NativeSelect name="role" defaultValue={sp.role ?? ""} className="w-auto min-w-36" aria-label="Role filter">
           <option value="">All users</option>
           <option value="staff">Staff only</option>
-        </select>
+        </NativeSelect>
       </AdminSearch>
       <div className="panel overflow-hidden rounded-xl">
         <Table>

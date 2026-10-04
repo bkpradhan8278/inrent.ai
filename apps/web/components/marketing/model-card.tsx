@@ -2,7 +2,7 @@ import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { CAPABILITIES } from "@inrent/core/catalog";
 import type { PublicModel } from "@inrent/services";
-import { VendorMark } from "@/components/brand/icons";
+import { BRAND_TINT, VendorMark } from "@/components/brand/icons";
 import { Badge } from "@/components/ui/badge";
 import { formatContext, formatPerMillion } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -34,20 +34,21 @@ export function PriceLine({ pricing }: { pricing: PublicModel["pricing"] }) {
 export function ModelCard({ model, className }: { model: PublicModel; className?: string }) {
   const caps = model.capabilities.filter((c) => c !== "chat" && c !== "streaming").slice(0, 4);
   const ctx = formatContext(model.contextLength);
+  const tint = BRAND_TINT[model.vendor] ?? "142 150 255";
   return (
     <Link
       href={`/models/${model.slug}`}
       className={cn(
-        "panel group relative flex h-full flex-col gap-4 overflow-hidden rounded-xl p-5 transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-1 hover:border-border-strong hover:shadow-[0_22px_55px_-26px_rgb(92_235_192/0.28)]",
+        "lift group relative flex h-full flex-col gap-4 overflow-hidden rounded-[18px] border border-white/[.08] bg-[linear-gradient(180deg,#10141b,#0b0d12)] p-5",
         className,
       )}
     >
-      <span className="pointer-events-none absolute -right-14 -top-16 size-36 rounded-full bg-accent/10 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100" aria-hidden="true" />
+      <div className="glow pointer-events-none absolute -right-16 -top-20 size-52 rounded-full opacity-25" style={{ background: `radial-gradient(closest-side, rgb(${tint} / .45), transparent)` }} aria-hidden />
       <div className="relative flex items-start gap-3">
-        <VendorMark vendor={model.vendor} />
+        <VendorMark vendor={model.vendor} className="ico size-[46px] rounded-xl" />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <h3 className="truncate text-[15px] font-semibold text-fg">{model.displayName}</h3>
+            <h3 className="truncate font-display text-[17px] font-semibold tracking-[-0.02em] text-fg">{model.displayName}</h3>
             <ArrowUpRight className="size-3.5 shrink-0 text-fg-subtle opacity-0 transition-opacity group-hover:opacity-100" />
           </div>
           <div className="truncate font-mono text-[11.5px] text-fg-subtle">{model.slug}</div>
@@ -62,7 +63,7 @@ export function ModelCard({ model, className }: { model: PublicModel; className?
         ))}
         {model.openWeights ? <Badge variant="outline">Open weights</Badge> : null}
       </div>
-      <div className="mt-auto flex flex-col gap-3 border-t border-border pt-3 text-[12px]">
+      <div className="relative mt-auto flex flex-col gap-3 border-t border-white/[.06] pt-3 text-[12px]">
         <PriceLine pricing={model.pricing} />
         <div className="flex items-center justify-between gap-2">
           <AvailabilityBadge availability={model.availability} devOnly={model.isDevOnly} />

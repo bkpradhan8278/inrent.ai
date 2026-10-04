@@ -7,6 +7,7 @@ import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { usd } from "@/lib/dashboard";
 import { formatDate } from "@/lib/format";
 import { requireAdmin } from "@/lib/session";
+import { NativeSelect } from "@/components/ui/input";
 import { OrgActions } from "./org-actions";
 
 export const metadata: Metadata = { title: "Organizations" };
@@ -37,11 +38,11 @@ export default async function AdminOrgs({ searchParams }: { searchParams: Promis
     <>
       <PageHeader title="Organizations" description="Plans, balances and account standing. Suspension blocks API access immediately (cached keys expire within a minute)." />
       <AdminSearch action="/admin/organizations" q={q} placeholder="Search by name, slug or member email">
-        <select name="filter" defaultValue={sp.filter ?? ""} className="h-9 rounded-md border border-border-strong bg-bg-elevated px-3 text-sm text-fg" aria-label="Filter">
+        <NativeSelect name="filter" defaultValue={sp.filter ?? ""} className="w-auto min-w-36" aria-label="Filter">
           <option value="">All</option>
           <option value="suspended">Suspended</option>
           <option value="demo">Demo</option>
-        </select>
+        </NativeSelect>
       </AdminSearch>
       <div className="panel overflow-hidden rounded-xl">
         <Table>

@@ -1,6 +1,13 @@
-# Brand image sources
+# Third-party brand assets
 
-- AI provider PNG marks (`openai.png`, `anthropic.png`, `gemini.png`, `deepseek.png`, `qwen.png`, `zai.png`, `mistral.png`, `meta.png`, `moonshotai.png`, `cohere.png`, `groq.png`) are from [`@lobehub/icons-static-png` 1.97.1](https://www.npmjs.com/package/@lobehub/icons-static-png), licensed under MIT. Source project: <https://github.com/lobehub/lobe-icons>.
-- GitHub, Notion, Google Drive and PostgreSQL SVG marks are from [`simple-icons` 16.33.0](https://www.npmjs.com/package/simple-icons), licensed under CC0 1.0. Source project: <https://github.com/simple-icons/simple-icons>.
-- Slack's icon is by 292Jacob, sourced from [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Slack_icon_2022.svg), under CC BY-SA 4.0. No changes were made to the SVG.
-- Product names and marks remain the property of their respective owners.
+The logos in this directory identify the vendors of models and integrations that INRENT can route to
+or connect with. They are trademarks of their respective owners; showing them indicates an
+integration, not endorsement, sponsorship or partnership.
+
+| Files | Source | License |
+| --- | --- | --- |
+| `anthropic.png`, `cohere.png`, `deepseek.png`, `gemini.png`, `github.png`, `groq.png`, `mcp.png`, `meta.png`, `mistral.png`, `moonshot.png`, `openai.png`, `qwen.png`, `vllm.png`, `xai.png`, `zai.png` | [LobeHub Icons](https://github.com/lobehub/lobe-icons) (`@lobehub/icons-static-png`) | MIT (icon artwork); marks remain trademarks of their owners |
+| `google-drive.svg`, `notion.svg`, `postgres.svg`, `slack.svg` | [SVG Logos by Gil Barbara](https://github.com/gilbarbara/logos) | CC0 1.0 (artwork); marks remain trademarks of their owners |
+
+Follow each owner's brand guidelines when changing how a logo is displayed (no recoloring,
+distortion or implied endorsement). Remove a logo if its owner asks.

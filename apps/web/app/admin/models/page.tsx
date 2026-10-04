@@ -3,6 +3,7 @@ import { prisma, type Prisma } from "@inrent/db";
 import { AdminSearch } from "@/components/admin/search";
 import { PageHeader } from "@/components/dashboard/ui";
 import { requireAdmin } from "@/lib/session";
+import { NativeSelect } from "@/components/ui/input";
 import { ModelEditor, type ModelRow } from "./model-editor";
 
 export const metadata: Metadata = { title: "Models & pricing" };
@@ -71,11 +72,11 @@ export default async function AdminModels({ searchParams }: { searchParams: Prom
     <>
       <PageHeader title="Models & pricing" description="Prices are versioned: saving creates a new active price and closes the previous one. Every change records its source and is audit-logged. A model is only served with platform credit when its license, resale status and price are verified." />
       <AdminSearch action="/admin/models" q={q} placeholder="Search models">
-        <select name="filter" defaultValue={sp.filter ?? ""} className="h-9 rounded-md border border-border-strong bg-bg-elevated px-3 text-sm text-fg" aria-label="Filter">
+        <NativeSelect name="filter" defaultValue={sp.filter ?? ""} className="w-auto min-w-36" aria-label="Filter">
           <option value="">All models</option>
           <option value="review">Needs review</option>
           <option value="unpriced">Has unpriced endpoint</option>
-        </select>
+        </NativeSelect>
       </AdminSearch>
       <ModelEditor rows={rows} canWrite={admin.can("models:write")} canPrice={admin.can("pricing:write")} defaultMarkup={process.env.DEFAULT_PLATFORM_MARKUP_PCT ?? "5.5"} />
     </>
