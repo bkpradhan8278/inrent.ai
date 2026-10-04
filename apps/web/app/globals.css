@@ -1,6 +1,14 @@
 @import "tailwindcss";
 
 /*
+ * Theme variants that follow <html data-theme> (and nested data-theme scopes), not the OS:
+ * light:bg-white / dark:opacity-40. An element inside a forced data-theme="dark" code window
+ * counts as dark even on a light page.
+ */
+@custom-variant light (&:where([data-theme="light"], [data-theme="light"] *):not([data-theme="dark"], [data-theme="dark"] *));
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
  * INRENT design tokens. Dark-first, restrained palette: near-black surfaces, hairline
  * borders, one signal accent (mint) used sparingly, iris for depth, amber for compute.
  */
