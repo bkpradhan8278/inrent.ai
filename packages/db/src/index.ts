@@ -10,6 +10,8 @@ declare global {
 function createClient(): PrismaClient {
   return new PrismaClient({
     log: process.env.PRISMA_LOG_QUERIES === "true" ? ["query", "warn", "error"] : ["warn", "error"],
+    // Same-organization ledger updates serialize on the balance row; allow a short burst to queue.
+    transactionOptions: { maxWait: 10_000, timeout: 15_000 },
   });
 }
 

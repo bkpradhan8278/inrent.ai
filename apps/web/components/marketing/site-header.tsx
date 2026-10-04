@@ -44,12 +44,12 @@ export function SiteHeader() {
                   {item.label}
                   <ChevronDown className="size-3.5 opacity-60" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-80 p-1.5">
+                <DropdownMenuContent align="start" className="w-[min(20rem,calc(100vw-2rem))] max-h-[min(70dvh,var(--radix-dropdown-menu-content-available-height))] p-1.5">
                   {item.items.map((sub) => (
-                    <DropdownMenuItem key={sub.href} asChild className="flex-col items-start gap-0.5 px-3 py-2.5">
-                      <Link href={sub.href}>
-                        <span className="text-[13.5px] font-medium text-fg">{sub.label}</span>
-                        {sub.description ? <span className="text-xs text-fg-subtle">{sub.description}</span> : null}
+                    <DropdownMenuItem key={sub.href} asChild className="w-full min-w-0 flex-col items-start gap-0.5 whitespace-normal px-3 py-2.5">
+                      <Link href={sub.href} target={sub.href.startsWith("https://") ? "_blank" : undefined} rel={sub.href.startsWith("https://") ? "noreferrer" : undefined}>
+                        <span className="w-full break-words text-[13.5px] font-medium text-fg">{sub.label}</span>
+                        {sub.description ? <span className="w-full break-words text-xs leading-relaxed text-fg-subtle">{sub.description}</span> : null}
                       </Link>
                     </DropdownMenuItem>
                   ))}
@@ -123,8 +123,9 @@ function MobileNav({ signedIn }: { signedIn: boolean }) {
               <div key={item.label} className="mt-4">
                 <div className="px-3 pb-1 text-[11px] uppercase tracking-wider text-fg-subtle">{item.label}</div>
                 {item.items.map((sub) => (
-                  <Link key={sub.href} href={sub.href} className="block rounded-md px-3 py-2 text-[15px] text-fg-muted hover:bg-surface-2 hover:text-fg">
-                    {sub.label}
+                  <Link key={sub.href} href={sub.href} target={sub.href.startsWith("https://") ? "_blank" : undefined} rel={sub.href.startsWith("https://") ? "noreferrer" : undefined} className="block min-w-0 rounded-md px-3 py-2 text-[15px] text-fg-muted hover:bg-surface-2 hover:text-fg">
+                    <span className="block whitespace-normal break-words">{sub.label}</span>
+                    {sub.description ? <span className="mt-0.5 block whitespace-normal break-words text-xs leading-relaxed text-fg-subtle">{sub.description}</span> : null}
                   </Link>
                 ))}
               </div>

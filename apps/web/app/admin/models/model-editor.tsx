@@ -2,6 +2,7 @@
 
 import { ChevronDown } from "lucide-react";
 import * as React from "react";
+import { VendorMark } from "@/components/brand/icons";
 import { useAction } from "@/components/dashboard/client-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -284,6 +285,7 @@ export function ModelEditor({ rows, canWrite, canPrice, defaultMarkup }: { rows:
         return (
           <li key={m.id} className="panel overflow-hidden rounded-xl">
             <button type="button" onClick={() => setOpen(isOpen ? null : m.id)} aria-expanded={isOpen} className="flex w-full flex-wrap items-center gap-x-3 gap-y-1.5 p-4 text-left">
+              <VendorMark vendor={m.vendor} className="size-8 rounded-lg" />
               <span className="font-medium text-fg">{m.displayName}</span>
               <span className="font-mono text-[12px] text-fg-subtle">{m.slug}</span>
               <Badge variant={VERIF_VARIANT[m.verificationStatus]}>{m.verificationStatus.toLowerCase().replace("_", " ")}</Badge>

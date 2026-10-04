@@ -13,7 +13,7 @@ export function DropdownMenuContent({ className, sideOffset = 6, ...props }: Rea
     <Primitive.Portal>
       <Primitive.Content
         sideOffset={sideOffset}
-        className={cn("panel z-50 min-w-48 overflow-hidden rounded-lg p-1 shadow-xl data-[state=open]:animate-fade-in", className)}
+        className={cn("panel z-50 min-w-48 overscroll-contain overflow-y-auto rounded-lg p-1 shadow-xl data-[state=open]:animate-fade-in", className)}
         {...props}
       />
     </Primitive.Portal>

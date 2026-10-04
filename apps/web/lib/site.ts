@@ -35,6 +35,7 @@ export const mainNav: Array<NavLink | { label: string; items: NavLink[] }> = [
   {
     label: "Resources",
     items: [
+      { label: "OpenAI Developers", href: "https://developers.openai.com/api/docs/", description: "Official OpenAI API docs and developer guides." },
       { label: "Changelog", href: "/changelog", description: "What shipped and when." },
       { label: "Roadmap", href: "/roadmap", description: "Where INRENT is going." },
       { label: "Status", href: "/status", description: "Live component status." },
@@ -63,6 +64,7 @@ export const footerNav: Array<{ title: string; links: NavLink[] }> = [
       { label: "API Reference", href: "/docs/api-reference" },
       { label: "SDKs", href: "/docs/sdks" },
       { label: "CLI", href: "/docs/cli" },
+      { label: "OpenAI Developers", href: "https://developers.openai.com/api/docs/" },
       { label: "GitHub", href: site.github },
     ],
   },

@@ -51,12 +51,10 @@ export function RoutingDemo() {
               setRun((r) => r + 1);
             }}
             aria-pressed={policy === p.id}
-            className={cn(
-              "h-8 rounded-md px-3 text-[13px] transition-colors",
-              policy === p.id ? "bg-surface-3 text-fg shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]" : "text-fg-subtle hover:text-fg-muted",
-            )}
+            className={cn("relative h-8 rounded-md px-3 text-[13px] transition-colors", policy === p.id ? "text-fg" : "text-fg-subtle hover:text-fg-muted")}
           >
-            {p.label}
+            {policy === p.id ? <m.span layoutId="routing-policy" className="absolute inset-0 -z-0 rounded-md bg-surface-3 shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]" transition={{ type: "spring", stiffness: 420, damping: 34 }} /> : null}
+            <span className="relative z-10">{p.label}</span>
           </button>
         ))}
       </div>
@@ -82,7 +80,7 @@ export function RoutingDemo() {
             const isChosen = r.id === chosen;
             const isFailed = policy === "fallback" && failed && r.id === "b";
             return (
-              <li key={r.id} className={cn("relative rounded-lg border px-3.5 py-3 transition-colors duration-300", isChosen ? "border-[rgb(92_235_192/0.45)] bg-accent-soft" : isFailed ? "border-[rgb(255_107_107/0.4)] bg-danger-soft" : "border-border bg-bg-elevated")}>
+              <m.li key={r.id} layout className={cn("relative rounded-lg border px-3.5 py-3 transition-colors duration-300", isChosen ? "border-[rgb(92_235_192/0.45)] bg-accent-soft shadow-[0_8px_28px_-18px_rgb(92_235_192/0.7)]" : isFailed ? "border-[rgb(255_107_107/0.4)] bg-danger-soft" : "border-border bg-bg-elevated")}>
                 <div className="flex items-center justify-between gap-3">
                   <span className={cn("text-[13px] font-medium", isChosen ? "text-fg" : "text-fg-muted")}>{r.name}</span>
                   <span className={cn("font-mono text-[11px]", isChosen ? "text-accent" : isFailed ? "text-danger" : "text-fg-subtle")}>
@@ -99,7 +97,7 @@ export function RoutingDemo() {
                     </div>
                   ))}
                 </div>
-              </li>
+              </m.li>
             );
           })}
         </ul>

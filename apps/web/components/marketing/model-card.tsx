@@ -38,11 +38,12 @@ export function ModelCard({ model, className }: { model: PublicModel; className?
     <Link
       href={`/models/${model.slug}`}
       className={cn(
-        "panel group relative flex h-full flex-col gap-4 rounded-xl p-5 transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-[0_20px_50px_-24px_rgb(92_235_192/0.35)]",
+        "panel group relative flex h-full flex-col gap-4 overflow-hidden rounded-xl p-5 transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-1 hover:border-border-strong hover:shadow-[0_22px_55px_-26px_rgb(92_235_192/0.28)]",
         className,
       )}
     >
-      <div className="flex items-start gap-3">
+      <span className="pointer-events-none absolute -right-14 -top-16 size-36 rounded-full bg-accent/10 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100" aria-hidden="true" />
+      <div className="relative flex items-start gap-3">
         <VendorMark vendor={model.vendor} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
@@ -52,8 +53,8 @@ export function ModelCard({ model, className }: { model: PublicModel; className?
           <div className="truncate font-mono text-[11.5px] text-fg-subtle">{model.slug}</div>
         </div>
       </div>
-      <p className="line-clamp-2 text-[13.5px] leading-relaxed text-fg-muted">{model.description}</p>
-      <div className="flex flex-wrap gap-1.5">
+      <p className="relative line-clamp-2 text-[13.5px] leading-relaxed text-fg-muted">{model.description}</p>
+      <div className="relative flex flex-wrap gap-1.5">
         {caps.map((c) => (
           <Badge key={c} variant="neutral">
             {CAPABILITIES[c as keyof typeof CAPABILITIES] ?? c}

@@ -16,7 +16,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:generate": "pnpm --filter @inrent/db generate",
-    "db:init": "pnpm --filter @inrent/db init",
+    "db:init": "pnpm --filter @inrent/db run init",
     "db:migrate": "pnpm --filter @inrent/db migrate:deploy",
     "db:migrate:dev": "pnpm --filter @inrent/db migrate:dev",
     "db:seed": "pnpm --filter @inrent/db seed",
@@ -33,5 +33,10 @@
     "typescript": "5.9.3",
     "typescript-eslint": "^8.46.0",
     "vitest": "^4.1.11"
+  },
+  "pnpm": {
+    "overrides": {
+      "deepmerge-ts": "8.0.2"
+    }
   }
 }

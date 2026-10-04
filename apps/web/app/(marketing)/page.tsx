@@ -1,5 +1,6 @@
 import { Activity, ArrowRight, Bot, KeyRound, Network, Plug, Route, ShieldCheck, Users, Wallet, Webhook } from "lucide-react";
 import Link from "next/link";
+import { VendorMark } from "@/components/brand/icons";
 import { CodeTabs } from "@/components/ui/code-block";
 import { Button } from "@/components/ui/button";
 import { CopyButton } from "@/components/ui/copy-button";
@@ -19,14 +20,20 @@ import { chatSnippets } from "@/lib/snippets";
 export const revalidate = 300;
 
 const FEATURES = [
-  { icon: Route, title: "Routing & fallback", body: "Route by cost, latency or quality. When a provider fails, retry on the next eligible one — before the first byte." },
-  { icon: Wallet, title: "Unified billing", body: "Prepaid credits across every provider. Exact, server-side usage accounting with per-request cost." },
-  { icon: KeyRound, title: "Keys with guardrails", body: "Per-key model allowlists, spend limits, rate limits, expiry and environments. Only hashes are stored." },
-  { icon: Activity, title: "Observability", body: "Request logs, latency, TTFT, tokens, errors and routing decisions — with privacy-first payload retention." },
-  { icon: Plug, title: "Bring your own key", body: "Use your own provider accounts through the same API. Keys are encrypted and never shown again." },
-  { icon: Webhook, title: "Webhooks", body: "Signed events for requests, credits, payments and provider health, with automatic retries." },
-  { icon: Users, title: "Teams & projects", body: "Organizations, roles, project budgets and shared billing — built for more than one developer." },
-  { icon: ShieldCheck, title: "Secure by default", body: "Encrypted secrets, audit logs, RBAC, SSRF-safe outbound calls and strict input limits." },
+  { icon: Route, color: "#5cebc0", title: "Routing & fallback", body: "Route by cost, latency or quality. When a provider fails, retry on the next eligible one — before the first byte." },
+  { icon: Wallet, color: "#f7b955", title: "Unified billing", body: "Prepaid credits across every provider. Exact, server-side usage accounting with per-request cost." },
+  { icon: KeyRound, color: "#a997ff", title: "Keys with guardrails", body: "Per-key model allowlists, spend limits, rate limits, expiry and environments. Only hashes are stored." },
+  { icon: Activity, color: "#62b7ff", title: "Observability", body: "Request logs, latency, TTFT, tokens, errors and routing decisions — with privacy-first payload retention." },
+  { icon: Plug, color: "#f08ccc", title: "Bring your own key", body: "Use your own provider accounts through the same API. Keys are encrypted and never shown again." },
+  { icon: Webhook, color: "#ff8f70", title: "Webhooks", body: "Signed events for requests, credits, payments and provider health, with automatic retries." },
+  { icon: Users, color: "#70c9a0", title: "Teams & projects", body: "Organizations, roles, project budgets and shared billing — built for more than one developer." },
+  { icon: ShieldCheck, color: "#80a8ff", title: "Secure by default", body: "Encrypted secrets, audit logs, RBAC, SSRF-safe outbound calls and strict input limits." },
+ ];
+
+const PROVIDERS = [
+  { vendor: "openai", name: "OpenAI" }, { vendor: "anthropic", name: "Anthropic" }, { vendor: "google", name: "Google Gemini" },
+  { vendor: "deepseek", name: "DeepSeek" }, { vendor: "qwen", name: "Qwen" }, { vendor: "mistral", name: "Mistral" },
+  { vendor: "zai", name: "Z.ai GLM" }, { vendor: "meta", name: "Meta Llama" }, { vendor: "vllm", name: "vLLM" },
 ];
 
 export default async function HomePage() {
@@ -92,14 +99,15 @@ export default async function HomePage() {
 
       {/* ── Provider strip ───────────────────────────────────────────────── */}
       <section className="border-y border-border bg-bg-elevated/60">
-        <div className="container-page flex flex-col items-center gap-5 py-8 md:flex-row md:justify-between">
+        <div className="container-page grid items-center gap-x-8 gap-y-5 py-8 md:grid-cols-[minmax(220px,0.8fr)_minmax(0,1.2fr)]">
           <p className="max-w-sm text-center text-[13px] text-fg-subtle md:text-left">
             Integrations are configured per provider: platform-funded where terms allow, your own key where they don&apos;t.
           </p>
-          <ul className="flex flex-wrap justify-center gap-x-6 gap-y-3 font-display text-[14px] font-medium tracking-tight text-fg-subtle md:max-w-[62%] md:justify-end">
-            {["OpenAI", "Anthropic", "Google Gemini", "DeepSeek", "Qwen", "Mistral", "Z.ai GLM", "Meta Llama", "vLLM"].map((n) => (
-              <li key={n} className="transition-colors hover:text-fg-muted">
-                {n}
+          <ul className="grid grid-cols-2 justify-items-start gap-x-4 gap-y-3 sm:grid-cols-3">
+            {PROVIDERS.map(({ vendor, name }) => (
+              <li key={name} className="group/provider flex min-w-0 items-center gap-2 whitespace-nowrap text-[12.5px] font-medium tracking-tight text-fg-subtle transition-colors duration-200 hover:text-fg-muted">
+                <VendorMark vendor={vendor} className="size-6 rounded-md transition-transform duration-200 group-hover/provider:scale-110" />
+                <span>{name}</span>
               </li>
             ))}
           </ul>
@@ -202,12 +210,13 @@ export default async function HomePage() {
           <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
             {FEATURES.map((f, i) => (
               <Reveal key={f.title} delay={Math.min(i * 0.04, 0.24)} className="h-full">
-                <div className="group h-full bg-surface p-6 transition-colors hover:bg-surface-2">
-                  <div className="flex size-9 items-center justify-center rounded-lg border border-border-strong bg-bg-elevated text-accent transition-transform duration-300 group-hover:-translate-y-0.5">
+                <div className="group relative h-full overflow-hidden bg-surface p-6 transition-colors duration-300 hover:bg-surface-2">
+                  <div className="pointer-events-none absolute -right-10 -top-10 size-24 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-30" style={{ backgroundColor: f.color }} aria-hidden="true" />
+                  <div className="relative flex size-10 items-center justify-center rounded-xl border bg-bg-elevated transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105" style={{ color: f.color, borderColor: `${f.color}55`, boxShadow: `inset 0 1px 0 rgb(255 255 255 / .08), 0 6px 22px ${f.color}12` }}>
                     <f.icon className="size-4" />
                   </div>
-                  <h3 className="mt-4 text-[15px] font-semibold text-fg">{f.title}</h3>
-                  <p className="mt-2 text-[13.5px] leading-relaxed text-fg-muted">{f.body}</p>
+                  <h3 className="relative mt-4 text-[15px] font-semibold text-fg">{f.title}</h3>
+                  <p className="relative mt-2 text-[13.5px] leading-relaxed text-fg-muted">{f.body}</p>
                 </div>
               </Reveal>
             ))}

@@ -20,7 +20,7 @@ export function SiteFooter() {
             <ul className="flex flex-col gap-2.5">
               {col.links.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="inline-flex items-center gap-2 text-sm text-fg-muted transition-colors hover:text-fg">
+                  <Link href={l.href} target={l.href.startsWith("https://") ? "_blank" : undefined} rel={l.href.startsWith("https://") ? "noreferrer" : undefined} className="inline-flex items-center gap-2 text-sm text-fg-muted transition-colors hover:text-fg">
                     {l.label}
                     {l.badge ? <span className="rounded-full border border-border-strong px-1.5 text-[10px] text-fg-subtle">{l.badge}</span> : null}
                   </Link>

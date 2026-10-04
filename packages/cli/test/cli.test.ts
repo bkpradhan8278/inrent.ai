@@ -41,11 +41,12 @@ const json = (v: unknown, status = 200, headers: Record<string, string> = {}) =>
 const currentKey = { data: { id: "k1", name: "laptop", prefix: "sk-inrent-dev-aaa", environment: "development", organization_id: "o1", project: { id: "p1", name: "Default" }, permissions: ["inference"], limits: { spend_limit_usd: null, rpm: 60, tpm: 100000 }, usage: { spent_usd: "0.000000" }, balance_usd: "12.500000", expires_at: null } };
 
 describe("config", () => {
-  it("writes owner-only files and resolves precedence", () => {
+  it("uses owner-only POSIX file mode and resolves precedence", () => {
     const dir = mkdtempSync(join(tmpdir(), "inrent-cfg-"));
     const p = join(dir, "nested", "config.json");
     saveConfig(p, { api_key: KEY });
-    expect(statSync(p).mode & 0o777).toBe(0o600);
+    // Windows reports broad POSIX mode bits regardless of the inherited ACL.
+    if (process.platform !== "win32") expect(statSync(p).mode & 0o777).toBe(0o600);
     expect(loadConfig(p).api_key).toBe(KEY);
     expect(resolveSettings({}, {}, { api_key: "cfg" }).apiKeySource).toBe("config");
     expect(resolveSettings({}, { INRENT_API_KEY: "env" }, { api_key: "cfg" })).toMatchObject({ apiKey: "env", apiKeySource: "env" });

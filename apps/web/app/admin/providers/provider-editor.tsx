@@ -2,6 +2,7 @@
 
 import { ChevronDown, ExternalLink, KeyRound, ShieldAlert, ShieldCheck } from "lucide-react";
 import * as React from "react";
+import { VendorMark } from "@/components/brand/icons";
 import { useAction } from "@/components/dashboard/client-kit";
 import { StatusPill } from "@/components/dashboard/ui";
 import { Badge } from "@/components/ui/badge";
@@ -160,6 +161,7 @@ export function ProviderEditor({ rows, canWrite, modes }: { rows: ProviderRow[];
         return (
           <li key={p.id} className="panel overflow-hidden rounded-xl">
             <button type="button" onClick={() => setOpen(isOpen ? null : p.id)} aria-expanded={isOpen} className="flex w-full flex-wrap items-center gap-x-3 gap-y-2 p-4 text-left">
+              <VendorMark vendor={p.slug} className="size-10 rounded-xl" />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-medium text-fg">{p.name}</span>

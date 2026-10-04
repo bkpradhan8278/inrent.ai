@@ -1,4 +1,5 @@
 import { LogoMark } from "@/components/brand/logo";
+import { VendorMark } from "@/components/brand/icons";
 import { ScaleToFit } from "./scale-to-fit";
 import { cn } from "@/lib/utils";
 
@@ -12,14 +13,15 @@ const W = 560;
 const H = 540;
 
 const providers = [
-  { name: "OpenAI", mono: "O", tint: "#9ce8cf", x: 74, y: 405 },
-  { name: "Anthropic", mono: "A", tint: "#e8b48f", x: 211, y: 405 },
-  { name: "Gemini", mono: "G", tint: "#8fb8ff", x: 349, y: 405 },
-  { name: "DeepSeek", mono: "D", tint: "#8aa2ff", x: 486, y: 405 },
-  { name: "Qwen", mono: "Q", tint: "#b59cff", x: 74, y: 482 },
-  { name: "Mistral", mono: "M", tint: "#ffb27a", x: 211, y: 482 },
-  { name: "GLM", mono: "Z", tint: "#7fd1ff", x: 349, y: 482 },
-  { name: "vLLM", mono: "v", tint: "#5cebc0", x: 486, y: 482, note: "self-hosted" },
+  { name: "OpenAI", vendor: "openai", x: 94, y: 395 },
+  { name: "Anthropic", vendor: "anthropic", x: 280, y: 395 },
+  { name: "Google Gemini", vendor: "google", x: 466, y: 395 },
+  { name: "DeepSeek", vendor: "deepseek", x: 94, y: 445 },
+  { name: "Qwen", vendor: "qwen", x: 280, y: 445 },
+  { name: "Mistral", vendor: "mistral", x: 466, y: 445 },
+  { name: "Z.ai GLM", vendor: "zai", x: 94, y: 495 },
+  { name: "Meta Llama", vendor: "meta", x: 280, y: 495 },
+  { name: "vLLM", vendor: "vllm", x: 466, y: 495 },
 ];
 
 const ROUTER = { x: 280, y: 292 };
@@ -41,12 +43,13 @@ function Node({ x, y, className, children }: { x: number; y: number; className?:
 
 export function RoutingVisual({ className }: { className?: string }) {
   // Active routes cycle deterministically through providers to illustrate routing decisions.
-  const active = [0, 2, 1, 6, 3, 7, 4, 5];
+  const active = [0, 2, 1, 6, 3, 8, 4, 7, 5];
   const cycle = 2.4;
   const total = active.length * cycle;
   const slot = 1 / active.length;
   return (
     <figure className={cn("relative w-full", className)} aria-label="Diagram: your application calls the INRENT API, which routes each request to an eligible model provider">
+      <div className="hidden sm:block">
       <ScaleToFit width={W} height={H}>
       <div className="relative h-full w-full">
         {/* glow */}
@@ -158,16 +161,44 @@ export function RoutingVisual({ className }: { className?: string }) {
 
         {providers.map((p) => (
           <Node key={p.name} x={p.x} y={p.y}>
-            <div className="flex w-[118px] items-center gap-2 rounded-lg border border-border bg-surface/90 px-2 py-1.5 shadow-md backdrop-blur">
-              <span className="flex size-5 shrink-0 items-center justify-center rounded font-mono text-[10px] font-semibold" style={{ color: p.tint, background: `${p.tint}1a`, border: `1px solid ${p.tint}33` }}>
-                {p.mono}
-              </span>
-              <span className="truncate text-[11px] text-fg-muted">{p.name}</span>
+            <div className="flex w-[164px] items-center gap-2 rounded-lg border border-border bg-surface/90 px-2.5 py-1.5 shadow-md backdrop-blur">
+              <VendorMark vendor={p.vendor} className="size-5 rounded-md" />
+              <span className="whitespace-nowrap text-[11px] font-medium text-fg-muted">{p.name}</span>
             </div>
           </Node>
         ))}
       </div>
       </ScaleToFit>
+      </div>
+      <div className="panel rounded-2xl p-4 sm:hidden">
+        <div className="rounded-lg border border-border bg-surface px-3 py-2.5">
+          <div className="text-xs font-medium text-fg">Your application</div>
+          <div className="mt-1 font-mono text-[10px] text-fg-subtle">POST /v1/chat/completions</div>
+        </div>
+        <div className="mx-auto h-4 w-px bg-accent/50" aria-hidden="true" />
+        <div className="rounded-lg border border-accent/30 bg-accent-soft/30 px-3 py-2.5">
+          <div className="flex items-center gap-2">
+            <LogoMark className="size-5" />
+            <span className="text-xs font-semibold text-fg">INRENT API</span>
+            <span className="ml-auto font-mono text-[9px] text-accent">api.inrent.ai/v1</span>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-1">
+            {["Auth", "Rate limits", "Credits", "Routing", "Logs"].map((label) => <span key={label} className="rounded border border-border bg-bg px-1.5 py-0.5 font-mono text-[9px] text-fg-subtle">{label}</span>)}
+          </div>
+        </div>
+        <div className="mx-auto h-4 w-px bg-accent/50" aria-hidden="true" />
+        <div className="mb-2 flex items-center justify-center gap-2 text-[11px] font-medium text-fg-muted">
+          <span className="size-1.5 rounded-full bg-accent" /> Router <span className="font-mono text-[10px] text-fg-subtle">balanced · fallback</span>
+        </div>
+        <div className="grid grid-cols-2 gap-2" aria-label="Eligible model providers">
+          {providers.map((provider) => (
+            <div key={provider.name} className="flex min-w-0 items-center gap-2 rounded-lg border border-border bg-surface/90 px-2.5 py-2">
+              <VendorMark vendor={provider.vendor} className="size-5 rounded-md" />
+              <span className="truncate text-[11px] font-medium text-fg-muted">{provider.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
       <figcaption className="mt-2 text-center font-mono text-[10.5px] text-fg-subtle">Illustrative request flow · availability depends on each provider&apos;s configuration</figcaption>
     </figure>
   );
