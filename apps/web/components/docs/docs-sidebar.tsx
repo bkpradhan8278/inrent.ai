@@ -1,18 +1,19 @@
 "use client";
 
 import { Menu } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, SheetContent } from "@/components/ui/dialog";
 import { useResetOnChange } from "@/lib/hooks";
+import { toInternalPath } from "@/lib/hosts";
 import { cn } from "@/lib/utils";
 
 type Nav = Array<{ title: string; pages: Array<{ title: string; href: string }> }>;
 
 function NavList({ nav }: { nav: Nav }) {
-  const pathname = usePathname();
+  const pathname = toInternalPath("docs", usePathname());
   return (
     <nav aria-label="Documentation" className="flex flex-col gap-6">
       {nav.map((section) => (

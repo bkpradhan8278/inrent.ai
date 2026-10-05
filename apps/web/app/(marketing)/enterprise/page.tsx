@@ -1,6 +1,6 @@
 import { Building2, FileLock2, KeyRound, Lock, Network, ScrollText, ServerCog, ShieldCheck, Wallet } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { ContactForm } from "@/components/marketing/forms";
 import { PageHero } from "@/components/marketing/page-hero";
 import { Badge } from "@/components/ui/badge";

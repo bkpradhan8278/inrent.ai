@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight, Bot, Check, Database, MessagesSquare, Sparkles, Wand2 } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import * as React from "react";
 import { PlainCode, SecretReveal, useAction } from "@/components/dashboard/client-kit";
 import { Button } from "@/components/ui/button";

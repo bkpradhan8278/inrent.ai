@@ -1,22 +1,23 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { redirect } from "next/navigation";
 import { acceptInvitation, ServiceError } from "@inrent/services";
 import { AuthCard } from "@/components/auth/auth-card";
 import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/session";
+import { hrefFor } from "@/lib/hosts";
 
 export const metadata: Metadata = { title: "Join organization", robots: { index: false } };
 
 export default async function InvitePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   const session = await getSession();
-  if (!session) redirect(`/sign-in?next=${encodeURIComponent(`/invite/${token}`)}`);
+  if (!session) redirect(hrefFor(`/sign-in?next=${encodeURIComponent(hrefFor(`/invite/${token}`))}`));
 
   async function accept() {
     "use server";
     const s = await getSession();
-    if (!s) redirect("/sign-in");
+    if (!s) redirect(hrefFor("/sign-in"));
     let ok = true;
     try {
       await acceptInvitation({ id: s.user.id, email: s.user.email }, token);

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { prisma } from "@inrent/db";
 import { PageHeader } from "@/components/dashboard/ui";
 import { ModelExplorer } from "@/components/marketing/model-explorer";

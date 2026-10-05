@@ -1,7 +1,7 @@
 "use client";
 
 import { Bell, Check, ChevronsUpDown, LogOut, Menu, Plus, Search, Shield, User } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -17,6 +17,8 @@ import { Kbd } from "@/components/ui/misc";
 import { signOut } from "@/lib/auth-client";
 import { formatRelative } from "@/lib/format";
 import { useResetOnChange } from "@/lib/hooks";
+import { toInternalPath } from "@/lib/hosts";
+import { navigate } from "@/lib/navigate";
 import { cn } from "@/lib/utils";
 import { createOrganizationAction, markNotificationsReadAction, setEnvironmentAction, switchOrganizationAction, switchProjectAction } from "@/app/dashboard/actions";
 import { ADMIN_LINK, DASH_NAV } from "./nav";
@@ -35,7 +37,8 @@ export interface ShellData {
 }
 
 function SidebarNav({ isAdmin, onNavigate }: { isAdmin: boolean; onNavigate?: () => void }) {
-  const pathname = usePathname();
+  // On app.inrent.ai the visible path is "/keys"; nav items use internal paths ("/dashboard/keys").
+  const pathname = toInternalPath("app", usePathname());
   const isActive = (href: string) => (href === "/dashboard" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`));
   return (
     <nav aria-label="Dashboard" className="flex flex-col gap-5">
@@ -309,8 +312,7 @@ export function DashboardShell({ data, children }: { data: ShellData; children: 
                 <DropdownMenuItem
                   onSelect={async () => {
                     await signOut();
-                    router.push("/");
-                    router.refresh();
+                    navigate(router, "/", { refresh: true });
                   }}
                 >
                   <LogOut /> Sign out

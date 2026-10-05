@@ -1,7 +1,7 @@
 "use client";
 
 import { Code2, Copy, Eraser, Loader2, Save, Send, Share2, Square, Wrench } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";

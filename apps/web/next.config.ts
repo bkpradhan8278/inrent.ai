@@ -11,6 +11,8 @@ try {
 }
 
 const isDev = process.env.NODE_ENV !== "production";
+// Subdomain routing (lib/hosts.ts): the dev server is reached on section hosts such as app.inrent.localhost.
+const rootHost = (process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "").trim().replace(/:\d+$/, "");
 // HTTPS-only directives apply when the app is served over https (not for local production builds on http://localhost).
 const servedOverHttps = (process.env.NEXT_PUBLIC_APP_URL ?? "https://inrent.ai").startsWith("https://");
 const apiOrigin = (() => {
@@ -55,6 +57,7 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: monorepoRoot,
   turbopack: { root: monorepoRoot },
   poweredByHeader: false,
+  ...(rootHost ? { allowedDevOrigins: [rootHost, `*.${rootHost}`] } : {}),
   reactStrictMode: true,
   outputFileTracingIncludes: { "/docs/**": ["./content/docs/**"] },
   transpilePackages: ["@inrent/core", "@inrent/db", "@inrent/services", "@inrent/providers", "@inrent/observability"],

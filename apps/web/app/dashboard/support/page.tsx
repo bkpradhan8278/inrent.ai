@@ -1,6 +1,6 @@
 import { Activity, BookOpen, LifeBuoy, ShieldAlert } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { prisma } from "@inrent/db";
 import { PageHeader, Section, StatusPill } from "@/components/dashboard/ui";
 import { formatRelative } from "@/lib/format";

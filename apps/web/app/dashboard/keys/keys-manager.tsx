@@ -14,6 +14,7 @@ import { FieldHint, Input, Label, NativeSelect } from "@/components/ui/input";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { formatDate, formatRelative } from "@/lib/format";
 import { createApiKeyAction, deleteApiKeyAction, revokeApiKeyAction, rotateApiKeyAction, updateApiKeyAction, type KeyFormInput } from "../actions";
+import { navigate } from "@/lib/navigate";
 
 export interface KeyRow {
   id: string;
@@ -148,7 +149,7 @@ export function KeysManager({ rows, projects, activeProjectId, canWrite, openCre
   const [showRevoked, setShowRevoked] = React.useState(false);
 
   React.useEffect(() => {
-    if (openCreate) router.replace("/dashboard/keys", { scroll: false });
+    if (openCreate) navigate(router, "/dashboard/keys", { replace: true });
   }, [openCreate, router]);
 
   const visible = rows.filter((r) => showRevoked || !r.revokedAt);

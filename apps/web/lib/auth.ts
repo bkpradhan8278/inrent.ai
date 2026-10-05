@@ -7,6 +7,7 @@ import { magicLink } from "better-auth/plugins";
 import { prisma } from "@inrent/db";
 import { isFeatureEnabled, provisionPersonalWorkspace, recordAudit } from "@inrent/services";
 import { sendTemplateEmail } from "@inrent/services/email";
+import { allOrigins, cookieDomain } from "@/lib/hosts";
 
 /**
  * Authentication: Better Auth (self-hosted, Postgres via Prisma).
@@ -38,12 +39,15 @@ export const auth = betterAuth({
   baseURL,
   secret: process.env.BETTER_AUTH_SECRET,
   database: prismaAdapter(prisma, { provider: "postgresql" }),
-  trustedOrigins: [baseURL],
+  // With subdomain routing every section host may call /api/auth (session reads, sign-out, callbacks).
+  trustedOrigins: [...new Set([baseURL, ...allOrigins()])],
   advanced: {
     database: { generateId: () => randomUUID() },
     // Secure cookies whenever the app is served over https (also covers staging); plain http only for local builds.
     useSecureCookies: baseURL.startsWith("https://"),
     cookiePrefix: "inrent",
+    // One sign-in for every section host: the session cookie is scoped to the root domain.
+    ...(cookieDomain ? { crossSubDomainCookies: { enabled: true, domain: cookieDomain } } : {}),
   },
   session: {
     expiresIn: 60 * 60 * 24 * 14,

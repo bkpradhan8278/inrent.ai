@@ -1,5 +1,5 @@
 import { ArrowRight, Building2, Check, KeyRound, Server, ShieldCheck } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { CodeTabs } from "@/components/ui/code-block";
 import { Button } from "@/components/ui/button";
 import { CopyButton } from "@/components/ui/copy-button";
@@ -237,7 +237,7 @@ export default async function HomePage() {
               { t: "Self-hosted open weights", d: "Served on INRENT-operated infrastructure after license verification.", icon: Server },
               { t: "Enterprise agreements", d: "Dedicated provider arrangements scoped to the organizations they cover.", icon: Building2 },
             ].map((x) => (
-              <div key={x.t} className="lift rounded-2xl border border-ink/[.08] bg-card-gradient p-5 light:shadow-[var(--shadow-panel)]">
+              <div key={x.t} className="lift rounded-2xl border border-ink/[.08] bg-card-gradient p-5 light:shadow-[var(--shadow-panel)] light:hover:shadow-[var(--shadow-lift)]">
                 <div className="flex items-center gap-2.5 text-[14.5px] font-medium text-fg">
                   <span className="ico inline-flex size-8 items-center justify-center rounded-lg border border-accent/30 bg-[radial-gradient(circle_at_30%_20%,color-mix(in_oklab,var(--color-accent)_22%,transparent),var(--color-tile)_70%)] text-accent">
                     <x.icon className="size-4" />

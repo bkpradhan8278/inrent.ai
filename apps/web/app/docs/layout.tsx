@@ -16,7 +16,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
   const search = <DocsSearch index={index} />;
   return (
     <div className="flex min-h-dvh flex-col">
-      <SiteHeader />
+      <SiteHeader section="docs" />
       <div className="container-page grid flex-1 gap-10 py-8 lg:grid-cols-[230px_minmax(0,1fr)]">
         <DocsSidebar nav={nav} search={search} />
         <div className="min-w-0">

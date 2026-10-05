@@ -1,6 +1,6 @@
 import { Activity, AlertTriangle, Coins, Gauge, Hash, Timer } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { getUsageOverview } from "@inrent/services";
 import { MetricAreaChart, StackedErrorsChart } from "@/components/dashboard/charts";
 import { ExportMenu } from "@/components/dashboard/export-menu";

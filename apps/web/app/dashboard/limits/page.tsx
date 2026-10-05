@@ -1,6 +1,6 @@
 import { Gauge, Info } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { prisma } from "@inrent/db";
 import { currentPeriod } from "@inrent/services";
 import { PageHeader, Section } from "@/components/dashboard/ui";

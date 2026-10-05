@@ -10,6 +10,7 @@ import { FieldHint, Input, Label } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { startCheckoutAction, updateSpendControlsAction } from "../actions";
+import { navigate } from "@/lib/navigate";
 
 type Provider = "STRIPE" | "RAZORPAY";
 
@@ -67,7 +68,7 @@ export function BuyCredits({ presets, providers }: { presets: number[]; provider
         ...r.data.clientParams,
         theme: { color: "#5cebc0" },
         handler: () => {
-          router.push("/dashboard/billing?payment=success");
+          navigate(router, "/dashboard/billing?payment=success");
           router.refresh();
         },
         modal: { ondismiss: () => toast("Checkout closed — you were not charged.") },

@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown, Menu, Search } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BrandLogo } from "@/components/brand/icons";
@@ -15,10 +15,13 @@ import { Kbd } from "@/components/ui/misc";
 import { useSession } from "@/lib/auth-client";
 import { mainNav } from "@/lib/site";
 import { useResetOnChange } from "@/lib/hooks";
+import { toInternalPath } from "@/lib/hosts";
 import { cn } from "@/lib/utils";
 
-export function SiteHeader() {
-  const pathname = usePathname();
+/** `section="docs"` when rendered by the docs layout, whose visible paths are relative to docs.inrent.ai. */
+export function SiteHeader({ section }: { section?: "docs" } = {}) {
+  const visible = usePathname();
+  const pathname = section ? toInternalPath(section, visible) : visible;
   const [scrolled, setScrolled] = useState(false);
   const { data: session } = useSession();
 

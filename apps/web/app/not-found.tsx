@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { LogoMark } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 

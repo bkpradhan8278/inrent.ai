@@ -6,13 +6,14 @@ import { safePublicModels } from "@/lib/catalog";
 import { toPlaygroundModels } from "@/lib/playground-models";
 import { getSession } from "@/lib/session";
 import { site } from "@/lib/site";
+import { hrefFor } from "@/lib/hosts";
 
 export const metadata: Metadata = { title: "Playground", description: "Test any model in the INRENT catalog, tune parameters and export the request as code.", alternates: { canonical: "/playground" } };
 
 export default async function PublicPlaygroundPage({ searchParams }: { searchParams: Promise<{ model?: string }> }) {
   const { model } = await searchParams;
   const session = await getSession();
-  if (session) redirect(`/dashboard/playground${model ? `?model=${encodeURIComponent(model)}` : ""}`);
+  if (session) redirect(hrefFor(`/dashboard/playground${model ? `?model=${encodeURIComponent(model)}` : ""}`));
   const models = toPlaygroundModels(await safePublicModels());
   return (
     <>

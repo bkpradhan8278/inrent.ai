@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowUpDown, Check, GitCompare, LayoutGrid, List, Search, SlidersHorizontal, X } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
 import type { PublicModel } from "@inrent/services";

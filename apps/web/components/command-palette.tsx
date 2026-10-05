@@ -6,6 +6,7 @@ import { ArrowRight, BarChart3, BookOpen, Boxes, CreditCard, KeyRound, LayoutDas
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { Kbd } from "@/components/ui/misc";
+import { navigate } from "@/lib/navigate";
 
 interface DocEntry {
   title: string;
@@ -41,7 +42,7 @@ export function CommandPaletteDialog({ docs, open, mode, setOpen }: DocEntryProp
   const go = useCallback(
     (href: string) => {
       setOpen(false);
-      router.push(href);
+      navigate(router, href);
     },
     [router, setOpen],
   );

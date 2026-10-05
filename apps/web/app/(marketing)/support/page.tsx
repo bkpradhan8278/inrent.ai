@@ -1,6 +1,6 @@
 import { BookOpen, LifeBuoy, MessageSquare, ScrollText } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { ContactForm } from "@/components/marketing/forms";
 import { PageHero } from "@/components/marketing/page-hero";
 import { SectionHeading } from "@/components/ui/misc";

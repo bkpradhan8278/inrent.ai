@@ -1,5 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { CAPABILITIES } from "@inrent/core/catalog";
 import type { PublicModel } from "@inrent/services";
 import { BRAND_TINT, VendorMark } from "@/components/brand/icons";
@@ -40,7 +40,7 @@ export function ModelCard({ model, className, reserveCorner = false }: { model: 
     <Link
       href={`/models/${model.slug}`}
       className={cn(
-        "lift group relative flex h-full flex-col gap-4 overflow-hidden rounded-[18px] border border-ink/[.08] bg-card-gradient p-5 light:shadow-[var(--shadow-panel)]",
+        "lift group relative flex h-full flex-col gap-4 overflow-hidden rounded-[18px] border border-ink/[.08] bg-card-gradient p-5 light:shadow-[var(--shadow-panel)] light:hover:shadow-[var(--shadow-lift)]",
         className,
       )}
     >

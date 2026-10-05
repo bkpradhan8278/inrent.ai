@@ -5,8 +5,9 @@ import { TryIt } from "@/components/docs/try-it";
 import { Badge } from "@/components/ui/badge";
 import { CodeTabs } from "@/components/ui/code-block";
 import { site } from "@/lib/site";
+import { absoluteUrl } from "@/lib/hosts";
 
-export const metadata: Metadata = { title: "API reference", description: "Every INRENT API endpoint, parameter and error, with interactive examples.", alternates: { canonical: "/docs/api-reference" } };
+export const metadata: Metadata = { title: "API reference", description: "Every INRENT API endpoint, parameter and error, with interactive examples.", alternates: { canonical: absoluteUrl("/docs/api-reference") } };
 
 type Operation = {
   tags?: readonly string[];

@@ -1,6 +1,6 @@
 import { ArrowLeft, BookOpen, Check, ExternalLink, MessagesSquare, Minus, X } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { notFound } from "next/navigation";
 import { CAPABILITIES, INTEGRATION_MODE_INFO, MODALITIES } from "@inrent/core";
 import { VendorMark } from "@/components/brand/icons";

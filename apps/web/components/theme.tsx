@@ -4,18 +4,29 @@ import { Monitor, Moon, Sun } from "lucide-react";
 import { useSyncExternalStore } from "react";
 import { Toaster } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { DEFAULT_THEME, readThemePreference, resolveTheme, themeCookie, type ResolvedTheme, type ThemePreference } from "@/lib/theme";
+import { cookieDomain } from "@/lib/hosts";
+import { DEFAULT_THEME, readThemePreference, resolveTheme, THEME_COLOR, THEME_COOKIE, themeCookie, type ResolvedTheme, type ThemePreference } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 const CHANGE_EVENT = "inrent-theme-change";
 const LIGHT_QUERY = "(prefers-color-scheme: light)";
 
 function applyTheme(pref: ThemePreference) {
-  document.documentElement.setAttribute("data-theme", resolveTheme(pref, window.matchMedia(LIGHT_QUERY).matches));
+  const theme = resolveTheme(pref, window.matchMedia(LIGHT_QUERY).matches);
+  document.documentElement.setAttribute("data-theme", theme);
+  let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  if (!meta) {
+    meta = document.createElement("meta");
+    meta.name = "theme-color";
+    document.head.appendChild(meta);
+  }
+  meta.content = THEME_COLOR[theme];
 }
 
 export function setThemePreference(pref: ThemePreference) {
-  document.cookie = themeCookie(pref, process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined);
+  // A host-only cookie from before subdomain routing would shadow the shared one; drop it.
+  if (cookieDomain) document.cookie = `${THEME_COOKIE}=; Path=/; Max-Age=0`;
+  document.cookie = themeCookie(pref, cookieDomain);
   applyTheme(pref);
   window.dispatchEvent(new Event(CHANGE_EVENT));
 }

@@ -11,6 +11,7 @@ import { FieldHint, Input, Label, NativeSelect } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { signOut } from "@/lib/auth-client";
 import { deleteAccountAction, updateOrgSettingsAction, updateProfileAction } from "../actions";
+import { navigate } from "@/lib/navigate";
 
 type Policy = "BALANCED" | "LOWEST_COST" | "LOWEST_LATENCY" | "BEST_QUALITY";
 
@@ -178,7 +179,7 @@ export function AccountForms({ name: initialName, email }: { name: string; email
             return;
           }
           await signOut().catch(() => undefined);
-          router.push("/?deleted=1");
+          navigate(router, "/?deleted=1");
           router.refresh();
         }}
       />

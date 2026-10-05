@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle2, KeyRound, Plug, Plus, RefreshCw, ShieldCheck, Trash2, XCircle } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import * as React from "react";
 import { toast } from "sonner";
 import { ConfirmDialog, useAction } from "@/components/dashboard/client-kit";

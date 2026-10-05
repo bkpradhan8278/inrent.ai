@@ -1,11 +1,12 @@
 import { ArrowLeft, ArrowRight, Pencil } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { notFound } from "next/navigation";
 import { Markdown } from "@/components/docs/markdown";
 import { TableOfContents } from "@/components/docs/toc";
 import { getAdjacentDocs, getAllDocSlugs, getDoc } from "@/lib/docs";
 import { site } from "@/lib/site";
+import { absoluteUrl } from "@/lib/hosts";
 
 export function generateStaticParams() {
   return getAllDocSlugs().map((slug) => ({ slug: slug ? [slug] : [] }));
@@ -21,7 +22,7 @@ async function load(params: Promise<{ slug?: string[] }>) {
 export async function generateMetadata({ params }: { params: Promise<{ slug?: string[] }> }): Promise<Metadata> {
   const doc = await load(params);
   if (!doc) return {};
-  return { title: doc.slug ? doc.title : "Introduction", description: doc.description, alternates: { canonical: doc.slug ? `/docs/${doc.slug}` : "/docs" } };
+  return { title: doc.slug ? doc.title : "Introduction", description: doc.description, alternates: { canonical: absoluteUrl(doc.slug ? `/docs/${doc.slug}` : "/docs") } };
 }
 
 export default async function DocPage({ params }: { params: Promise<{ slug?: string[] }> }) {

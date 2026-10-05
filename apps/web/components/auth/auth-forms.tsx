@@ -1,19 +1,16 @@
 "use client";
 
 import { Loader2, Mail } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { GitHubIcon, GoogleIcon } from "@/components/brand/icons";
 import { Button } from "@/components/ui/button";
 import { FieldError, FieldHint, Input, Label } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import { safeRedirect } from "@/lib/hosts";
+import { navigate } from "@/lib/navigate";
 
-function safeNext(raw: string | null): string {
-  // Only allow same-site relative paths to prevent open redirects.
-  if (raw && raw.startsWith("/") && !raw.startsWith("//") && !raw.startsWith("/\\")) return raw;
-  return "/dashboard";
-}
 
 function SocialButtons({ providers, next }: { providers: Array<"github" | "google">; next: string }) {
   const [pending, setPending] = useState<string | null>(null);
@@ -45,7 +42,8 @@ function SocialButtons({ providers, next }: { providers: Array<"github" | "googl
 
 export function SignInForm({ providers }: { providers: Array<"github" | "google"> }) {
   const params = useSearchParams();
-  const next = safeNext(params.get("next"));
+  // Same-site paths or URLs on our own section hosts only (no open redirects).
+  const next = safeRedirect(params.get("next"));
   const router = useRouter();
   const [mode, setMode] = useState<"password" | "magic">("password");
   const [email, setEmail] = useState("");
@@ -82,8 +80,7 @@ export function SignInForm({ providers }: { providers: Array<"github" | "google"
               setError(error.status === 403 ? "Verify your email first — we sent you a link when you signed up." : error.message ?? "Invalid email or password.");
               return;
             }
-            router.push(next);
-            router.refresh();
+            navigate(router, next, { refresh: true });
           }}
         >
           <div className="grid gap-1.5">
@@ -145,7 +142,7 @@ export function SignUpForm({ providers, requireVerification }: { providers: Arra
             return;
           }
           setLoading(true);
-          const { error } = await authClient.signUp.email({ name: name.trim() || email.split("@")[0]!, email, password, callbackURL: "/dashboard/welcome" });
+          const { error } = await authClient.signUp.email({ name: name.trim() || email.split("@")[0]!, email, password, callbackURL: safeRedirect("/dashboard/welcome") });
           setLoading(false);
           if (error) {
             setError(error.message ?? "Could not create your account.");
@@ -153,8 +150,7 @@ export function SignUpForm({ providers, requireVerification }: { providers: Arra
           }
           if (requireVerification) setDone(true);
           else {
-            router.push("/dashboard/welcome");
-            router.refresh();
+            navigate(router, "/dashboard/welcome", { refresh: true });
           }
         }}
       >

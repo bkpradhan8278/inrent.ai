@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { cn } from "@/lib/utils";
 
 /** Server-rendered segmented control that sets `?days=` while keeping other params. */

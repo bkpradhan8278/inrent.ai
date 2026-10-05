@@ -6,6 +6,7 @@ import { platformRoleCan, roleCan, type AdminPermission, type OrgPermission } fr
 import { prisma } from "@inrent/db";
 import { provisionPersonalWorkspace } from "@inrent/services";
 import { auth } from "./auth";
+import { hrefFor } from "@/lib/hosts";
 
 export const ORG_COOKIE = "inrent_org";
 export const PROJECT_COOKIE = "inrent_project";
@@ -20,7 +21,7 @@ export const getSession = cache(async () => {
 
 export async function requireUser() {
   const session = await getSession();
-  if (!session) redirect("/sign-in");
+  if (!session) redirect(hrefFor("/sign-in"));
   return session;
 }
 
@@ -70,7 +71,7 @@ export type Workspace = Awaited<ReturnType<typeof getWorkspace>>;
 
 export async function requireOrgPermission(permission: OrgPermission) {
   const ws = await getWorkspace();
-  if (!ws.can(permission)) redirect(`/dashboard?denied=${encodeURIComponent(permission)}`);
+  if (!ws.can(permission)) redirect(hrefFor(`/dashboard?denied=${encodeURIComponent(permission)}`));
   return ws;
 }
 
@@ -91,6 +92,6 @@ export async function getPlatformRole(userId: string) {
 export async function requireAdmin(permission: AdminPermission = "admin:access") {
   const session = await requireUser();
   const role = await getPlatformRole(session.user.id);
-  if (!platformRoleCan(role, permission)) redirect("/dashboard");
+  if (!platformRoleCan(role, permission)) redirect(hrefFor("/dashboard"));
   return { session, user: session.user, role, can: (p: AdminPermission) => platformRoleCan(role, p) };
 }

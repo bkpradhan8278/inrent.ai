@@ -1,6 +1,6 @@
 import { ArrowRight, Check } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { notFound } from "next/navigation";
 import { PageHero } from "@/components/marketing/page-hero";
 import { Button } from "@/components/ui/button";

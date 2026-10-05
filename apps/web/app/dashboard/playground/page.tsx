@@ -1,6 +1,6 @@
 import { BookmarkCheck } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { prisma } from "@inrent/db";
 import { PageHeader } from "@/components/dashboard/ui";
 import type { PlaygroundState } from "@/components/playground/playground";

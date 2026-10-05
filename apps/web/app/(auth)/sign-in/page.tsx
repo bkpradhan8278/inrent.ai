@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { AuthCard } from "@/components/auth/auth-card";
 import { SignInForm } from "@/components/auth/auth-forms";
 import { enabledSocialProviders } from "@/lib/auth";
 import { getSession } from "@/lib/session";
+import { hrefFor } from "@/lib/hosts";
 
 export const metadata: Metadata = { title: "Sign in", robots: { index: false } };
 
 export default async function SignInPage() {
-  if (await getSession()) redirect("/dashboard");
+  if (await getSession()) redirect(hrefFor("/dashboard"));
   return (
     <AuthCard
       title="Welcome back"

@@ -1,7 +1,7 @@
 "use client";
 
 import { Activity, ArrowLeft, BarChart3, Boxes, Building2, Cpu, CreditCard, Flag, LayoutDashboard, LifeBuoy, Menu, ScrollText, Server, ShieldCheck, Users, type LucideIcon } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Logo } from "@/components/brand/logo";
@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTitle, DialogTrigger, SheetContent } from "@/components/ui/dialog";
 import { useResetOnChange } from "@/lib/hooks";
+import { toInternalPath } from "@/lib/hosts";
 import { cn } from "@/lib/utils";
 
 interface Item {
@@ -52,7 +53,7 @@ const NAV: Array<{ title?: string; items: Item[] }> = [
 
 export function AdminShell({ role, permissions, user, children }: { role: string; permissions: string[]; user: { name: string; email: string }; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
+  const pathname = toInternalPath("admin", usePathname());
   useResetOnChange(pathname, () => setOpen(false));
   const active = (href: string) => (href === "/admin" ? pathname === href : pathname.startsWith(href));
 

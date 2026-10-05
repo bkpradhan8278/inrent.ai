@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Kbd } from "@/components/ui/misc";
 import { cn } from "@/lib/utils";
+import { navigate } from "@/lib/navigate";
 
 interface Entry {
   title: string;
@@ -77,7 +78,7 @@ export function DocsSearch({ index }: { index: Entry[] }) {
   const go = (r: (typeof results)[number]) => {
     setOpen(false);
     setQ("");
-    router.push(r.heading ? `${r.e.href}#${slugify(r.heading)}` : r.e.href);
+    navigate(router, r.heading ? `${r.e.href}#${slugify(r.heading)}` : r.e.href);
   };
 
   return (

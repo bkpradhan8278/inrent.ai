@@ -1,5 +1,5 @@
 import { FlaskConical } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
 
 export function PreviewGate({ feature }: { feature: string }) {

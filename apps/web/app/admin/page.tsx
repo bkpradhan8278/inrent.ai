@@ -1,6 +1,6 @@
 import { AlertTriangle, Building2, Coins, KeyRound, LifeBuoy, Percent, Server, TrendingUp, Users } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { nanoToUsdString } from "@inrent/core";
 import { prisma } from "@inrent/db";
 import { computeFinOpsAlerts, getRevenueAnalytics } from "@inrent/services";

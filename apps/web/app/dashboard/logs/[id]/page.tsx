@@ -1,6 +1,6 @@
 import { ArrowLeft, Lock } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { notFound } from "next/navigation";
 import { getRequestDetail } from "@inrent/services";
 import { PageHeader, Section, StatusPill } from "@/components/dashboard/ui";

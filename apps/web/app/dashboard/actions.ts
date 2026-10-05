@@ -48,7 +48,7 @@ import {
 import { startCreditPurchase, type CheckoutResult } from "@inrent/services/payments";
 import { sendTemplateEmail } from "@inrent/services/email";
 import { getWorkspace, ORG_COOKIE, PROJECT_COOKIE } from "@/lib/session";
-import { site } from "@/lib/site";
+import { absoluteUrl } from "@/lib/hosts";
 
 export type ActionResult<T = void> = { ok: true; data: T } | { ok: false; error: string };
 
@@ -234,7 +234,7 @@ export async function inviteMemberAction(email: string, role: MemberRole): Promi
   const ws = await getWorkspace();
   return run(async () => {
     const { token } = await inviteMember(ws.user.id, ws.org.id, email, role);
-    const link = `${site.url}/invite/${token}`;
+    const link = absoluteUrl(`/invite/${token}`);
     await sendTemplateEmail(email, {
       subject: `You're invited to ${ws.org.name} on INRENT`,
       title: `Join ${ws.org.name}`,
@@ -423,7 +423,7 @@ export async function sharePromptAction(payload: Prisma.InputJsonValue): Promise
     if (JSON.stringify(payload).length > 200_000) throw new ServiceError("validation_error", "This conversation is too large to share.");
     const shareToken = randomBytes(18).toString("base64url");
     await prisma.savedPrompt.create({ data: { organizationId: ws.org.id, userId: ws.user.id, name: "Shared request", payload, shareToken } });
-    return { url: `${site.url}/dashboard/playground?share=${shareToken}` };
+    return { url: absoluteUrl(`/dashboard/playground?share=${shareToken}`) };
   });
 }
 
