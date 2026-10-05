@@ -20,6 +20,19 @@ async function setup(opts: { balance?: bigint; rpm?: number; catalog?: Parameter
   return { user, org, project, catalog, key: record, secret, app };
 }
 
+/**
+ * Streams are billed after the last byte is sent. Wait for that write, or the next test's TRUNCATE
+ * can deadlock with the still-open billing transaction.
+ */
+async function waitForRequestRecord(requestId: string) {
+  for (let i = 0; i < 100; i++) {
+    const record = await prisma.request.findUnique({ where: { requestId } });
+    if (record) return record;
+    await new Promise((r) => setTimeout(r, 20));
+  }
+  throw new Error(`request ${requestId} was never persisted`);
+}
+
 beforeEach(async () => {
   await resetDatabase();
   await getRedis().flushdb();
@@ -212,8 +225,7 @@ describe("streaming", () => {
     expect(chunks.map((c) => c.choices[0]?.delta?.content ?? "").join("")).toContain("Hello gateway");
     expect(chunks.every((c) => c.model === "test/echo")).toBe(true);
     expect(chunks.at(-1).usage.total_tokens).toBeGreaterThan(0);
-    await new Promise((r) => setTimeout(r, 50));
-    const request = await prisma.request.findUniqueOrThrow({ where: { requestId: res.headers.get("x-request-id")! } });
+    const request = await waitForRequestRecord(res.headers.get("x-request-id")!);
     expect(request.stream).toBe(true);
     expect(request.ttftMs).not.toBeNull();
     expect(await getBalance(org.id)).toBe(10n * USD - request.userChargeNano);
@@ -226,6 +238,7 @@ describe("streaming", () => {
     expect(res.headers.get("x-inrent-provider")).toBe("mock-backup");
     const text = await res.text();
     expect(text).not.toContain('"usage"'); // usage chunk only when include_usage was requested
+    await waitForRequestRecord(res.headers.get("x-request-id")!);
   });
 });
 
