@@ -107,7 +107,7 @@ export function VendorMark({ vendor, className }: { vendor: string; className?: 
   if (src) {
     return (
       <span
-        className={cn("inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-border-strong overflow-hidden bg-[linear-gradient(180deg,var(--color-surface-3),var(--color-surface))]", className)}
+        className={cn("inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-border-strong overflow-hidden bg-[linear-gradient(180deg,#1c2130,#10131b)] light:bg-[linear-gradient(180deg,var(--color-surface-3),var(--color-surface))]", className)}
         aria-hidden
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- tiny static brand marks */}
@@ -118,8 +118,13 @@ export function VendorMark({ vendor, className }: { vendor: string; className?: 
   const label = vendor === "zai" ? "Z" : vendor === "xai" ? "x" : vendor.slice(0, 1).toUpperCase();
   return (
     <span
-      className={cn("inline-flex size-8 shrink-0 items-center justify-center rounded-md border font-mono text-[13px] font-semibold", className)}
-      style={{ color: `color-mix(in oklab, ${tint} 62%, var(--color-fg))`, borderColor: `${tint}55`, background: `linear-gradient(180deg, ${tint}26, ${tint}0a)` }}
+      className={cn(
+        "inline-flex size-8 shrink-0 items-center justify-center rounded-md border font-mono text-[13px] font-semibold",
+        // Pastel tints are for dark tiles; on light, darken the letter and strengthen the tile (overrides the inline dark style).
+        "light:text-[color-mix(in_oklab,var(--tint)_62%,var(--color-fg))]! light:border-[color-mix(in_oklab,var(--tint)_33%,transparent)]! light:[background:linear-gradient(180deg,color-mix(in_oklab,var(--tint)_15%,transparent),color-mix(in_oklab,var(--tint)_4%,transparent))]!",
+        className,
+      )}
+      style={{ "--tint": tint, color: tint, borderColor: `${tint}33`, background: `linear-gradient(180deg, ${tint}1f, ${tint}08)` } as React.CSSProperties}
       aria-hidden
     >
       {label}

@@ -32,10 +32,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f6f7f9" },
-    { media: "(prefers-color-scheme: dark)", color: "#06070a" },
-  ],
+  // No themeColor here: the theme init script (lib/theme.ts) owns <meta name="theme-color"> so it can
+  // match the applied theme without React re-adding a server copy during hydration.
   colorScheme: "dark light",
   width: "device-width",
   initialScale: 1,

@@ -134,7 +134,7 @@ export function ConfirmDialog({
 /** Unhighlighted code block for client-rendered snippets that include runtime values (e.g. a fresh key). */
 export function PlainCode({ code, className }: { code: string; className?: string }) {
   return (
-    <div className={`relative overflow-hidden rounded-lg border border-border bg-bg-elevated ${className ?? ""}`}>
+    <div data-theme="dark" className={`relative overflow-hidden rounded-lg border border-border bg-bg-elevated ${className ?? ""}`}>
       <CopyButton value={code} className="absolute right-2 top-2" />
       <pre className="overflow-x-auto p-3.5 pr-11 font-mono text-[12.5px] leading-relaxed text-fg-muted">
         <code>{code}</code>

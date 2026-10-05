@@ -216,9 +216,12 @@
 [data-theme="light"] .logo-mono {
   filter: brightness(0);
 }
-/* A nested data-theme scope must also reset the inherited text colour. */
-[data-theme] {
-  color: var(--color-fg);
+/* A nested data-theme scope must also reset the inherited text colour. In the base layer at zero
+   specificity, so a text-* utility on the same element still wins. */
+@layer base {
+  :where([data-theme]) {
+    color: var(--color-fg);
+  }
 }
 
 @layer base {

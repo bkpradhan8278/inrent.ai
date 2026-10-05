@@ -8,7 +8,7 @@ function Tile({ icon: Icon, tint, title, body, wide, className, children }: { ic
   return (
     <article
       className={cn(
-        "lift relative flex min-h-[260px] flex-col gap-3.5 overflow-hidden rounded-[20px] border border-ink/[.08] bg-card-gradient p-6 sm:p-[26px] light:shadow-[var(--shadow-panel)]",
+        "lift relative flex min-h-[260px] flex-col gap-3.5 overflow-hidden rounded-[20px] border border-ink/[.08] bg-card-gradient p-6 sm:p-[26px] light:shadow-[var(--shadow-panel)] light:hover:shadow-[var(--shadow-lift)]",
         wide && "sm:col-span-2",
         className,
       )}
@@ -91,7 +91,7 @@ export function PlatformBento() {
         </svg>
       </Tile>
       <Tile icon={Webhook} tint="255 143 112" title="Webhooks" body="Signed events for requests, credits, payments and provider health, with automatic retries.">
-        <div className="flex flex-col gap-1.5 font-mono text-[11.5px] text-fg-muted">
+        <div className="flex flex-col gap-1.5 font-mono text-[11.5px] text-[#c3c8d2] light:text-fg-muted">
           <span className="flex justify-between">
             <span>request.completed</span>
             <span className="text-success">200</span>
@@ -113,7 +113,7 @@ export function PlatformBento() {
         </div>
       </Tile>
       <Tile wide icon={ShieldCheck} tint="128 168 255" title="Secure by default" body="Encrypted secrets, audit logs, RBAC, SSRF-safe outbound calls and strict input limits.">
-        <ul className="grid max-w-md grid-cols-2 gap-2 text-[13px] text-fg-muted">
+        <ul className="grid max-w-md grid-cols-2 gap-2 text-[13px] text-[#c3c8d2] light:text-fg-muted">
           {["Encrypted secrets", "Audit logs", "RBAC", "SSRF-safe egress"].map((t) => (
             <li key={t} className="flex items-center gap-2">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" className="stroke-[#93b4ff] light:stroke-info" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>

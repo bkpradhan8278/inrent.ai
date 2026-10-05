@@ -83,7 +83,7 @@ export function RoutingDemo() {
         <div className="flex min-w-0 flex-[1_1_320px] flex-col gap-[18px] border-ink/[.06] p-5 sm:p-[26px] md:border-r">
           <div>
             <div className="font-mono text-[11px] uppercase tracking-[.14em] text-fg-subtle">Request</div>
-            <pre data-theme="dark" className="mt-2.5 overflow-x-auto rounded-xl border border-ink/[.07] bg-bg px-4 py-3.5 font-mono text-[13px] leading-[1.7] text-fg-muted">
+            <pre data-theme="dark" className="mt-2.5 overflow-x-auto rounded-xl border border-ink/[.07] bg-[#07080b] px-4 py-3.5 font-mono text-[13px] leading-[1.7] text-[#c3c8d2]">
               {"{\n  "}
               <span className="text-iris">&quot;model&quot;</span>: <span className="text-[#f5d08a]">&quot;inrent/auto&quot;</span>
               {",\n  "}
@@ -105,7 +105,7 @@ export function RoutingDemo() {
               <span className="text-fg-subtle">attempts</span> <span className="text-fg">{isFallback ? 2 : 1}</span>
             </div>
             <div>
-              <span className="text-fg-subtle">reason&nbsp;&nbsp;</span> <span className="text-fg-muted">{isFallback ? "provider-b unhealthy (503) → next eligible" : "highest weighted score"}</span>
+              <span className="text-fg-subtle">reason&nbsp;&nbsp;</span> <span className="text-[#c3c8d2]">{isFallback ? "provider-b unhealthy (503) → next eligible" : "highest weighted score"}</span>
             </div>
           </div>
         </div>
@@ -169,7 +169,7 @@ export function RoutingDemo() {
             );
           })}
           {isFallback ? (
-            <div className="pop flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-danger/[.35] bg-danger/[.05] px-3.5 py-3 font-mono text-[12.5px] text-fg-muted">
+            <div className="pop flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-danger/[.35] bg-danger/[.05] px-3.5 py-3 font-mono text-[12.5px] text-[#c3c8d2] light:text-fg-muted">
               <span className={DANGER_TEXT}>attempt 1 → Provider B · 503</span>
               <span className="text-fg-subtle" aria-hidden>
                 →

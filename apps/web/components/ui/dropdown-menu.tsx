@@ -26,7 +26,7 @@ export function DropdownMenuItem({ className, ...props }: React.ComponentProps<t
   return (
     <Primitive.Item
       className={cn(
-        "relative flex cursor-default select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm text-fg-muted outline-none transition-colors data-[highlighted]:bg-surface-3 data-[highlighted]:text-fg light:data-[highlighted]:bg-surface-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-4",
+        "relative flex cursor-default select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm text-[#c3c8d2] outline-none light:text-fg-muted transition-colors data-[highlighted]:bg-surface-3 data-[highlighted]:text-fg light:data-[highlighted]:bg-surface-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-4",
         className,
       )}
       {...props}
@@ -38,7 +38,7 @@ export function DropdownMenuRadioItem({ className, children, ...props }: React.C
   return (
     <Primitive.RadioItem
       className={cn(
-        "relative flex cursor-default select-none items-center gap-2 rounded-md py-1.5 pl-2 pr-8 text-sm text-fg-muted outline-none transition-colors data-[highlighted]:bg-surface-3 data-[highlighted]:text-fg light:data-[highlighted]:bg-surface-2 data-[state=checked]:text-fg data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-4",
+        "relative flex cursor-default select-none items-center gap-2 rounded-md py-1.5 pl-2 pr-8 text-sm text-[#c3c8d2] outline-none light:text-fg-muted transition-colors data-[highlighted]:bg-surface-3 data-[highlighted]:text-fg light:data-[highlighted]:bg-surface-2 data-[state=checked]:text-fg data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-4",
         className,
       )}
       {...props}

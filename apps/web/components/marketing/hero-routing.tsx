@@ -196,7 +196,7 @@ export function HeroRouting({ className }: { className?: string }) {
                   <span className="inline-flex size-[1.75em] shrink-0 items-center justify-center rounded-[.45em] border border-ink/[.08] bg-bg-elevated">
                     <BrandLogo brand={p.id} size={16} className="size-[1.15em]!" />
                   </span>
-                  <span className={cn("min-w-0 flex-1 truncate text-[.6em] font-medium", act ? "text-fg" : fail ? "text-[color-mix(in_oklab,var(--color-danger)_51%,var(--color-ink))] light:text-danger" : "text-[color-mix(in_oklab,var(--color-fg)_45%,var(--color-fg-muted))]")}>{p.name}</span>
+                  <span className={cn("min-w-0 flex-1 truncate text-[.6em] font-medium", act ? "text-white light:text-fg" : fail ? "text-[#ffb3b3] light:text-danger" : "text-[#c3c8d2] light:text-fg-muted")}>{p.name}</span>
                   {act ? <span className="shrink-0 rounded-[.35em] bg-accent/[.16] px-[.45em] py-[.2em] font-mono text-[.46em] text-accent">routed</span> : null}
                   {fail ? <span className="shrink-0 rounded-[.35em] bg-danger-soft px-[.45em] py-[.2em] font-mono text-[.46em] text-[color-mix(in_oklab,var(--color-danger)_80%,var(--color-ink))] light:text-danger">503</span> : null}
                   {!act && !fail ? <span className="size-[.4em] shrink-0 rounded-full bg-success opacity-55" /> : null}
