@@ -1,13 +1,14 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { betterAuth } from "better-auth";
+import { APIError } from "better-auth/api";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { genericOAuth, magicLink, phoneNumber } from "better-auth/plugins";
 import { prisma } from "@inrent/db";
 import { isFeatureEnabled, provisionPersonalWorkspace, recordAudit } from "@inrent/services";
 import { sendTemplateEmail } from "@inrent/services/email";
-import { getSmsProvider, isAllowedSignInPhoneNumber, placeholderEmailForPhone, placeholderNameForPhone, sendSignInCodeSms } from "@inrent/services/sms";
+import { consumeSignInCodeQuota, getSmsProvider, isAllowedSignInPhoneNumber, placeholderEmailForPhone, placeholderNameForPhone, sendSignInCodeSms } from "@inrent/services/sms";
 import { allOrigins, cookieDomain } from "@/lib/hosts";
 
 /**
@@ -24,6 +25,12 @@ if (process.env.INRENT_ENV === "production") {
   if (secret.length < 32 || /dev-only|change-me/i.test(secret)) throw new Error("BETTER_AUTH_SECRET must be a random value of at least 32 characters in production");
 }
 const baseURL = process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+// Load balancer addresses (IPs or CIDRs). Better Auth only trusts a single-entry X-Forwarded-For otherwise;
+// behind a proxy that appends to it, every client would share one rate-limit bucket.
+const trustedProxies = (process.env.AUTH_TRUSTED_PROXIES ?? "")
+  .split(",")
+  .map((p) => p.trim())
+  .filter(Boolean);
 
 const socialProviders: Parameters<typeof betterAuth>[0]["socialProviders"] = {};
 if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
@@ -79,6 +86,7 @@ export const auth = betterAuth({
     // Secure cookies whenever the app is served over https (also covers staging); plain http only for local builds.
     useSecureCookies: baseURL.startsWith("https://"),
     cookiePrefix: "inrent",
+    ...(trustedProxies.length ? { ipAddress: { trustedProxies } } : {}),
     // One sign-in for every section host: the session cookie is scoped to the root domain.
     ...(cookieDomain ? { crossSubDomainCookies: { enabled: true, domain: cookieDomain } } : {}),
   },
@@ -158,6 +166,7 @@ export const auth = betterAuth({
       allowedAttempts: 3,
       phoneNumberValidator: (phone) => phoneSignInEnabled && isAllowedSignInPhoneNumber(phone),
       sendOTP: async ({ phoneNumber, code }) => {
+        if (!(await consumeSignInCodeQuota(phoneNumber))) throw new APIError("TOO_MANY_REQUESTS", { message: "Too many codes sent to this number. Try again later." });
         await sendSignInCodeSms(phoneNumber, code);
       },
       // First successful code creates the account (subject to SIGNUPS_ENABLED, like every other sign-up).

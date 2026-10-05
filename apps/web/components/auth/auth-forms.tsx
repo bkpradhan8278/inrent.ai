@@ -116,6 +116,8 @@ function PhoneForm({ next, onUseEmail }: { next: string; onUseEmail: () => void 
           if (error.status === 429 || error.code === "TOO_MANY_ATTEMPTS") setError("Too many attempts. Request a new code.");
           else if (error.code === "OTP_EXPIRED" || error.code === "OTP_NOT_FOUND") setError("This code has expired. Request a new one.");
           else if (error.code === "INVALID_OTP") setError("That code isn't right. Check the SMS and try again.");
+          // The sign-up hook refuses new accounts while SIGNUPS_ENABLED is off.
+          else if (error.code === "FAILED_TO_CREATE_USER") setError("New sign-ups are paused, so we can't create an account for this number right now.");
           else setError("Could not sign you in. Try again.");
           return;
         }

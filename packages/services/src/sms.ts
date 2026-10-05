@@ -1,5 +1,6 @@
-import { isAllowedPhoneNumber } from "@inrent/core";
+import { isAllowedPhoneNumber, type RateLimitStore } from "@inrent/core";
 import { PLACEHOLDER_EMAIL_DOMAIN } from "./email";
+import { RedisRateLimitStore } from "./redis";
 
 /**
  * SMS abstraction for phone-number sign-in codes. Providers: console (development), Twilio.
@@ -88,6 +89,22 @@ export function placeholderEmailForPhone(phoneNumber: string): string {
 /** Display name for a new phone-only account; avoids showing the full number to teammates. */
 export function placeholderNameForPhone(phoneNumber: string): string {
   return `User ${phoneNumber.slice(-4)}`;
+}
+
+const CODES_PER_NUMBER_PER_HOUR = 5;
+
+/**
+ * Per-number cap, shared by every web replica (Better Auth's own limits are per IP and in memory).
+ * Stops one number being flooded with codes from many IPs. Fails open when Redis is unreachable;
+ * the per-IP limits still apply then.
+ */
+export async function consumeSignInCodeQuota(phoneNumber: string, store: RateLimitStore = new RedisRateLimitStore()): Promise<boolean> {
+  try {
+    return (await store.hit(`inrent:sms:otp:${phoneNumber}`, CODES_PER_NUMBER_PER_HOUR, 60 * 60 * 1000, 1, Date.now())).allowed;
+  } catch (err) {
+    console.error(`SMS code quota unavailable, allowing send: ${(err as Error).message}`);
+    return true;
+  }
 }
 
 export async function sendSignInCodeSms(to: string, code: string): Promise<void> {

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { isPlaceholderEmail, sendTemplateEmail } from "../../src/email";
-import { getSmsProvider, isAllowedSignInPhoneNumber, placeholderEmailForPhone, placeholderNameForPhone, resetSmsProviderCache } from "../../src/sms";
+import type { RateLimitStore } from "@inrent/core";
+import { consumeSignInCodeQuota, getSmsProvider, isAllowedSignInPhoneNumber, placeholderEmailForPhone, placeholderNameForPhone, resetSmsProviderCache } from "../../src/sms";
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -63,5 +64,27 @@ describe("phone-only accounts", () => {
     const fetchMock = vi.spyOn(globalThis, "fetch");
     await sendTemplateEmail("919876543210@phone.inrent.invalid", { subject: "Hi", title: "Hi", intro: "Hello" });
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("per-number code quota", () => {
+  const store = (allowed: boolean | Error): RateLimitStore => ({
+    hit: vi.fn(async (_key: string, limit: number) => {
+      if (allowed instanceof Error) throw allowed;
+      return { allowed, limit, current: 0, remaining: 0, resetMs: 0, retryAfterMs: 0 };
+    }),
+    add: vi.fn(async () => {}),
+  });
+
+  it("allows up to five codes an hour per number", async () => {
+    const s = store(true);
+    expect(await consumeSignInCodeQuota("+919876543210", s)).toBe(true);
+    expect(s.hit).toHaveBeenCalledWith("inrent:sms:otp:+919876543210", 5, 3_600_000, 1, expect.any(Number));
+    expect(await consumeSignInCodeQuota("+919876543210", store(false))).toBe(false);
+  });
+
+  it("fails open when Redis is unreachable", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(await consumeSignInCodeQuota("+919876543210", store(new Error("ECONNREFUSED")))).toBe(true);
   });
 });
