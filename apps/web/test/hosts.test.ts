@@ -19,6 +19,8 @@ describe("single host (no root domain)", () => {
     expect(h.sectionForHost("localhost:3000")).toBeNull();
     expect(h.safeRedirect("/dashboard/usage")).toBe("/dashboard/usage");
     expect(h.safeRedirect("https://evil.example/")).toBe("/dashboard");
+    // URL parsing strips tabs/newlines and reads "\" as "/": "/\t/evil.example" would become //evil.example.
+    for (const bad of ["/\t/evil.example", "/\n/evil.example", "/ /evil.example", "/\\evil.example"]) expect(h.safeRedirect(bad)).toBe("/dashboard");
     expect(h.absoluteUrl("/invite/abc")).toBe("http://localhost:3000/invite/abc");
   });
 });

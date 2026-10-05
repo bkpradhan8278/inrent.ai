@@ -48,6 +48,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Everything except API routes, Next internals and files (anything with an extension).
-  matcher: ["/((?!api(?:/|$)|_next/|__nextjs|.*\\.[A-Za-z0-9]+$).*)"],
+  // Everything except API routes, Next internals and static files (by extension, so dotted page paths
+  // such as /dashboard/logs/a.b still go through the proxy).
+  matcher: ["/((?!api(?:/|$)|_next/|__nextjs|.*\\.(?:png|jpe?g|gif|svg|ico|webp|avif|txt|xml|webmanifest|woff2?|map)$).*)"],
 };

@@ -110,7 +110,9 @@ export function toInternalPath(section: "app" | "admin" | "docs", pathname: stri
  * one of our own origins. Anything else falls back, so `next` can never become an open redirect.
  */
 export function safeRedirect(raw: string | null | undefined, fallback = "/dashboard"): string {
-  if (raw && raw.startsWith("/") && !raw.startsWith("//") && !raw.startsWith("/\\")) return hrefFor(raw);
+  // URL parsing strips tabs/newlines and reads "\" as "/", so "/<TAB>/evil.example" would become
+  // "//evil.example": reject control characters, spaces and backslashes outright.
+  if (raw && raw.startsWith("/") && !raw.startsWith("//") && !/[\u0000-\u0020\\]/.test(raw)) return hrefFor(raw);
   if (raw && subdomainsEnabled) {
     try {
       const u = new URL(raw);
