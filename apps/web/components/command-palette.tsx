@@ -49,7 +49,7 @@ export function CommandPaletteDialog({ docs, open, mode, setOpen }: DocEntryProp
   return (
     <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm" />
+        <DialogPrimitive.Overlay className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm light:bg-ink/30" />
         <DialogPrimitive.Content className="panel fixed left-1/2 top-[14vh] z-[60] w-[calc(100vw-2rem)] max-w-xl -translate-x-1/2 overflow-hidden rounded-xl shadow-2xl focus:outline-none" aria-describedby={undefined}>
           <DialogPrimitive.Title className="sr-only">{mode === "docs" ? "Search documentation" : "Command palette"}</DialogPrimitive.Title>
           <Command label="Command palette" loop>

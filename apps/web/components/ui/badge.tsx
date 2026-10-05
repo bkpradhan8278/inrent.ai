@@ -8,11 +8,11 @@ export const badgeVariants = cva(
     variants: {
       variant: {
         neutral: "border-border-strong bg-surface-2 text-fg-muted",
-        accent: "border-[rgb(92_235_192/0.3)] bg-accent-soft text-accent",
-        iris: "border-[rgb(142_150_255/0.3)] bg-iris-soft text-iris",
-        amber: "border-[rgb(245_180_85/0.3)] bg-amber-soft text-amber",
-        success: "border-[rgb(74_222_156/0.3)] bg-success-soft text-success",
-        danger: "border-[rgb(255_107_107/0.3)] bg-danger-soft text-danger",
+        accent: "border-accent/30 bg-accent-soft text-accent",
+        iris: "border-iris/30 bg-iris-soft text-iris",
+        amber: "border-amber/30 bg-amber-soft text-amber",
+        success: "border-success/30 bg-success-soft text-success",
+        danger: "border-danger/30 bg-danger-soft text-danger",
         outline: "border-border-strong text-fg-muted",
       },
     },

@@ -88,7 +88,7 @@ export function DocsSearch({ index }: { index: Entry[] }) {
       </button>
       <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
         <DialogPrimitive.Portal>
-          <DialogPrimitive.Overlay className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm" />
+          <DialogPrimitive.Overlay className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm light:bg-ink/30" />
           <DialogPrimitive.Content className="panel fixed left-1/2 top-[12vh] z-[60] w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 overflow-hidden rounded-xl shadow-2xl focus:outline-none" aria-describedby={undefined}>
             <DialogPrimitive.Title className="sr-only">Search documentation</DialogPrimitive.Title>
             <div className="flex items-center gap-2 border-b border-border px-4">

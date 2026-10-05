@@ -64,7 +64,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
       <div className="grid gap-6 xl:grid-cols-3">
         <div className="grid gap-6 xl:col-span-2">
           {r.status === "ERROR" ? (
-            <div role="alert" className="rounded-xl border border-[rgb(255_107_107/0.3)] bg-danger-soft p-4">
+            <div role="alert" className="rounded-xl border border-danger/30 bg-danger-soft p-4">
               <div className="font-mono text-[13px] text-danger">
                 {r.httpStatus} · {r.errorType ?? "error"} · {r.errorCode ?? "unknown"}
               </div>

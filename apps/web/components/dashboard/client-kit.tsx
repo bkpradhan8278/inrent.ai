@@ -44,7 +44,7 @@ export function SecretReveal({ secret, label = "Secret" }: { secret: string; lab
   const [visible, setVisible] = React.useState(false);
   return (
     <div className="grid gap-2">
-      <div className="flex items-center gap-2 rounded-md border border-[rgb(92_235_192/0.35)] bg-accent-soft px-3 py-2">
+      <div className="flex items-center gap-2 rounded-md border border-accent/35 bg-accent-soft px-3 py-2">
         <code aria-label={label} className="min-w-0 flex-1 truncate font-mono text-[13px] text-fg">
           {visible ? secret : `${secret.slice(0, 14)}${"•".repeat(24)}`}
         </code>

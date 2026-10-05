@@ -29,7 +29,7 @@ export function CodeTabsClient({ tabs, className, title }: { tabs: Array<{ label
   const current = tabs[active] ?? tabs[0];
   if (!current) return null;
   return (
-    <div className={cn("overflow-hidden rounded-lg border border-border bg-[#080a0e]", className)}>
+    <div data-theme="dark" className={cn("overflow-hidden rounded-lg border border-border bg-[#080a0e]", className)}>
       <div className="flex h-10 items-center justify-between gap-2 border-b border-border pl-1.5 pr-2">
         <div role="tablist" aria-label={title ?? "Code language"} className="flex min-w-0 items-center gap-0.5 overflow-x-auto">
           {tabs.map((t, i) => (

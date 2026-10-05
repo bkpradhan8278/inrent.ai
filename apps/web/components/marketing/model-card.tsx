@@ -31,7 +31,8 @@ export function PriceLine({ pricing }: { pricing: PublicModel["pricing"] }) {
   );
 }
 
-export function ModelCard({ model, className }: { model: PublicModel; className?: string }) {
+/** `reserveCorner` keeps the title clear of an overlay button in the top-right corner (the explorer's Compare toggle). */
+export function ModelCard({ model, className, reserveCorner = false }: { model: PublicModel; className?: string; reserveCorner?: boolean }) {
   const caps = model.capabilities.filter((c) => c !== "chat" && c !== "streaming").slice(0, 4);
   const ctx = formatContext(model.contextLength);
   const tint = BRAND_TINT[model.vendor] ?? "142 150 255";
@@ -39,12 +40,12 @@ export function ModelCard({ model, className }: { model: PublicModel; className?
     <Link
       href={`/models/${model.slug}`}
       className={cn(
-        "lift group relative flex h-full flex-col gap-4 overflow-hidden rounded-[18px] border border-white/[.08] bg-[linear-gradient(180deg,#10141b,#0b0d12)] p-5",
+        "lift group relative flex h-full flex-col gap-4 overflow-hidden rounded-[18px] border border-ink/[.08] bg-card-gradient p-5 light:shadow-[var(--shadow-panel)]",
         className,
       )}
     >
       <div className="glow pointer-events-none absolute -right-16 -top-20 size-52 rounded-full opacity-25" style={{ background: `radial-gradient(closest-side, rgb(${tint} / .45), transparent)` }} aria-hidden />
-      <div className="relative flex items-start gap-3">
+      <div className={cn("relative flex items-start gap-3", reserveCorner && "pr-8")}>
         <VendorMark vendor={model.vendor} className="ico size-[46px] rounded-xl" />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
@@ -63,7 +64,7 @@ export function ModelCard({ model, className }: { model: PublicModel; className?
         ))}
         {model.openWeights ? <Badge variant="outline">Open weights</Badge> : null}
       </div>
-      <div className="relative mt-auto flex flex-col gap-3 border-t border-white/[.06] pt-3 text-[12px]">
+      <div className="relative mt-auto flex flex-col gap-3 border-t border-ink/[.06] pt-3 text-[12px]">
         <PriceLine pricing={model.pricing} />
         <div className="flex items-center justify-between gap-2">
           <AvailabilityBadge availability={model.availability} devOnly={model.isDevOnly} />

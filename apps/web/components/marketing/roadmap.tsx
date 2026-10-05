@@ -19,7 +19,7 @@ export function RoadmapTimeline({ compact = false }: { compact?: boolean }) {
           key={p.n}
           className={cn(
             "relative rounded-xl border p-5 transition-colors",
-            p.state === "now" ? "border-[rgb(92_235_192/0.4)] bg-accent-soft" : p.state === "next" ? "border-border-strong bg-surface" : "border-border bg-bg-elevated",
+            p.state === "now" ? "border-accent/40 bg-accent-soft" : p.state === "next" ? "border-border-strong bg-surface" : "border-border bg-bg-elevated",
           )}
         >
           <div className="flex items-center justify-between">

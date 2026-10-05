@@ -33,13 +33,13 @@ export default async function HomePage() {
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
         <div className="bg-grid pointer-events-none absolute inset-x-0 -top-10 bottom-0" aria-hidden />
-        <div className="pointer-events-none absolute -top-64 left-1/2 h-[640px] w-[1100px] -translate-x-1/2 bg-[radial-gradient(closest-side,rgb(92_235_192/0.14),transparent)]" aria-hidden />
-        <div className="pointer-events-none absolute -right-52 top-28 size-[640px] bg-[radial-gradient(closest-side,rgb(142_150_255/0.10),transparent)]" aria-hidden />
+        <div className="pointer-events-none absolute -top-64 left-1/2 h-[640px] w-[1100px] -translate-x-1/2 bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--color-accent)_14%,transparent),transparent)] light:opacity-60" aria-hidden />
+        <div className="pointer-events-none absolute -right-52 top-28 size-[640px] bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--color-iris)_10%,transparent),transparent)] light:opacity-60" aria-hidden />
         <div className="relative mx-auto grid w-full max-w-[1240px] items-center gap-14 px-4 pb-20 pt-14 sm:px-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:pb-24 lg:pt-20">
           <div className="flex min-w-0 flex-col gap-7">
             <div className="rise">
-              <Link href="/changelog" className="group inline-flex w-fit max-w-full items-center gap-2.5 rounded-full border border-white/[.09] bg-surface/70 py-1 pl-1 pr-3.5 text-[13px] text-fg-muted backdrop-blur transition-colors hover:border-border-strong hover:text-fg">
-                <span className="rounded-full bg-[rgb(92_235_192/.12)] px-2.5 py-[3px] font-mono text-[11px] text-accent">New</span>
+              <Link href="/changelog" className="group inline-flex w-fit max-w-full items-center gap-2.5 rounded-full border border-ink/[.09] bg-surface/70 py-1 pl-1 pr-3.5 text-[13px] text-fg-muted backdrop-blur transition-colors hover:border-border-strong hover:text-fg">
+                <span className="rounded-full bg-accent/[.12] px-2.5 py-[3px] font-mono text-[11px] text-accent">New</span>
                 <span className="truncate">OpenAI-compatible API · streaming, routing, BYOK</span>
                 <ArrowRight className="size-3.5 shrink-0 transition-transform group-hover:translate-x-0.5" />
               </Link>
@@ -47,13 +47,13 @@ export default async function HomePage() {
             <h1 className="font-display text-[clamp(44px,5.4vw,78px)] font-semibold leading-[0.98] tracking-[-0.045em] text-fg">
               One API.
               <br />
-              <span className="bg-[linear-gradient(100deg,#ffffff_0%,#b9f7e4_36%,#5cebc0_62%,#8e96ff_100%)] bg-clip-text text-transparent">Every AI model.</span>
+              <span className="bg-[linear-gradient(100deg,var(--color-grad-a)_0%,var(--color-grad-b)_36%,var(--color-accent)_62%,var(--color-iris)_100%)] bg-clip-text text-transparent">Every AI model.</span>
             </h1>
             <p className="max-w-[540px] text-[17px] leading-relaxed text-fg-muted sm:text-[18px]">
               Connect your application to leading AI models through one developer-first API — with unified billing, routing, observability and infrastructure.
             </p>
             <div className="rise flex flex-wrap items-center gap-3" style={{ animationDelay: "150ms" }}>
-              <Button asChild size="lg" className="h-[50px] rounded-xl px-[22px] text-[16px] font-semibold shadow-[0_0_0_1px_rgba(92,235,192,.35),0_18px_44px_-16px_rgba(92,235,192,.75)]">
+              <Button asChild size="lg" className="h-[50px] rounded-xl px-[22px] text-[16px] font-semibold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-accent)_35%,transparent),0_18px_44px_-16px_color-mix(in_oklab,var(--color-accent)_75%,transparent)] light:shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-accent)_35%,transparent),0_14px_32px_-16px_color-mix(in_oklab,var(--color-accent)_55%,transparent)]">
                 <Link href="/sign-up">
                   Start building <ArrowRight />
                 </Link>
@@ -66,7 +66,7 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="rise" style={{ animationDelay: "220ms" }}>
-              <div className="flex w-fit max-w-full items-center gap-3 rounded-xl border border-white/[.08] bg-bg-elevated/85 py-1.5 pl-4 pr-1.5 font-mono text-[13px] backdrop-blur">
+              <div className="flex w-fit max-w-full items-center gap-3 rounded-xl border border-ink/[.08] bg-bg-elevated/85 py-1.5 pl-4 pr-1.5 font-mono text-[13px] backdrop-blur">
                 <span className="text-fg-subtle">base_url</span>
                 <span className="truncate text-fg">{site.apiBaseUrl}</span>
                 <CopyButton value={site.apiBaseUrl} label="Copy base URL" />
@@ -193,12 +193,12 @@ export default async function HomePage() {
         <div className="flex min-w-0 flex-col gap-6">
           <SectionHeading
             eyebrow="MCP · Preview"
-            className="[&>div:first-child]:text-[#a8afff]"
+            className="[&>div:first-child]:text-[color-mix(in_oklab,var(--color-iris)_77%,var(--color-ink))]"
             title={
               <>
                 Connect your tools.
                 <br />
-                <span className="bg-[linear-gradient(100deg,#d6d9ff,#8e96ff_60%,#5cebc0)] bg-clip-text text-transparent">Approve every call.</span>
+                <span className="bg-[linear-gradient(100deg,color-mix(in_oklab,var(--color-iris)_36%,var(--color-grad-a)),var(--color-iris)_60%,var(--color-accent))] bg-clip-text text-transparent">Approve every call.</span>
               </>
             }
             description="Register Model Context Protocol servers and approve each tool individually. Tools start disabled; write and destructive tools need an owner or admin."
@@ -237,9 +237,9 @@ export default async function HomePage() {
               { t: "Self-hosted open weights", d: "Served on INRENT-operated infrastructure after license verification.", icon: Server },
               { t: "Enterprise agreements", d: "Dedicated provider arrangements scoped to the organizations they cover.", icon: Building2 },
             ].map((x) => (
-              <div key={x.t} className="lift rounded-2xl border border-white/[.08] bg-[linear-gradient(180deg,#10141b,#0b0d12)] p-5">
+              <div key={x.t} className="lift rounded-2xl border border-ink/[.08] bg-card-gradient p-5 light:shadow-[var(--shadow-panel)]">
                 <div className="flex items-center gap-2.5 text-[14.5px] font-medium text-fg">
-                  <span className="ico inline-flex size-8 items-center justify-center rounded-lg border border-[rgb(92_235_192/.3)] bg-[radial-gradient(circle_at_30%_20%,rgb(92_235_192/.22),#0c0f15_70%)] text-accent">
+                  <span className="ico inline-flex size-8 items-center justify-center rounded-lg border border-accent/30 bg-[radial-gradient(circle_at_30%_20%,color-mix(in_oklab,var(--color-accent)_22%,transparent),var(--color-tile)_70%)] text-accent">
                     <x.icon className="size-4" />
                   </span>
                   {x.t}
@@ -254,9 +254,9 @@ export default async function HomePage() {
       {/* ── GPU Cloud teaser ─────────────────────────────────────────────── */}
       <section className="container-page py-24">
         <div className="panel relative grid gap-10 overflow-hidden rounded-3xl p-8 sm:p-12 lg:grid-cols-[1.1fr_1fr] lg:items-center">
-          <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-[radial-gradient(closest-side,rgb(245_180_85/0.16),transparent)]" aria-hidden />
+          <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--color-amber)_16%,transparent),transparent)]" aria-hidden />
           <div className="relative flex flex-col gap-5">
-            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[rgb(245_180_85/0.35)] bg-amber-soft px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-amber">GPU Cloud · coming soon</div>
+            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-amber/35 bg-amber-soft px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-amber">GPU Cloud · coming soon</div>
             <h2 className="text-display text-4xl text-fg sm:text-5xl">
               <span className="text-gradient-amber">Compute is coming.</span>
             </h2>
@@ -288,7 +288,7 @@ export default async function HomePage() {
       <section className="relative overflow-hidden border-t border-border">
         <div className="bg-grid pointer-events-none absolute inset-0" aria-hidden />
         <div className="container-page relative flex flex-col items-center gap-6 py-24 text-center">
-          <LogoMark className="size-12 drop-shadow-[0_18px_40px_rgba(92,235,192,.45)]" title="" />
+          <LogoMark className="size-12 drop-shadow-[0_18px_40px_color-mix(in_oklab,var(--color-accent)_45%,transparent)] light:drop-shadow-[0_14px_28px_color-mix(in_oklab,var(--color-accent)_30%,transparent)]" title="" />
           <h2 className="text-display max-w-3xl text-4xl tracking-[-0.04em] text-fg sm:text-[clamp(40px,5vw,64px)]">AI infrastructure, <span className="text-gradient">without the infrastructure.</span></h2>
           <p className="max-w-lg text-fg-muted">Create an account, generate a key and make your first request in under five minutes.</p>
           <div className="flex flex-wrap justify-center gap-3">

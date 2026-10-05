@@ -64,7 +64,7 @@ function SidebarNav({ isAdmin, onNavigate }: { isAdmin: boolean; onNavigate?: ()
         </div>
       ))}
       {isAdmin ? (
-        <Link href={ADMIN_LINK.href} onClick={onNavigate} className="flex h-8 items-center gap-2.5 rounded-md border border-[rgb(142_150_255/0.3)] bg-iris-soft px-2.5 text-[13.5px] text-iris">
+        <Link href={ADMIN_LINK.href} onClick={onNavigate} className="flex h-8 items-center gap-2.5 rounded-md border border-iris/30 bg-iris-soft px-2.5 text-[13.5px] text-iris">
           <Shield className="size-4" /> {ADMIN_LINK.label}
         </Link>
       ) : null}
@@ -171,7 +171,7 @@ function Notifications({ items }: { items: ShellData["notifications"] }) {
           <ul className="max-h-96 overflow-y-auto">
             {items.map((n) => (
               <li key={n.id} className="border-b border-border last:border-0">
-                <Link href={n.link ?? "/dashboard"} className="block px-3 py-2.5 hover:bg-[#1b2130]">
+                <Link href={n.link ?? "/dashboard"} className="block px-3 py-2.5 hover:bg-surface-3">
                   <div className="flex items-center gap-2 text-sm text-fg">
                     {!n.read ? <span className="size-1.5 rounded-full bg-accent" /> : null}
                     {n.title}

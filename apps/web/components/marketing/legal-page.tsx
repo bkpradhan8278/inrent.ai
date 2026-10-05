@@ -11,7 +11,7 @@ export function LegalPage({ title, updated, intro, sections }: { title: string; 
   return (
     <div className="container-page py-14">
       <div className="mx-auto max-w-3xl">
-        <div role="note" className="mb-10 flex gap-3 rounded-lg border border-[rgb(245_180_85/0.35)] bg-amber-soft px-4 py-3 text-sm text-amber">
+        <div role="note" className="mb-10 flex gap-3 rounded-lg border border-amber/35 bg-amber-soft px-4 py-3 text-sm text-amber">
           <TriangleAlert className="mt-0.5 size-4 shrink-0" />
           <p>
             <strong className="font-semibold">Template — requires legal review.</strong> This document is a draft prepared for INRENT and has not yet been reviewed by counsel. It is not legal advice and may change before launch.

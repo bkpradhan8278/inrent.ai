@@ -7,7 +7,7 @@ import { CodeTabsClient } from "./code-tabs-client";
 export async function CodeBlock({ code, lang = "text", title, className }: { code: string; lang?: string; title?: string; className?: string }) {
   const html = await highlight(code, lang);
   return (
-    <div className={cn("group relative overflow-hidden rounded-lg border border-border bg-[#080a0e]", className)}>
+    <div data-theme="dark" className={cn("group relative overflow-hidden rounded-lg border border-border bg-[#080a0e]", className)}>
       {title ? (
         <div className="flex h-9 items-center justify-between border-b border-border px-3">
           <span className="font-mono text-[11px] text-fg-subtle">{title}</span>

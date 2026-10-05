@@ -14,13 +14,21 @@ export interface ChartPoint {
 
 type Metric = "requests" | "tokens" | "spendUsd" | "latencyMs" | "errors";
 
-const COLORS: Record<Metric, string> = {
-  requests: "#5cebc0",
-  tokens: "#8e96ff",
-  spendUsd: "#f5b455",
-  latencyMs: "#8e96ff",
-  errors: "#ff6b6b",
+/**
+ * Series colours are theme tokens. SVG presentation attributes cannot read CSS variables, so marks
+ * use `currentColor` and take their colour from a `text-*` class (or a `style` var() on <stop>).
+ */
+const COLORS: Record<Metric, { text: string; token: string }> = {
+  requests: { text: "text-accent", token: "var(--color-accent)" },
+  tokens: { text: "text-iris", token: "var(--color-iris)" },
+  spendUsd: { text: "text-amber", token: "var(--color-amber)" },
+  latencyMs: { text: "text-iris", token: "var(--color-iris)" },
+  errors: { text: "text-danger", token: "var(--color-danger)" },
 };
+
+/** Gridlines in ink (white in dark, near-black in light); axis labels in fg-subtle via currentColor. */
+const FRAME = "w-full text-fg-subtle [&_.recharts-cartesian-grid_line]:stroke-ink/5";
+const TICK = { fill: "currentColor", fontSize: 11 };
 
 function formatValue(metric: Metric, v: number | null | undefined) {
   if (v === null || v === undefined) return "—";
@@ -45,20 +53,20 @@ export function MetricAreaChart({ data, metric, height = 220 }: { data: ChartPoi
   const color = COLORS[metric];
   const id = `grad-${metric}`;
   return (
-    <div style={{ height }} className="w-full" role="img" aria-label={`${metric} over time`}>
+    <div style={{ height }} className={FRAME} role="img" aria-label={`${metric} over time`}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity={0.32} />
-              <stop offset="100%" stopColor={color} stopOpacity={0} />
+              <stop offset="0%" style={{ stopColor: color.token }} stopOpacity={0.32} />
+              <stop offset="100%" style={{ stopColor: color.token }} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid stroke="rgb(255 255 255 / 0.05)" vertical={false} />
-          <XAxis dataKey="date" tickFormatter={shortDate} tick={{ fill: "#808899", fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={24} />
-          <YAxis tickFormatter={(v: number) => formatValue(metric, v)} tick={{ fill: "#808899", fontSize: 11 }} axisLine={false} tickLine={false} width={metric === "spendUsd" ? 72 : 56} />
-          <Tooltip content={<ChartTooltip metric={metric} />} cursor={{ stroke: "rgb(255 255 255 / 0.15)" }} />
-          <Area type="monotone" dataKey={metric} stroke={color} strokeWidth={1.75} fill={`url(#${id})`} isAnimationActive={false} connectNulls />
+          <CartesianGrid vertical={false} />
+          <XAxis dataKey="date" tickFormatter={shortDate} tick={TICK} axisLine={false} tickLine={false} minTickGap={24} />
+          <YAxis tickFormatter={(v: number) => formatValue(metric, v)} tick={TICK} axisLine={false} tickLine={false} width={metric === "spendUsd" ? 72 : 56} />
+          <Tooltip content={<ChartTooltip metric={metric} />} cursor={{ className: "stroke-ink/15" }} />
+          <Area type="monotone" dataKey={metric} className={color.text} stroke="currentColor" strokeWidth={1.75} fill={`url(#${id})`} isAnimationActive={false} connectNulls />
         </AreaChart>
       </ResponsiveContainer>
     </div>
@@ -68,14 +76,14 @@ export function MetricAreaChart({ data, metric, height = 220 }: { data: ChartPoi
 export function StackedErrorsChart({ data, height = 200 }: { data: ChartPoint[]; height?: number }) {
   const rows = data.map((d) => ({ date: d.date, ok: d.requests - d.errors, errors: d.errors }));
   return (
-    <div style={{ height }} className="w-full" role="img" aria-label="Successful and failed requests per day">
+    <div style={{ height }} className={FRAME} role="img" aria-label="Successful and failed requests per day">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={rows} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
-          <CartesianGrid stroke="rgb(255 255 255 / 0.05)" vertical={false} />
-          <XAxis dataKey="date" tickFormatter={shortDate} tick={{ fill: "#808899", fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={24} />
-          <YAxis tickFormatter={(v: number) => formatCompact(v)} tick={{ fill: "#808899", fontSize: 11 }} axisLine={false} tickLine={false} width={48} />
+          <CartesianGrid vertical={false} />
+          <XAxis dataKey="date" tickFormatter={shortDate} tick={TICK} axisLine={false} tickLine={false} minTickGap={24} />
+          <YAxis tickFormatter={(v: number) => formatCompact(v)} tick={TICK} axisLine={false} tickLine={false} width={48} />
           <Tooltip
-            cursor={{ fill: "rgb(255 255 255 / 0.03)" }}
+            cursor={{ className: "fill-ink/[.03]" }}
             content={({ active, payload, label }) =>
               active && payload?.length ? (
                 <div className="rounded-md border border-border-strong bg-surface-2 px-2.5 py-1.5 text-xs shadow-xl">
@@ -86,8 +94,8 @@ export function StackedErrorsChart({ data, height = 200 }: { data: ChartPoint[];
               ) : null
             }
           />
-          <Bar dataKey="ok" stackId="a" fill="#4ade9c" fillOpacity={0.7} isAnimationActive={false} />
-          <Bar dataKey="errors" stackId="a" fill="#ff6b6b" radius={[3, 3, 0, 0]} isAnimationActive={false} />
+          <Bar dataKey="ok" stackId="a" className="text-success" fill="currentColor" fillOpacity={0.7} isAnimationActive={false} />
+          <Bar dataKey="errors" stackId="a" className="text-danger" fill="currentColor" radius={[3, 3, 0, 0]} isAnimationActive={false} />
         </BarChart>
       </ResponsiveContainer>
     </div>

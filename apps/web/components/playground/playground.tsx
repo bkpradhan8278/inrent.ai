@@ -291,7 +291,7 @@ export function Playground({
               <Label htmlFor={`pg-${k}`}>{label}</Label>
               <span className="font-mono text-xs text-fg-muted">{state[k]}</span>
             </div>
-            <input id={`pg-${k}`} type="range" min={min} max={max} step={step} value={state[k]} onChange={(e) => set(k, Number(e.target.value))} className="accent-[#5cebc0]" />
+            <input id={`pg-${k}`} type="range" min={min} max={max} step={step} value={state[k]} onChange={(e) => set(k, Number(e.target.value))} className="accent-accent" />
           </div>
         ))}
         <div className="grid gap-1.5">
@@ -394,7 +394,7 @@ export function Playground({
                 <div
                   className={cn(
                     "max-w-[85%] whitespace-pre-wrap rounded-xl px-4 py-2.5 text-[14px] leading-relaxed",
-                    m.role === "user" ? "bg-surface-3 text-fg" : m.error ? "border border-[rgb(255_107_107/0.35)] bg-danger-soft text-danger" : "border border-border bg-bg-elevated text-fg-muted",
+                    m.role === "user" ? "bg-surface-3 text-fg" : m.error ? "border border-danger/35 bg-danger-soft text-danger" : "border border-border bg-bg-elevated text-fg-muted",
                   )}
                 >
                   {m.content || (running && i === state.messages.length - 1 ? <Loader2 className="size-4 animate-spin text-fg-subtle" /> : "")}
@@ -473,7 +473,7 @@ export function Playground({
             ))}
           </div>
           <div className="relative mt-3">
-            <pre className="max-h-[50vh] overflow-auto rounded-lg border border-border bg-[#080a0e] p-4 font-mono text-[12px] leading-relaxed text-fg-muted">{codeFor(codeLang, body, apiBase)}</pre>
+            <pre data-theme="dark" className="max-h-[50vh] overflow-auto rounded-lg border border-border bg-[#080a0e] p-4 font-mono text-[12px] leading-relaxed text-fg-muted">{codeFor(codeLang, body, apiBase)}</pre>
             <Button
               size="sm"
               variant="secondary"

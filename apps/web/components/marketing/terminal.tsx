@@ -57,7 +57,7 @@ export function Terminal() {
 
   const next = SCRIPT[visible];
   return (
-    <div ref={ref} className="panel overflow-hidden rounded-xl">
+    <div ref={ref} data-theme="dark" className="panel overflow-hidden rounded-xl">
       <div className="flex h-9 items-center gap-1.5 border-b border-border px-3.5">
         <span className="size-2.5 rounded-full bg-[#ff5f57]/80" />
         <span className="size-2.5 rounded-full bg-[#febc2e]/80" />

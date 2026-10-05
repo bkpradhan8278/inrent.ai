@@ -36,7 +36,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
       <PageHeader title="Billing" description="Prepaid credits in USD. Usage is charged per request at the listed model price; nothing is billed after the fact." actions={<ExportMenu kinds={[{ kind: "billing", label: "Credit ledger" }, { kind: "invoices", label: "Invoices" }]} />} />
 
       {payment === "success" ? (
-        <div role="status" className="mb-6 flex items-start gap-3 rounded-xl border border-[rgb(74_222_156/0.3)] bg-success-soft p-4 text-sm">
+        <div role="status" className="mb-6 flex items-start gap-3 rounded-xl border border-success/30 bg-success-soft p-4 text-sm">
           <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" />
           <div>
             <div className="font-medium text-fg">Payment received</div>

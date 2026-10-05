@@ -9,11 +9,11 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-accent text-accent-fg shadow-[0_0_0_1px_rgb(92_235_192/0.4),0_8px_24px_-10px_rgb(92_235_192/0.6)] hover:bg-[#7ef5d2] hover:shadow-[0_0_0_1px_rgb(92_235_192/0.6),0_10px_30px_-10px_rgb(92_235_192/0.75)]",
-        secondary: "border border-border-strong bg-surface-2 text-fg hover:border-[rgb(255_255_255/0.2)] hover:bg-surface-3",
+          "bg-accent text-accent-fg shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-accent)_40%,transparent),0_8px_24px_-10px_color-mix(in_oklab,var(--color-accent)_60%,transparent)] hover:bg-[#7ef5d2] hover:shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-accent)_60%,transparent),0_10px_30px_-10px_color-mix(in_oklab,var(--color-accent)_75%,transparent)] light:shadow-[0_1px_2px_color-mix(in_oklab,var(--color-accent)_30%,transparent),0_6px_16px_-8px_color-mix(in_oklab,var(--color-accent)_45%,transparent)] light:hover:bg-accent-strong light:hover:shadow-[0_1px_2px_color-mix(in_oklab,var(--color-accent)_35%,transparent),0_8px_20px_-8px_color-mix(in_oklab,var(--color-accent)_55%,transparent)]",
+        secondary: "border border-border-strong bg-surface-2 text-fg hover:border-ink/20 hover:bg-surface-3",
         outline: "border border-border-strong bg-transparent text-fg hover:bg-surface-2",
         ghost: "text-fg-muted hover:bg-surface-2 hover:text-fg",
-        danger: "border border-[rgb(255_107_107/0.35)] bg-danger-soft text-danger hover:bg-[rgb(255_107_107/0.18)]",
+        danger: "border border-danger/35 bg-danger-soft text-danger hover:bg-danger/18",
         link: "h-auto p-0 text-accent underline-offset-4 hover:underline",
       },
       size: {

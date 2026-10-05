@@ -73,7 +73,7 @@ export default function GpuPage() {
           <ol className="flex flex-col gap-3">
             {["Choose a model", "Choose a GPU offer", "Pick a container (vLLM, TGI or custom)", "We provision, load and health-check it", "The endpoint is registered in the INRENT gateway", "Autoscale from zero to N GPUs"].map((s, i) => (
               <li key={s} className="flex items-center gap-3 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-fg-muted">
-                <span className="flex size-6 items-center justify-center rounded-full border border-[rgb(245_180_85/0.4)] font-mono text-[11px] text-amber">{i + 1}</span>
+                <span className="flex size-6 items-center justify-center rounded-full border border-amber/40 font-mono text-[11px] text-amber">{i + 1}</span>
                 {s}
               </li>
             ))}

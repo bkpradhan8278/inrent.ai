@@ -81,7 +81,7 @@ export function StatusPill({ status }: { status: string }) {
 export function DenyNotice({ permission }: { permission?: string }) {
   if (!permission) return null;
   return (
-    <div role="alert" className="mb-6 rounded-lg border border-[rgb(245_180_85/0.3)] bg-amber-soft px-4 py-3 text-sm text-amber">
+    <div role="alert" className="mb-6 rounded-lg border border-amber/30 bg-amber-soft px-4 py-3 text-sm text-amber">
       Your role doesn&apos;t include <code className="font-mono">{permission}</code>. Ask an organization owner or admin for access.
     </div>
   );

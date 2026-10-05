@@ -160,7 +160,7 @@ export function WebhooksManager({ canWrite, events, hooks, deliveries }: { canWr
               <div className="grid gap-1.5">
                 {events.map((ev) => (
                   <label key={ev.type} className="flex items-start gap-2 text-[13px]">
-                    <input type="checkbox" className="mt-0.5 size-3.5 accent-[#5cebc0]" checked={form.events.includes(ev.type)} onChange={(e) => setForm({ ...form, events: e.target.checked ? [...form.events, ev.type] : form.events.filter((x) => x !== ev.type) })} />
+                    <input type="checkbox" className="mt-0.5 size-3.5 accent-accent" checked={form.events.includes(ev.type)} onChange={(e) => setForm({ ...form, events: e.target.checked ? [...form.events, ev.type] : form.events.filter((x) => x !== ev.type) })} />
                     <span>
                       <span className="font-mono text-fg">{ev.type}</span> <span className="text-fg-subtle">— {ev.description}</span>
                     </span>

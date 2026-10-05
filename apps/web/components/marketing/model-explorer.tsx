@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpDown, Check, LayoutGrid, List, Search, SlidersHorizontal, X } from "lucide-react";
+import { ArrowUpDown, Check, GitCompare, LayoutGrid, List, Search, SlidersHorizontal, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
@@ -121,7 +121,7 @@ function ExplorerView({ models, params }: { models: PublicModel[]; params: Param
         <div className="flex flex-col gap-1">
           {allVendors.map((v) => (
             <label key={v} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-sm text-fg-muted hover:bg-surface-2">
-              <input type="checkbox" className="accent-[#5cebc0]" checked={vendors.includes(v)} onChange={() => toggle(vendors, setVendors, v)} />
+              <input type="checkbox" className="accent-accent" checked={vendors.includes(v)} onChange={() => toggle(vendors, setVendors, v)} />
               {vendorName(v)}
             </label>
           ))}
@@ -138,7 +138,7 @@ function ExplorerView({ models, params }: { models: PublicModel[]; params: Param
               onClick={() => toggle(caps, setCaps, f.id)}
               className={cn(
                 "rounded-full border px-2.5 py-1 text-xs transition-colors",
-                caps.includes(f.id) ? "border-[rgb(92_235_192/0.45)] bg-accent-soft text-accent" : "border-border-strong text-fg-muted hover:text-fg",
+                caps.includes(f.id) ? "border-accent/45 bg-accent-soft text-accent" : "border-border-strong text-fg-muted hover:text-fg",
               )}
             >
               {f.label}
@@ -158,7 +158,7 @@ function ExplorerView({ models, params }: { models: PublicModel[]; params: Param
         <div className="text-[11px] font-medium uppercase tracking-wider text-fg-subtle">Max input price ($/1M)</div>
         <Input inputMode="decimal" placeholder="e.g. 1.00" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value.replace(/[^\d.]/g, ""))} aria-label="Maximum input price per million tokens" />
         <label className="flex cursor-pointer items-center gap-2 text-sm text-fg-muted">
-          <input type="checkbox" className="accent-[#5cebc0]" checked={availableOnly} onChange={(e) => setAvailableOnly(e.target.checked)} />
+          <input type="checkbox" className="accent-accent" checked={availableOnly} onChange={(e) => setAvailableOnly(e.target.checked)} />
           Usable now (platform or BYOK)
         </label>
       </div>
@@ -242,18 +242,19 @@ function ExplorerView({ models, params }: { models: PublicModel[]; params: Param
           <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {filtered.map((m) => (
               <div key={m.slug} className="relative">
-                <ModelCard model={m} />
+                <ModelCard model={m} reserveCorner />
                 <button
                   type="button"
                   onClick={() => toggleCompare(m.slug)}
                   aria-pressed={compare.includes(m.slug)}
+                  aria-label={`Compare ${m.displayName}`}
+                  title={compare.includes(m.slug) ? "Remove from compare" : "Add to compare"}
                   className={cn(
-                    "absolute right-3 top-3 z-10 inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] backdrop-blur transition-colors",
-                    compare.includes(m.slug) ? "border-[rgb(92_235_192/0.45)] bg-accent-soft text-accent" : "border-border-strong bg-bg/70 text-fg-subtle hover:text-fg",
+                    "absolute right-3 top-3 z-10 inline-flex size-7 items-center justify-center rounded-md border backdrop-blur transition-colors",
+                    compare.includes(m.slug) ? "border-accent/45 bg-accent-soft text-accent" : "border-border-strong bg-bg/70 text-fg-subtle hover:text-fg",
                   )}
                 >
-                  {compare.includes(m.slug) ? <Check className="size-3" /> : null}
-                  Compare
+                  {compare.includes(m.slug) ? <Check className="size-3.5" /> : <GitCompare className="size-3.5" />}
                 </button>
               </div>
             ))}
@@ -292,7 +293,7 @@ function ExplorerView({ models, params }: { models: PublicModel[]; params: Param
                       <AvailabilityBadge availability={m.availability} devOnly={m.isDevOnly} />
                     </TD>
                     <TD className="text-right">
-                      <input type="checkbox" className="accent-[#5cebc0]" checked={compare.includes(m.slug)} onChange={() => toggleCompare(m.slug)} aria-label={`Compare ${m.displayName}`} />
+                      <input type="checkbox" className="accent-accent" checked={compare.includes(m.slug)} onChange={() => toggleCompare(m.slug)} aria-label={`Compare ${m.displayName}`} />
                     </TD>
                   </TR>
                 ))}

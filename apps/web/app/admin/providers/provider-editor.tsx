@@ -110,7 +110,7 @@ function Editor({ p, canWrite, modes }: { p: ProviderRow; canWrite: boolean; mod
             Enabled
             <Switch checked={v.enabled} onCheckedChange={(c) => setV({ ...v, enabled: c })} />
           </label>
-          <label className={cn("flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 text-[13px] text-fg", v.resaleVerified ? "border-[rgb(74_222_156/0.35)] bg-success-soft" : "border-border bg-surface")}>
+          <label className={cn("flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 text-[13px] text-fg", v.resaleVerified ? "border-success/35 bg-success-soft" : "border-border bg-surface")}>
             Resale verified
             <Switch checked={v.resaleVerified} disabled={!modes[v.integrationMode].platformFunded || v.integrationMode === "SELF_HOSTED" || v.integrationMode === "OPEN_WEIGHT"} onCheckedChange={(c) => setV({ ...v, resaleVerified: c })} />
           </label>

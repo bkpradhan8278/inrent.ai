@@ -68,7 +68,7 @@ export const BRAND_LOGOS: Record<string, string> = {
  * Logos drawn in white for dark backgrounds. In light mode they render black (the `logo-mono` rule
  * in globals.css), matching the dark-on-light versions these brands publish.
  */
-const MONO_LOGOS = new Set(["openai", "anthropic", "xai", "zai", "groq", "moonshotai", "github", "mcp", "notion"]);
+const MONO_LOGOS = new Set(["openai", "anthropic", "xai", "zai", "groq", "moonshotai", "github", "mcp"]);
 
 function logoClass(brand: string) {
   return MONO_LOGOS.has(brand) ? "logo-mono" : undefined;

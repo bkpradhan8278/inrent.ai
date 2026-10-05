@@ -15,7 +15,7 @@ export function DropdownMenuContent({ className, sideOffset = 6, ...props }: Rea
     <Primitive.Portal>
       <Primitive.Content
         sideOffset={sideOffset}
-        className={cn("z-50 max-h-[var(--radix-dropdown-menu-content-available-height)] min-w-48 overflow-y-auto overscroll-contain rounded-xl border border-ink/10 bg-surface-2 p-1 text-fg shadow-[var(--shadow-lift),0_0_0_1px_rgb(0_0_0/.08)] data-[state=open]:animate-fade-in", className)}
+        className={cn("z-50 max-h-[var(--radix-dropdown-menu-content-available-height)] min-w-48 overflow-y-auto overscroll-contain rounded-xl border border-ink/10 bg-surface-2 p-1 text-fg light:bg-surface shadow-[var(--shadow-lift),0_0_0_1px_rgb(0_0_0/.08)] data-[state=open]:animate-fade-in", className)}
         {...props}
       />
     </Primitive.Portal>
@@ -26,7 +26,7 @@ export function DropdownMenuItem({ className, ...props }: React.ComponentProps<t
   return (
     <Primitive.Item
       className={cn(
-        "relative flex cursor-default select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm text-fg-muted outline-none transition-colors data-[highlighted]:bg-surface-3 data-[highlighted]:text-fg data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-4",
+        "relative flex cursor-default select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm text-fg-muted outline-none transition-colors data-[highlighted]:bg-surface-3 data-[highlighted]:text-fg light:data-[highlighted]:bg-surface-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-4",
         className,
       )}
       {...props}
@@ -38,7 +38,7 @@ export function DropdownMenuRadioItem({ className, children, ...props }: React.C
   return (
     <Primitive.RadioItem
       className={cn(
-        "relative flex cursor-default select-none items-center gap-2 rounded-md py-1.5 pl-2 pr-8 text-sm text-fg-muted outline-none transition-colors data-[highlighted]:bg-surface-3 data-[highlighted]:text-fg data-[state=checked]:text-fg data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-4",
+        "relative flex cursor-default select-none items-center gap-2 rounded-md py-1.5 pl-2 pr-8 text-sm text-fg-muted outline-none transition-colors data-[highlighted]:bg-surface-3 data-[highlighted]:text-fg light:data-[highlighted]:bg-surface-2 data-[state=checked]:text-fg data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-4",
         className,
       )}
       {...props}

@@ -45,7 +45,7 @@ export default async function PricingPage() {
             {plans.map((p) => {
               const price = p.contactSales ? "Custom" : p.priceMonthlyCents === 0 ? (p.isPayAsYouGo ? "Usage" : "$0") : p.priceMonthlyCents ? `$${(p.priceMonthlyCents / 100).toFixed(0)}` : "—";
               return (
-                <div key={p.id} className={cn("panel relative flex flex-col rounded-2xl p-6", p.highlighted && "border-[rgb(92_235_192/0.45)] shadow-glow")}>
+                <div key={p.id} className={cn("panel relative flex flex-col rounded-2xl p-6", p.highlighted && "border-accent/45 shadow-glow")}>
                   {p.highlighted ? <Badge variant="accent" className="absolute -top-2.5 left-6">Most popular</Badge> : null}
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold text-fg">{p.name}</h2>

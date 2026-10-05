@@ -14,7 +14,7 @@ export default function ChangelogPage() {
         <ol className="relative ml-2 border-l border-border">
           {CHANGELOG.map((e) => (
             <li key={e.date + e.title} className="relative pb-14 pl-8 last:pb-0">
-              <span className="absolute -left-[5px] top-2 size-2.5 rounded-full bg-accent shadow-[0_0_0_4px_rgb(92_235_192/0.15)]" aria-hidden />
+              <span className="absolute -left-[5px] top-2 size-2.5 rounded-full bg-accent ring-4 ring-accent/15" aria-hidden />
               <time className="font-mono text-xs text-fg-subtle" dateTime={e.date}>
                 {formatDate(e.date)}
               </time>

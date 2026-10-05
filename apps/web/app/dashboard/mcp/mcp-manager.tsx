@@ -55,10 +55,10 @@ function ServerKindMark({ kind, className }: { kind: Kind; className?: string })
   return (
     <span
       className={`ico inline-flex size-10 shrink-0 items-center justify-center rounded-[11px] border ${className ?? ""}`}
-      style={{ borderColor: `rgb(${k.tint} / .3)`, background: `radial-gradient(circle at 30% 20%, rgb(${k.tint} / .22), #0c0f15 72%)` }}
+      style={{ borderColor: `rgb(${k.tint} / .3)`, background: `radial-gradient(circle at 30% 20%, rgb(${k.tint} / .22), var(--color-tile) 72%)` }}
       aria-hidden
     >
-      {k.brand ? <BrandLogo brand={k.brand} size={20} /> : <FolderOpen className="size-5 text-[#c4b8ff]" strokeWidth={1.8} />}
+      {k.brand ? <BrandLogo brand={k.brand} size={20} /> : <FolderOpen className="size-5 text-[#c4b8ff] light:text-iris" strokeWidth={1.8} />}
     </span>
   );
 }
@@ -86,11 +86,11 @@ export function McpManager({ canWrite, isAdmin, templates, servers }: { canWrite
                   setCreating(t);
                   setForm({ name: t.name, url: "", authToken: "", maxPermission: t.defaultPermission });
                 }}
-                className="lift group relative flex h-full w-full flex-col gap-3 overflow-hidden rounded-2xl border border-white/[.08] bg-[linear-gradient(180deg,#10141b,#0b0d12)] p-4 text-left"
+                className="lift group relative flex h-full w-full flex-col gap-3 overflow-hidden rounded-2xl border border-ink/[.08] bg-card-gradient p-4 text-left"
               >
                 <div className="flex items-center justify-between">
                   <ServerKindMark kind={t.kind} />
-                  <span className="inline-flex size-7 items-center justify-center rounded-lg border border-white/[.08] text-fg-subtle transition-colors group-hover:border-[rgb(92_235_192/.4)] group-hover:text-accent">
+                  <span className="inline-flex size-7 items-center justify-center rounded-lg border border-ink/[.08] text-fg-subtle transition-colors group-hover:border-accent/40 group-hover:text-accent">
                     <Plus className="size-4 transition-transform duration-200 group-hover:rotate-90" />
                   </span>
                 </div>
@@ -98,8 +98,8 @@ export function McpManager({ canWrite, isAdmin, templates, servers }: { canWrite
                   <span className="text-sm font-medium text-fg">{t.name}</span>
                   <p className="mt-1 text-[12.5px] leading-relaxed text-fg-muted">{t.description}</p>
                 </div>
-                <div className="mt-auto flex items-center gap-2 border-t border-white/[.06] pt-3 font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
-                  <span className="size-1.5 rounded-full bg-accent shadow-[0_0_10px_rgb(92_235_192/0.65)]" aria-hidden />
+                <div className="mt-auto flex items-center gap-2 border-t border-ink/[.06] pt-3 font-mono text-[10px] uppercase tracking-wider text-fg-subtle">
+                  <span className="size-1.5 rounded-full bg-accent shadow-[0_0_10px_color-mix(in_oklab,var(--color-accent)_65%,transparent)]" aria-hidden />
                   {t.transport.replaceAll("_", " ")}
                 </div>
               </button>
@@ -267,7 +267,7 @@ export function McpManager({ canWrite, isAdmin, templates, servers }: { canWrite
               </NativeSelect>
             </div>
             <label className="flex items-center gap-2 text-[13px] text-fg-muted">
-              <input type="checkbox" className="size-3.5 accent-[#5cebc0]" checked={tool.destructive} disabled={tool.permission !== "READ"} onChange={(e) => setTool({ ...tool, destructive: e.target.checked })} />
+              <input type="checkbox" className="size-3.5 accent-accent" checked={tool.destructive} disabled={tool.permission !== "READ"} onChange={(e) => setTool({ ...tool, destructive: e.target.checked })} />
               Destructive (deletes or modifies data) — always requires explicit approval
             </label>
             <DialogFooter>

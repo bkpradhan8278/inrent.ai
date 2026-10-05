@@ -8,7 +8,7 @@ export function PageHero({ eyebrow, title, description, children, className, ton
       <div
         className={cn(
           "pointer-events-none absolute -top-32 left-1/2 h-[420px] w-[820px] -translate-x-1/2 rounded-full",
-          tone === "amber" ? "bg-[radial-gradient(closest-side,rgb(245_180_85/0.12),transparent)]" : "bg-[radial-gradient(closest-side,rgb(92_235_192/0.1),transparent)]",
+          tone === "amber" ? "bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--color-amber)_12%,transparent),transparent)]" : "bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--color-accent)_10%,transparent),transparent)]",
         )}
         aria-hidden
       />

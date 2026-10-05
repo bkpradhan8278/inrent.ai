@@ -58,7 +58,7 @@ export function IncidentForm() {
             <legend className="mb-1.5 text-[13px] font-medium text-fg">Affected components</legend>
             {COMPONENTS.map((c) => (
               <label key={c} className="flex items-center gap-1.5 text-[13px] text-fg-muted">
-                <input type="checkbox" className="size-3.5 accent-[#5cebc0]" checked={v.components.includes(c)} onChange={(e) => setV({ ...v, components: e.target.checked ? [...v.components, c] : v.components.filter((x) => x !== c) })} />
+                <input type="checkbox" className="size-3.5 accent-accent" checked={v.components.includes(c)} onChange={(e) => setV({ ...v, components: e.target.checked ? [...v.components, c] : v.components.filter((x) => x !== c) })} />
                 {c}
               </label>
             ))}

@@ -12,7 +12,7 @@ export const DialogClose = DialogPrimitive.Close;
 export function DialogContent({ className, children, ...props }: React.ComponentProps<typeof DialogPrimitive.Content>) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm data-[state=open]:animate-fade-in" />
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm data-[state=open]:animate-fade-in light:bg-ink/40" />
       <DialogPrimitive.Content
         className={cn(
           "panel fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl p-6 shadow-2xl focus:outline-none data-[state=open]:animate-fade-in",
@@ -49,7 +49,7 @@ export function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLD
 export function SheetContent({ className, children, side = "left", ...props }: React.ComponentProps<typeof DialogPrimitive.Content> & { side?: "left" | "right" }) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" />
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm light:bg-ink/40" />
       <DialogPrimitive.Content
         className={cn(
           "fixed inset-y-0 z-50 flex w-[86vw] max-w-sm flex-col border-border bg-bg-elevated shadow-2xl focus:outline-none",

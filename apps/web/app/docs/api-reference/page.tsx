@@ -29,9 +29,9 @@ const EXAMPLES: Record<string, unknown> = {
 };
 
 const METHOD_STYLE: Record<string, string> = {
-  get: "border-[rgb(111_168_255/0.35)] bg-[rgb(111_168_255/0.1)] text-info",
-  post: "border-[rgb(92_235_192/0.35)] bg-accent-soft text-accent",
-  delete: "border-[rgb(255_107_107/0.35)] bg-danger-soft text-danger",
+  get: "border-info/35 bg-info/10 text-info",
+  post: "border-accent/35 bg-accent-soft text-accent",
+  delete: "border-danger/35 bg-danger-soft text-danger",
 };
 
 function resolveSchema(schema: Record<string, unknown> | undefined): Record<string, unknown> | undefined {

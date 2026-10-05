@@ -96,7 +96,7 @@ function AgentForm({ initial, models, servers, isNew, pending, onSubmit }: { ini
           <div className="flex flex-wrap gap-3">
             {servers.map((s) => (
               <label key={s.id} className="flex items-center gap-2 text-[13px] text-fg-muted">
-                <input type="checkbox" className="size-3.5 accent-[#5cebc0]" checked={v.mcpServerIds.includes(s.id)} onChange={(e) => setV({ ...v, mcpServerIds: e.target.checked ? [...v.mcpServerIds, s.id] : v.mcpServerIds.filter((x) => x !== s.id) })} />
+                <input type="checkbox" className="size-3.5 accent-accent" checked={v.mcpServerIds.includes(s.id)} onChange={(e) => setV({ ...v, mcpServerIds: e.target.checked ? [...v.mcpServerIds, s.id] : v.mcpServerIds.filter((x) => x !== s.id) })} />
                 {s.name}
               </label>
             ))}

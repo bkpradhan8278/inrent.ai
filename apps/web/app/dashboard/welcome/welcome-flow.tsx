@@ -28,7 +28,7 @@ export function WelcomeFlow({ name, projectId, projectName, canCreateKey, hasKey
   return (
     <div className="mx-auto max-w-2xl py-4">
       <div className="mb-8 text-center">
-        <div className="mx-auto mb-4 flex size-11 items-center justify-center rounded-xl border border-[rgb(92_235_192/0.35)] bg-accent-soft">
+        <div className="mx-auto mb-4 flex size-11 items-center justify-center rounded-xl border border-accent/35 bg-accent-soft">
           <Sparkles className="size-5 text-accent" />
         </div>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-fg">Welcome to INRENT, {name}</h1>

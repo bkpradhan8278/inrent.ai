@@ -12,11 +12,11 @@ export function GpuGrid({ className }: { className?: string }) {
             key={i}
             className={cn(
               "relative aspect-square rounded-md border bg-gradient-to-b from-surface-2 to-bg-elevated",
-              lit ? "border-[rgb(245_180_85/0.35)]" : "border-border",
+              lit ? "border-amber/35" : "border-border",
             )}
           >
-            <div className="absolute inset-[22%] rounded-[3px] border border-[rgb(255_255_255/0.06)] bg-[repeating-linear-gradient(90deg,rgb(255_255_255/0.05)_0_1px,transparent_1px_4px)]" />
-            {lit ? <div className="absolute inset-0 animate-pulse-soft rounded-md bg-[radial-gradient(circle_at_50%_50%,rgb(245_180_85/0.22),transparent_70%)]" style={{ animationDelay: `${(i % 5) * 0.6}s` }} /> : null}
+            <div className="absolute inset-[22%] rounded-[3px] border border-ink/[.06] bg-[repeating-linear-gradient(90deg,color-mix(in_oklab,var(--color-ink)_5%,transparent)_0_1px,transparent_1px_4px)]" />
+            {lit ? <div className="absolute inset-0 animate-pulse-soft rounded-md bg-[radial-gradient(circle_at_50%_50%,color-mix(in_oklab,var(--color-amber)_22%,transparent),transparent_70%)]" style={{ animationDelay: `${(i % 5) * 0.6}s` }} /> : null}
           </div>
         );
       })}

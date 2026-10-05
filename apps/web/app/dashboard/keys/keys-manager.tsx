@@ -95,7 +95,7 @@ function KeyForm({ initial, projects, mode, pending, onSubmit }: { initial: KeyF
               <label key={p} className="flex items-center gap-2 text-[13px] text-fg-muted">
                 <input
                   type="checkbox"
-                  className="size-3.5 accent-[#5cebc0]"
+                  className="size-3.5 accent-accent"
                   checked={v.permissions.includes(p)}
                   onChange={(e) => set("permissions", e.target.checked ? [...v.permissions, p] : v.permissions.filter((x) => x !== p))}
                 />

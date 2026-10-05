@@ -35,15 +35,15 @@ export function ObservabilityPreview() {
         <svg viewBox={`0 0 ${w} ${h}`} className="h-36 w-full" preserveAspectRatio="none" aria-hidden>
           <defs>
             <linearGradient id="obs-area" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#5cebc0" stopOpacity="0.28" />
-              <stop offset="1" stopColor="#5cebc0" stopOpacity="0" />
+              <stop offset="0" className="[stop-color:var(--color-accent)]" stopOpacity="0.28" />
+              <stop offset="1" className="[stop-color:var(--color-accent)]" stopOpacity="0" />
             </linearGradient>
           </defs>
           {[0.25, 0.5, 0.75].map((f) => (
-            <line key={f} x1="0" x2={w} y1={h * f} y2={h * f} stroke="rgb(255 255 255 / 0.05)" />
+            <line key={f} x1="0" x2={w} y1={h * f} y2={h * f} className="stroke-ink/5" />
           ))}
           <path d={area} fill="url(#obs-area)" />
-          <path d={line} fill="none" stroke="#5cebc0" strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
+          <path d={line} fill="none" className="stroke-accent" strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
         </svg>
         <div className="mt-4 grid gap-2 text-[12px] sm:grid-cols-3">
           {[

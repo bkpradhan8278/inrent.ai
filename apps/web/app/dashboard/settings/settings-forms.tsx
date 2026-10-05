@@ -152,7 +152,7 @@ export function AccountForms({ name: initialName, email }: { name: string; email
         </div>
       </Section>
 
-      <Section title="Delete account" className="border-[rgb(255_107_107/0.25)]">
+      <Section title="Delete account" className="border-danger/25">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="max-w-xl text-[13px] text-fg-muted">
             Permanently deletes your user account. Organizations where you are the only member are closed: keys are revoked and stored secrets destroyed. Financial records are retained as required by law. You must transfer ownership of shared organizations first.

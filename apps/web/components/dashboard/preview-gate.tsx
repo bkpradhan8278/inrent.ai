@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 export function PreviewGate({ feature }: { feature: string }) {
   return (
     <div className="panel hairline-top mx-auto max-w-xl rounded-2xl p-8 text-center">
-      <div className="mx-auto flex size-11 items-center justify-center rounded-xl border border-[rgb(142_150_255/0.35)] bg-iris-soft">
+      <div className="mx-auto flex size-11 items-center justify-center rounded-xl border border-iris/35 bg-iris-soft">
         <FlaskConical className="size-5 text-iris" />
       </div>
       <h2 className="mt-4 text-lg font-semibold text-fg">{feature} is in private preview</h2>

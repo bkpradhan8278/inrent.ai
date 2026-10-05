@@ -76,9 +76,9 @@ export function HeroRouting({ className }: { className?: string }) {
       <div className="w-full [container-type:inline-size]">
         <div className="relative aspect-[640/560] w-full text-[2.5cqw]">
           <svg viewBox="0 0 640 560" className="absolute inset-0 size-full overflow-visible" aria-hidden>
-            <path d="M84 134 V222" stroke="rgb(255 255 255 / .14)" strokeWidth="1.4" strokeDasharray="3 5" fill="none" />
-            <path d="M168 280 H204" stroke="rgb(92 235 192 / .55)" strokeWidth="1.6" fill="none" />
-            <path className="pk-on" d="M168 280 H204" stroke="#bafbe8" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+            <path d="M84 134 V222" className="stroke-ink/[.14] light:stroke-ink/25" strokeWidth="1.4" strokeDasharray="3 5" fill="none" />
+            <path d="M168 280 H204" className="stroke-accent/55" strokeWidth="1.6" fill="none" />
+            <path className="pk-on stroke-[color-mix(in_oklab,var(--color-accent)_40%,var(--color-ink))] light:stroke-accent" d="M168 280 H204" strokeWidth="2.4" strokeLinecap="round" fill="none" />
             {PROVIDERS.map((p) => {
               const act = p.id === f.provider;
               const fail = p.id === f.failed;
@@ -86,7 +86,7 @@ export function HeroRouting({ className }: { className?: string }) {
                 <path
                   key={`b-${p.id}`}
                   d={curve(p.y)}
-                  stroke={act ? "rgb(92 235 192 / .6)" : fail ? "rgb(255 107 107 / .55)" : "rgb(255 255 255 / .09)"}
+                  className={act ? "stroke-accent/60" : fail ? "stroke-danger/55" : "stroke-ink/[.09] light:stroke-ink/[.16]"}
                   strokeWidth="1.4"
                   strokeDasharray={fail ? "4 5" : "none"}
                   fill="none"
@@ -100,9 +100,8 @@ export function HeroRouting({ className }: { className?: string }) {
               return (
                 <path
                   key={`p-${p.id}`}
-                  className={act ? "pk-on" : fail ? "pk-off" : "pk-idle"}
+                  className={act ? "pk-on stroke-[color-mix(in_oklab,var(--color-accent)_40%,var(--color-ink))] light:stroke-accent" : cn(fail ? "pk-off" : "pk-idle", "stroke-ink/[.28]")}
                   d={curve(p.y)}
-                  stroke={act ? "#bafbe8" : "rgb(255 255 255 / .28)"}
                   strokeWidth="2.6"
                   strokeLinecap="round"
                   fill="none"
@@ -113,30 +112,30 @@ export function HeroRouting({ className }: { className?: string }) {
           </svg>
 
           {/* request */}
-          <div key={`req-${step}`} className="pop absolute left-0 top-[12.5%] w-[58.1%] rounded-[.7em] border border-white/[.09] bg-[rgb(14_17_23/.92)] px-[.8em] py-[.55em] font-mono text-[.58em] leading-[1.6] shadow-[0_20px_40px_-24px_rgba(0,0,0,.9)]">
+          <div key={`req-${step}`} data-theme="dark" className="pop absolute left-0 top-[12.5%] w-[58.1%] rounded-[.7em] border border-ink/[.09] bg-surface/92 px-[.8em] py-[.55em] font-mono text-[.58em] leading-[1.6] shadow-[0_20px_40px_-24px_rgba(0,0,0,.9)]">
             <div className="text-fg-subtle">
               <span className="text-accent">POST</span> /v1/chat/completions
             </div>
             <div className="truncate whitespace-nowrap text-fg-muted">
               {"{ "}
-              <span className="text-iris">&quot;model&quot;</span>: <span className="text-[#f5d08a]">&quot;{f.model}&quot;</span>, <span className="text-iris">&quot;stream&quot;</span>: true {"}"}
+              <span className="text-iris">&quot;model&quot;</span>: <span className="text-[color-mix(in_oklab,var(--color-amber)_70%,var(--color-ink))]">&quot;{f.model}&quot;</span>, <span className="text-iris">&quot;stream&quot;</span>: true {"}"}
             </div>
           </div>
 
           {/* app */}
-          <div className="absolute left-0 top-[39.64%] flex h-[20.71%] w-[26.25%] flex-col justify-center gap-[.35em] rounded-[.8em] border border-white/10 bg-[linear-gradient(180deg,#131720,#0c0f15)] p-[.7em] shadow-[0_24px_50px_-26px_rgba(0,0,0,.9)]">
+          <div className="absolute left-0 top-[39.64%] flex h-[20.71%] w-[26.25%] flex-col justify-center gap-[.35em] rounded-[.8em] border border-ink/10 bg-[linear-gradient(180deg,var(--color-surface-2),var(--color-tile))] p-[.7em] shadow-[var(--shadow-lift)] light:bg-card-gradient light:shadow-[var(--shadow-panel)]">
             <div className="flex items-center gap-[.45em]">
-              <span className="inline-flex size-[1.7em] items-center justify-center rounded-[.45em] border border-white/[.12] bg-bg-elevated font-mono text-[.62em] whitespace-nowrap text-fg-muted">{"{ }"}</span>
+              <span className="inline-flex size-[1.7em] items-center justify-center rounded-[.45em] border border-ink/[.12] bg-bg-elevated font-mono text-[.62em] whitespace-nowrap text-fg-muted">{"{ }"}</span>
               <span className="text-[.72em] font-semibold text-fg">Your app</span>
             </div>
             <div className="text-[.52em] leading-[1.4] text-fg-subtle">Any OpenAI SDK · one key</div>
           </div>
 
           {/* gateway */}
-          <div className="absolute left-[31.875%] top-[26.79%] flex h-[46.43%] w-[27.5%] flex-col gap-[.5em] rounded-[1em] border border-[rgb(92_235_192/.32)] bg-[linear-gradient(180deg,rgba(20,30,30,.96),rgba(10,13,17,.98))] p-[.8em] shadow-[0_0_0_4px_rgba(92,235,192,.05),0_30px_70px_-30px_rgba(92,235,192,.45)]">
+          <div className="absolute left-[31.875%] top-[26.79%] flex h-[46.43%] w-[27.5%] flex-col gap-[.5em] rounded-[1em] border border-accent/[.32] bg-[linear-gradient(180deg,color-mix(in_oklab,var(--color-accent)_6%,var(--color-surface)),var(--color-bg-elevated))] p-[.8em] shadow-[0_0_0_4px_color-mix(in_oklab,var(--color-accent)_5%,transparent),0_30px_70px_-30px_color-mix(in_oklab,var(--color-accent)_45%,transparent)] light:shadow-[0_0_0_4px_color-mix(in_oklab,var(--color-accent)_6%,transparent),0_30px_60px_-30px_color-mix(in_oklab,var(--color-accent)_35%,transparent)]">
             <div className="flex items-center gap-[.5em]">
               <span className="relative inline-flex size-[1.7em] shrink-0">
-                <span className="ping-ring absolute inset-0 rounded-[.5em] border border-[rgb(92_235_192/.7)]" aria-hidden />
+                <span className="ping-ring absolute inset-0 rounded-[.5em] border border-accent/70" aria-hidden />
                 <LogoMark className="size-full" title="" />
               </span>
               <div className="min-w-0">
@@ -156,24 +155,24 @@ export function HeroRouting({ className }: { className?: string }) {
                 <span className="font-mono text-fg">{f.policy}</span>
               </div>
             </div>
-            <div className="flex items-center gap-[.4em] border-t border-white/[.07] pt-[.45em] font-mono text-[.48em] text-fg-subtle">
+            <div className="flex items-center gap-[.4em] border-t border-ink/[.07] pt-[.45em] font-mono text-[.48em] text-fg-subtle">
               <span className="breathe size-[.6em] rounded-full bg-success" />
               logged · request id + cost
             </div>
           </div>
 
           {/* response */}
-          <div key={`res-${step}`} className="pop absolute left-0 top-[78.6%] w-[59.4%] rounded-[.7em] border border-white/[.09] bg-[rgb(14_17_23/.92)] px-[.8em] py-[.6em] font-mono text-[.54em] leading-[1.65]" style={{ animationDelay: ".35s" }}>
+          <div key={`res-${step}`} data-theme="dark" className="pop absolute left-0 top-[78.6%] w-[59.4%] rounded-[.7em] border border-ink/[.09] bg-surface/92 px-[.8em] py-[.6em] font-mono text-[.54em] leading-[1.65]" style={{ animationDelay: ".35s" }}>
             {f.failed ? (
-              <div className="text-[#ff8a8a]">
+              <div className="text-[color-mix(in_oklab,var(--color-danger)_80%,var(--color-ink))]">
                 <span className="rounded-[.35em] bg-danger-soft px-[.45em] py-[.05em]">503</span> self-hosted vLLM unhealthy → skipped
               </div>
             ) : null}
             <div className="text-fg-muted">
-              <span className="rounded-[.35em] bg-[rgb(92_235_192/.14)] px-[.45em] py-[.05em] text-accent">200</span> streamed from <span className="text-fg">{providerName}</span>
+              <span className="rounded-[.35em] bg-accent/[.14] px-[.45em] py-[.05em] text-accent">200</span> streamed from <span className="text-fg">{providerName}</span>
             </div>
             <div className="text-fg-subtle">
-              x-inrent-provider: <span className="text-[#f5d08a]">{f.provider}</span>
+              x-inrent-provider: <span className="text-[color-mix(in_oklab,var(--color-amber)_70%,var(--color-ink))]">{f.provider}</span>
             </div>
           </div>
 
@@ -185,19 +184,21 @@ export function HeroRouting({ className }: { className?: string }) {
               return (
                 <li
                   key={p.id}
-                  className="flex h-[8.61%] items-center gap-[.45em] rounded-[.65em] border px-[.5em] transition-[background,border-color,box-shadow] duration-500"
-                  style={{
-                    borderColor: act ? "rgb(92 235 192 / .5)" : fail ? "rgb(255 107 107 / .4)" : "rgb(255 255 255 / .08)",
-                    background: act ? "linear-gradient(90deg, rgb(92 235 192 / .14), rgb(92 235 192 / .04))" : fail ? "rgb(255 107 107 / .06)" : "rgb(14 17 23 / .9)",
-                    boxShadow: act ? "0 0 0 3px rgb(92 235 192 / .07), 0 14px 30px -14px rgb(92 235 192 / .6)" : "none",
-                  }}
+                  className={cn(
+                    "flex h-[8.61%] items-center gap-[.45em] rounded-[.65em] border px-[.5em] transition-[background,border-color,box-shadow] duration-500",
+                    act
+                      ? "border-accent/50 bg-[linear-gradient(90deg,color-mix(in_oklab,var(--color-accent)_14%,transparent),color-mix(in_oklab,var(--color-accent)_4%,transparent))] shadow-[0_0_0_3px_color-mix(in_oklab,var(--color-accent)_7%,transparent),0_14px_30px_-14px_color-mix(in_oklab,var(--color-accent)_60%,transparent)] light:bg-[linear-gradient(90deg,color-mix(in_oklab,var(--color-accent)_10%,var(--color-surface)),var(--color-surface))] light:shadow-[0_0_0_3px_color-mix(in_oklab,var(--color-accent)_8%,transparent),0_12px_26px_-14px_color-mix(in_oklab,var(--color-accent)_45%,transparent)]"
+                      : fail
+                        ? "border-danger/40 bg-danger/[.06] light:bg-[color-mix(in_oklab,var(--color-danger)_6%,var(--color-surface))]"
+                        : "border-ink/[.08] bg-surface/90 light:shadow-[0_1px_2px_color-mix(in_oklab,var(--color-ink)_5%,transparent)]",
+                  )}
                 >
-                  <span className="inline-flex size-[1.75em] shrink-0 items-center justify-center rounded-[.45em] border border-white/[.08] bg-bg-elevated">
+                  <span className="inline-flex size-[1.75em] shrink-0 items-center justify-center rounded-[.45em] border border-ink/[.08] bg-bg-elevated">
                     <BrandLogo brand={p.id} size={16} className="size-[1.15em]!" />
                   </span>
-                  <span className={cn("min-w-0 flex-1 truncate text-[.6em] font-medium", act ? "text-white" : fail ? "text-[#ffb3b3]" : "text-[#c3c8d2]")}>{p.name}</span>
-                  {act ? <span className="shrink-0 rounded-[.35em] bg-[rgb(92_235_192/.16)] px-[.45em] py-[.2em] font-mono text-[.46em] text-accent">routed</span> : null}
-                  {fail ? <span className="shrink-0 rounded-[.35em] bg-danger-soft px-[.45em] py-[.2em] font-mono text-[.46em] text-[#ff8a8a]">503</span> : null}
+                  <span className={cn("min-w-0 flex-1 truncate text-[.6em] font-medium", act ? "text-fg" : fail ? "text-[color-mix(in_oklab,var(--color-danger)_51%,var(--color-ink))] light:text-danger" : "text-[color-mix(in_oklab,var(--color-fg)_45%,var(--color-fg-muted))]")}>{p.name}</span>
+                  {act ? <span className="shrink-0 rounded-[.35em] bg-accent/[.16] px-[.45em] py-[.2em] font-mono text-[.46em] text-accent">routed</span> : null}
+                  {fail ? <span className="shrink-0 rounded-[.35em] bg-danger-soft px-[.45em] py-[.2em] font-mono text-[.46em] text-[color-mix(in_oklab,var(--color-danger)_80%,var(--color-ink))] light:text-danger">503</span> : null}
                   {!act && !fail ? <span className="size-[.4em] shrink-0 rounded-full bg-success opacity-55" /> : null}
                 </li>
               );

@@ -58,7 +58,7 @@ export function SignInForm({ providers }: { providers: Array<"github" | "google"
     <div className="grid gap-4">
       <SocialButtons providers={providers} next={next} />
       {sent ? (
-        <div className="rounded-lg border border-[rgb(92_235_192/0.35)] bg-accent-soft p-4 text-sm text-fg">
+        <div className="rounded-lg border border-accent/35 bg-accent-soft p-4 text-sm text-fg">
           <Mail className="mb-2 size-4 text-accent" />
           Check <strong>{email}</strong> for a sign-in link. It expires in 10 minutes.
         </div>
@@ -126,7 +126,7 @@ export function SignUpForm({ providers, requireVerification }: { providers: Arra
 
   if (done) {
     return (
-      <div className="rounded-lg border border-[rgb(92_235_192/0.35)] bg-accent-soft p-5 text-sm text-fg">
+      <div className="rounded-lg border border-accent/35 bg-accent-soft p-5 text-sm text-fg">
         <Mail className="mb-2 size-4 text-accent" />
         We sent a verification link to <strong>{email}</strong>. Open it to activate your account.
       </div>

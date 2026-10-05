@@ -50,7 +50,7 @@ export function SiteHeader() {
                   {item.items.map((sub) => (
                     <DropdownMenuItem key={sub.href} asChild className="min-w-0 items-start gap-3 whitespace-normal rounded-lg px-3 py-2.5">
                       <Link href={sub.href} target={sub.href.startsWith("https://") ? "_blank" : undefined} rel={sub.href.startsWith("https://") ? "noreferrer" : undefined}>
-                        <span className="mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-white/[.08] bg-bg">
+                        <span className="mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-ink/[.08] bg-bg">
                           {sub.brand ? <BrandLogo brand={sub.brand} size={16} /> : <span className="size-1.5 rounded-full bg-accent" />}
                         </span>
                         <span className="flex min-w-0 flex-col gap-0.5">
