@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { isFeatureEnabled } from "@inrent/services";
 import { AuthCard } from "@/components/auth/auth-card";
 import { SignUpForm } from "@/components/auth/auth-forms";
-import { enabledSocialProviders } from "@/lib/auth";
+import { enabledSocialProviders, phoneSignInEnabled } from "@/lib/auth";
 import { getSession } from "@/lib/session";
 import { hrefFor } from "@/lib/hosts";
 
@@ -27,7 +27,7 @@ export default async function SignUpPage() {
         </>
       }
     >
-      {open ? <SignUpForm providers={enabledSocialProviders} requireVerification={requireVerification} /> : <p className="text-sm text-fg-muted">New sign-ups are temporarily paused. Please check back soon.</p>}
+      {open ? <SignUpForm providers={enabledSocialProviders} phone={phoneSignInEnabled} requireVerification={requireVerification} /> : <p className="text-sm text-fg-muted">New sign-ups are temporarily paused. Please check back soon.</p>}
     </AuthCard>
   );
 }

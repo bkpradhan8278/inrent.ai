@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { prisma } from "@inrent/db";
+import { isPlaceholderEmail } from "@inrent/services/email";
 import { PageHeader, Section } from "@/components/dashboard/ui";
 import { formatDateTime } from "@/lib/format";
 import { getWorkspace } from "@/lib/session";
@@ -32,7 +33,7 @@ export default async function SettingsPage() {
             preferByok: ws.org.preferByok,
           }}
         />
-        <AccountForms name={ws.user.name} email={ws.user.email} />
+        <AccountForms name={ws.user.name} email={ws.user.email} signedInAs={isPlaceholderEmail(ws.user.email) ? (ws.user.phoneNumber ?? ws.user.email) : ws.user.email} />
         {canAudit ? (
           <Section title="Audit log" description="Security-relevant actions in this organization (most recent 30). Export the full log via support." contentClassName="p-0">
             {audit.length ? (

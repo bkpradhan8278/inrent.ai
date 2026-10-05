@@ -119,7 +119,7 @@ export async function deleteUserAccount(userId: string, confirmation: { email: s
     await tx.savedPrompt.deleteMany({ where: { userId } });
     await tx.user.update({
       where: { id: userId },
-      data: { email: `deleted-${userId}@deleted.invalid`, name: "Deleted user", image: null, emailVerified: false, deletedAt: now, platformRole: "USER" },
+      data: { email: `deleted-${userId}@deleted.invalid`, name: "Deleted user", image: null, emailVerified: false, phoneNumber: null, phoneNumberVerified: false, deletedAt: now, platformRole: "USER" },
     });
   });
   await recordAudit({ actorType: "USER", actorId: userId, action: "account.deleted", targetType: "user", targetId: userId });

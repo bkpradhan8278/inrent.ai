@@ -11,4 +11,5 @@ export * from "./rbac";
 export * from "./catalog";
 export * from "./webhookEvents";
 export * from "./openai";
+export * from "./phone";
 export * from "./schemas/requests";

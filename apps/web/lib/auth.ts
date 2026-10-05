@@ -3,17 +3,18 @@ import { randomUUID } from "node:crypto";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
-import { magicLink } from "better-auth/plugins";
+import { genericOAuth, magicLink, phoneNumber } from "better-auth/plugins";
 import { prisma } from "@inrent/db";
 import { isFeatureEnabled, provisionPersonalWorkspace, recordAudit } from "@inrent/services";
 import { sendTemplateEmail } from "@inrent/services/email";
+import { getSmsProvider, isAllowedSignInPhoneNumber, placeholderEmailForPhone, placeholderNameForPhone, sendSignInCodeSms } from "@inrent/services/sms";
 import { allOrigins, cookieDomain } from "@/lib/hosts";
 
 /**
  * Authentication: Better Auth (self-hosted, Postgres via Prisma).
  * Decision: keeps users, sessions and organizations in our own database (no third-party
- * identity vendor in the request path), supports email/password, magic links and
- * GitHub/Google OAuth, and leaves enterprise SSO as an additive plugin later.
+ * identity vendor in the request path), supports email/password, magic links, phone-number
+ * codes and GitHub/Google/ChatGPT OAuth, and leaves enterprise SSO as an additive plugin later.
  */
 
 const isProduction = process.env.INRENT_ENV === "production" || process.env.NODE_ENV === "production";
@@ -32,7 +33,39 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   socialProviders.google = { clientId: process.env.GOOGLE_CLIENT_ID, clientSecret: process.env.GOOGLE_CLIENT_SECRET };
 }
 
-export const enabledSocialProviders = Object.keys(socialProviders) as Array<"github" | "google">;
+// Sign in with ChatGPT: OpenAI's OpenID Connect provider (authorization code + PKCE). Client IDs start with
+// "oaiapp_"; the secret is only issued to confidential clients, so it is optional.
+const chatgpt = process.env.OPENAI_SIGNIN_CLIENT_ID
+  ? genericOAuth({
+      config: [
+        {
+          providerId: "chatgpt",
+          name: "ChatGPT",
+          discoveryUrl: "https://auth.openai.com/.well-known/openid-configuration",
+          // Identity comes from ID-token claims, so refuse to register the provider without a verifiable JWKS.
+          requireIdTokenVerification: true,
+          clientId: process.env.OPENAI_SIGNIN_CLIENT_ID,
+          clientSecret: process.env.OPENAI_SIGNIN_CLIENT_SECRET || undefined,
+          scopes: ["openid", "profile", "email"],
+          pkce: true,
+          mapProfileToUser: (profile) => ({ name: typeof profile.name === "string" && profile.name ? profile.name : (profile.email?.split("@")[0] ?? "ChatGPT user") }),
+        },
+      ],
+    })
+  : null;
+
+export type SocialProviderId = "github" | "google" | "chatgpt";
+export const enabledSocialProviders: SocialProviderId[] = [...(Object.keys(socialProviders) as SocialProviderId[]), ...(chatgpt ? (["chatgpt"] as const) : [])];
+
+// Phone sign-in is offered only when an SMS provider is configured; a broken config hides it instead of failing every auth page.
+export const phoneSignInEnabled = (() => {
+  try {
+    return getSmsProvider() !== null;
+  } catch (err) {
+    console.error(`Phone sign-in disabled: ${(err as Error).message}`);
+    return false;
+  }
+})();
 
 export const auth = betterAuth({
   appName: "INRENT",
@@ -88,6 +121,8 @@ export const auth = betterAuth({
     },
   },
   socialProviders,
+  // Phone accounts sign in with one-time codes only; no phone+password flow, so no SMS password resets either.
+  disabledPaths: ["/sign-in/phone-number", "/phone-number/request-password-reset", "/phone-number/reset-password"],
   // Credential endpoints are throttled tightly; session reads (every page view) are not.
   rateLimit: {
     enabled: true,
@@ -99,6 +134,9 @@ export const auth = betterAuth({
       "/sign-in/magic-link": { window: 300, max: 5 },
       "/forget-password": { window: 3600, max: 5 },
       "/request-password-reset": { window: 3600, max: 5 },
+      // Every code is a paid SMS: keep sends per client tight.
+      "/phone-number/send-otp": { window: 3600, max: 5 },
+      "/phone-number/verify": { window: 300, max: 10 },
       "/get-session": false,
     },
   },
@@ -114,6 +152,18 @@ export const auth = betterAuth({
         });
       },
     }),
+    phoneNumber({
+      otpLength: 6,
+      expiresIn: 60 * 5,
+      allowedAttempts: 3,
+      phoneNumberValidator: (phone) => phoneSignInEnabled && isAllowedSignInPhoneNumber(phone),
+      sendOTP: async ({ phoneNumber, code }) => {
+        await sendSignInCodeSms(phoneNumber, code);
+      },
+      // First successful code creates the account (subject to SIGNUPS_ENABLED, like every other sign-up).
+      signUpOnVerification: { getTempEmail: placeholderEmailForPhone, getTempName: placeholderNameForPhone },
+    }),
+    ...(chatgpt ? [chatgpt] : []),
     nextCookies(),
   ],
   databaseHooks: {
