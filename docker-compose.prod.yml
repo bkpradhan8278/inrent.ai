@@ -1,0 +1,42 @@
+# Production overlay for the laptop deployment (traffic arrives through Cloudflare Tunnel).
+#
+#   docker compose -p inrent-prod --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# Values come from .env.production (gitignored). The base file already runs migrations; seeding is
+# skipped because SEED_DEMO_DATA=false and INRENT_ENV=production.
+
+x-prod-env: &prod-env
+  INRENT_ENV: production
+  NODE_ENV: production
+  NEXT_PUBLIC_ROOT_DOMAIN: ${NEXT_PUBLIC_ROOT_DOMAIN}
+  BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+  APP_URL: ${NEXT_PUBLIC_APP_URL}
+  TRUST_PROXY: ${TRUST_PROXY:-true}
+  AUTH_TRUSTED_PROXIES: ${AUTH_TRUSTED_PROXIES:-}
+  METRICS_TOKEN: ${METRICS_TOKEN:-}
+  INRENT_ENABLE_MOCK_PROVIDER: "false"
+  EMAIL_FROM: ${EMAIL_FROM:-}
+  RESEND_API_KEY: ${RESEND_API_KEY:-}
+  SMS_PROVIDER: ${SMS_PROVIDER:-}
+  GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+  GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+  GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+  GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+
+services:
+  migrate:
+    environment:
+      <<: *prod-env
+      SEED_DEMO_DATA: "false"
+  gateway:
+    environment:
+      <<: *prod-env
+  worker:
+    environment:
+      <<: *prod-env
+  web:
+    build:
+      args:
+        NEXT_PUBLIC_ROOT_DOMAIN: ${NEXT_PUBLIC_ROOT_DOMAIN}
+    environment:
+      <<: *prod-env

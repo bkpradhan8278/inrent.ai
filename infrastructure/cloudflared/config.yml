@@ -1,0 +1,37 @@
+# Cloudflare Tunnel for the laptop deployment.
+# Run:  cloudflared tunnel --protocol http2 --config infrastructure/cloudflared/config.yml run inrent-laptop
+# The credentials file is created by `cloudflared tunnel create` and must never be committed.
+# httpHostHeader keeps the public hostname on the request: the web app routes sections by Host.
+tunnel: 959957bf-5988-4099-a1b6-c55e47b892b2
+credentials-file: C:\Users\bkpra\.cloudflared\959957bf-5988-4099-a1b6-c55e47b892b2.json
+
+ingress:
+  - hostname: api.inrent.ai
+    service: http://127.0.0.1:8080
+    originRequest:
+      httpHostHeader: api.inrent.ai
+  - hostname: inrent.ai
+    service: http://127.0.0.1:3000
+    originRequest:
+      httpHostHeader: inrent.ai
+  - hostname: www.inrent.ai
+    service: http://127.0.0.1:3000
+    originRequest:
+      httpHostHeader: www.inrent.ai
+  - hostname: app.inrent.ai
+    service: http://127.0.0.1:3000
+    originRequest:
+      httpHostHeader: app.inrent.ai
+  - hostname: admin.inrent.ai
+    service: http://127.0.0.1:3000
+    originRequest:
+      httpHostHeader: admin.inrent.ai
+  - hostname: docs.inrent.ai
+    service: http://127.0.0.1:3000
+    originRequest:
+      httpHostHeader: docs.inrent.ai
+  - hostname: auth.inrent.ai
+    service: http://127.0.0.1:3000
+    originRequest:
+      httpHostHeader: auth.inrent.ai
+  - service: http_status:404
