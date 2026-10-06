@@ -23,6 +23,31 @@ x-prod-env: &prod-env
   GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
   GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
 
+# Platform credentials for upstream providers. Provider.credentialRef "env:NAME" resolves against these;
+# an empty value leaves that provider BYOK-only. Server-side containers only.
+x-provider-keys: &provider-keys
+  ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+  CEREBRAS_API_KEY: ${CEREBRAS_API_KEY:-}
+  COHERE_API_KEY: ${COHERE_API_KEY:-}
+  DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY:-}
+  DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+  FIREWORKS_API_KEY: ${FIREWORKS_API_KEY:-}
+  GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+  GROQ_API_KEY: ${GROQ_API_KEY:-}
+  HF_TOKEN: ${HF_TOKEN:-}
+  LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-}
+  MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+  OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+  OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+  TOGETHER_API_KEY: ${TOGETHER_API_KEY:-}
+  VLLM_API_KEY: ${VLLM_API_KEY:-}
+  XAI_API_KEY: ${XAI_API_KEY:-}
+  ZAI_API_KEY: ${ZAI_API_KEY:-}
+  RUNPOD_API_KEY: ${RUNPOD_API_KEY:-}
+  VAST_API_KEY: ${VAST_API_KEY:-}
+  LAMBDA_API_KEY: ${LAMBDA_API_KEY:-}
+  COREWEAVE_API_KEY: ${COREWEAVE_API_KEY:-}
+
 services:
   migrate:
     environment:
@@ -30,13 +55,15 @@ services:
       SEED_DEMO_DATA: "false"
   gateway:
     environment:
-      <<: *prod-env
+      <<: [*prod-env, *provider-keys]
+      FREE_TIER_DAILY_REQUESTS: ${FREE_TIER_DAILY_REQUESTS:-10}
   worker:
     environment:
-      <<: *prod-env
+      <<: [*prod-env, *provider-keys]
   web:
     build:
       args:
         NEXT_PUBLIC_ROOT_DOMAIN: ${NEXT_PUBLIC_ROOT_DOMAIN}
     environment:
-      <<: *prod-env
+      # The web app shows each model's availability, which depends on whether a platform credential resolves.
+      <<: [*prod-env, *provider-keys]
