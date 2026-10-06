@@ -3,13 +3,14 @@
 import { ArrowLeft, Loader2, Mail, Smartphone } from "lucide-react";
 import Link from "@/components/ui/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { isE164, normalizePhoneNumber } from "@inrent/core";
 import { BrandLogo, GitHubIcon, GoogleIcon } from "@/components/brand/icons";
 import { Button } from "@/components/ui/button";
 import { FieldError, FieldHint, Input, Label } from "@/components/ui/input";
 import type { SocialProviderId } from "@/lib/auth";
 import { authClient } from "@/lib/auth-client";
+import { EMAIL_CODE_LENGTH, EMAIL_CODE_RESEND_COOLDOWN_SECONDS, EMAIL_CODE_TTL_SECONDS, emailCodeSendError, emailCodeVerifyError, normalizeCodeInput, resendLabel } from "@/lib/auth-messages";
 import { safeRedirect } from "@/lib/hosts";
 import { navigate } from "@/lib/navigate";
 
@@ -177,13 +178,147 @@ function PhoneForm({ next, onUseEmail }: { next: string; onUseEmail: () => void 
   );
 }
 
+/** One-time code by email. Like the phone flow, the first verified code creates the account, so sign-in and sign-up share it. */
+function EmailCodeForm({ next, initialEmail, onUsePassword }: { next: string; initialEmail: string; onUsePassword: () => void }) {
+  const router = useRouter();
+  const [email, setEmail] = useState(initialEmail);
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => setCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
+
+  async function sendCode(address: string, resend = false) {
+    setError(null);
+    setNotice(null);
+    setLoading(true);
+    const { error } = await authClient.emailOtp.sendVerificationOtp({ email: address, type: "sign-in" });
+    setLoading(false);
+    if (error) {
+      setError(emailCodeSendError(error));
+      return false;
+    }
+    setSentTo(address);
+    setCooldown(EMAIL_CODE_RESEND_COOLDOWN_SECONDS);
+    if (resend) setNotice("We sent you a new code. The previous one no longer works.");
+    return true;
+  }
+
+  if (!sentTo) {
+    return (
+      <form
+        className="grid gap-4"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          await sendCode(email.trim().toLowerCase());
+        }}
+      >
+        <div className="grid gap-1.5">
+          <Label htmlFor="code-email">Email</Label>
+          <Input id="code-email" type="email" autoComplete="email" required autoFocus aria-describedby="code-email-hint" aria-invalid={error ? true : undefined} value={email} onChange={(e) => setEmail(e.target.value)} />
+          <FieldHint id="code-email-hint">We&apos;ll email you a {EMAIL_CODE_LENGTH}-digit code. New to INRENT? Entering it creates your account.</FieldHint>
+        </div>
+        {error ? <FieldError>{error}</FieldError> : null}
+        <Button type="submit" disabled={loading}>
+          {loading ? <Loader2 className="animate-spin" /> : null}
+          Email me a code
+        </Button>
+        <button type="button" className="text-xs text-fg-subtle hover:text-fg" onClick={onUsePassword}>
+          Use a password instead
+        </button>
+      </form>
+    );
+  }
+
+  return (
+    <form
+      className="grid gap-4"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        setError(null);
+        setNotice(null);
+        setLoading(true);
+        const { error } = await authClient.signIn.emailOtp({ email: sentTo, otp: code, name: sentTo.split("@")[0] });
+        setLoading(false);
+        if (error) {
+          setError(emailCodeVerifyError(error));
+          return;
+        }
+        navigate(router, next, { refresh: true });
+      }}
+    >
+      <p className="text-sm text-fg-muted">
+        Enter the code we sent to <strong className="break-all text-fg">{sentTo}</strong>. It expires in {EMAIL_CODE_TTL_SECONDS / 60} minutes.
+      </p>
+      <div className="grid gap-1.5">
+        <Label htmlFor="email-code">Verification code</Label>
+        <Input
+          id="email-code"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          pattern="[0-9]*"
+          required
+          autoFocus
+          aria-invalid={error ? true : undefined}
+          className="font-mono tracking-[0.3em]"
+          value={code}
+          onChange={(e) => {
+            setCode(normalizeCodeInput(e.target.value));
+            setError(null);
+          }}
+        />
+        <FieldHint>Check your spam folder if it doesn&apos;t arrive within a minute.</FieldHint>
+      </div>
+      {error ? <FieldError>{error}</FieldError> : null}
+      <p aria-live="polite" className="text-xs text-fg-muted empty:hidden">
+        {notice}
+      </p>
+      <Button type="submit" disabled={loading || code.length !== EMAIL_CODE_LENGTH}>
+        {loading ? <Loader2 className="animate-spin" /> : null}
+        Verify and continue
+      </Button>
+      <div className="flex items-center justify-between text-xs text-fg-subtle">
+        <button
+          type="button"
+          className="inline-flex items-center gap-1 hover:text-fg"
+          onClick={() => {
+            setSentTo(null);
+            setCode("");
+            setError(null);
+            setNotice(null);
+          }}
+        >
+          <ArrowLeft className="size-3" /> Change email
+        </button>
+        <button
+          type="button"
+          className="hover:text-fg disabled:opacity-50"
+          disabled={loading || cooldown > 0}
+          onClick={async () => {
+            if (await sendCode(sentTo, true)) setCode("");
+          }}
+        >
+          {resendLabel(cooldown)}
+        </button>
+      </div>
+    </form>
+  );
+}
+
 export function SignInForm({ providers, phone }: { providers: SocialProviderId[]; phone: boolean }) {
   const params = useSearchParams();
   // Same-site paths or URLs on our own section hosts only (no open redirects).
   const next = safeRedirect(params.get("next"));
   const router = useRouter();
   const [method, setMethod] = useState<"email" | "phone">("email");
-  const [mode, setMode] = useState<"password" | "magic">("password");
+  const [mode, setMode] = useState<"password" | "magic" | "code">("password");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -195,6 +330,8 @@ export function SignInForm({ providers, phone }: { providers: SocialProviderId[]
       <SocialButtons providers={providers} next={next} onPhone={phone && method === "email" ? () => setMethod("phone") : undefined} />
       {method === "phone" ? (
         <PhoneForm next={next} onUseEmail={() => setMethod("email")} />
+      ) : mode === "code" ? (
+        <EmailCodeForm next={next} initialEmail={email} onUsePassword={() => setMode("password")} />
       ) : sent ? (
         <div className="rounded-lg border border-accent/35 bg-accent-soft p-4 text-sm text-fg">
           <Mail className="mb-2 size-4 text-accent" />
@@ -243,9 +380,14 @@ export function SignInForm({ providers, phone }: { providers: SocialProviderId[]
             {loading ? <Loader2 className="animate-spin" /> : null}
             {mode === "password" ? "Sign in" : "Email me a sign-in link"}
           </Button>
-          <button type="button" className="text-xs text-fg-subtle hover:text-fg" onClick={() => setMode(mode === "password" ? "magic" : "password")}>
-            {mode === "password" ? "Use a magic link instead" : "Use a password instead"}
-          </button>
+          <div className="flex items-center justify-between gap-3 text-xs text-fg-subtle">
+            <button type="button" className="hover:text-fg" onClick={() => setMode(mode === "password" ? "magic" : "password")}>
+              {mode === "password" ? "Use a magic link instead" : "Use a password instead"}
+            </button>
+            <button type="button" className="hover:text-fg" onClick={() => setMode("code")}>
+              Email me a code
+            </button>
+          </div>
         </form>
       )}
     </div>

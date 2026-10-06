@@ -4,17 +4,19 @@ import { betterAuth } from "better-auth";
 import { APIError } from "better-auth/api";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
-import { genericOAuth, magicLink, phoneNumber } from "better-auth/plugins";
+import { emailOTP, genericOAuth, magicLink, phoneNumber } from "better-auth/plugins";
 import { prisma } from "@inrent/db";
 import { isFeatureEnabled, provisionPersonalWorkspace, recordAudit } from "@inrent/services";
 import { sendTemplateEmail } from "@inrent/services/email";
 import { consumeSignInCodeQuota, getSmsProvider, isAllowedSignInPhoneNumber, placeholderEmailForPhone, placeholderNameForPhone, sendSignInCodeSms } from "@inrent/services/sms";
+import { sendEmailOtp, sendWelcomeEmailOnce } from "@/lib/auth-emails";
+import { EMAIL_CODE_ALLOWED_ATTEMPTS, EMAIL_CODE_LENGTH, EMAIL_CODE_TTL_SECONDS } from "@/lib/auth-messages";
 import { allOrigins, cookieDomain } from "@/lib/hosts";
 
 /**
  * Authentication: Better Auth (self-hosted, Postgres via Prisma).
  * Decision: keeps users, sessions and organizations in our own database (no third-party
- * identity vendor in the request path), supports email/password, magic links, phone-number
+ * identity vendor in the request path), supports email/password, magic links, email and phone-number
  * codes and GitHub/Google/ChatGPT OAuth, and leaves enterprise SSO as an additive plugin later.
  */
 
@@ -127,10 +129,15 @@ export const auth = betterAuth({
         action: { label: "Verify email", url },
       });
     },
+    // Also runs for the email-code verify endpoint. Social and email-code accounts are verified at creation (user.create.after).
+    afterEmailVerification: async (user) => {
+      await sendWelcomeEmailOnce(user);
+    },
   },
   socialProviders,
   // Phone accounts sign in with one-time codes only; no phone+password flow, so no SMS password resets either.
-  disabledPaths: ["/sign-in/phone-number", "/phone-number/request-password-reset", "/phone-number/reset-password"],
+  // Changing the email by code is off (user.changeEmail is unset); closing the paths keeps it that way.
+  disabledPaths: ["/sign-in/phone-number", "/phone-number/request-password-reset", "/phone-number/reset-password", "/email-otp/request-email-change", "/email-otp/change-email"],
   // Credential endpoints are throttled tightly; session reads (every page view) are not.
   rateLimit: {
     enabled: true,
@@ -145,6 +152,14 @@ export const auth = betterAuth({
       // Every code is a paid SMS: keep sends per client tight.
       "/phone-number/send-otp": { window: 3600, max: 5 },
       "/phone-number/verify": { window: 300, max: 10 },
+      // Email codes: sends and password-reset requests are tight; guesses are also capped per code by allowedAttempts.
+      "/email-otp/send-verification-otp": { window: 300, max: 5 },
+      "/email-otp/request-password-reset": { window: 3600, max: 5 },
+      "/forget-password/email-otp": { window: 3600, max: 5 },
+      "/sign-in/email-otp": { window: 300, max: 10 },
+      "/email-otp/verify-email": { window: 300, max: 10 },
+      "/email-otp/check-verification-otp": { window: 300, max: 10 },
+      "/email-otp/reset-password": { window: 300, max: 10 },
       "/get-session": false,
     },
   },
@@ -159,6 +174,14 @@ export const auth = betterAuth({
           action: { label: "Sign in", url },
         });
       },
+    }),
+    // The first verified code for an unknown address creates the account (SIGNUPS_ENABLED applies through user.create.before).
+    emailOTP({
+      otpLength: EMAIL_CODE_LENGTH,
+      expiresIn: EMAIL_CODE_TTL_SECONDS,
+      allowedAttempts: EMAIL_CODE_ALLOWED_ATTEMPTS,
+      storeOTP: "hashed",
+      sendVerificationOTP: ({ email, otp, type }) => sendEmailOtp({ email, otp, type }),
     }),
     phoneNumber({
       otpLength: 6,
@@ -183,8 +206,9 @@ export const auth = betterAuth({
           return { data: { ...user, email: user.email.toLowerCase() } };
         },
         after: async (user) => {
-          await provisionPersonalWorkspace({ id: user.id, name: user.name, email: user.email });
+          const organizationId = await provisionPersonalWorkspace({ id: user.id, name: user.name, email: user.email });
           await recordAudit({ actorType: "USER", actorId: user.id, action: "user.signed_up", targetType: "user", targetId: user.id });
+          await sendWelcomeEmailOnce(user, organizationId);
         },
       },
     },
