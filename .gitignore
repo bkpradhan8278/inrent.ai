@@ -41,3 +41,6 @@ test-results/
 .claude/.skipper-*
 .skipper/*
 !.skipper/receipts/
+
+# generated email previews (scripts/preview-emails.ts)
+.preview/

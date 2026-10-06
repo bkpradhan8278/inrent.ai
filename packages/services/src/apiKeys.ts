@@ -3,8 +3,11 @@ import { API_KEY_PERMISSIONS, type ApiKeyPermission } from "@inrent/core";
 import { generateApiKey, hashApiKey, isWellFormedApiKey } from "@inrent/core/server";
 import { recordAudit } from "./audit";
 import { requireOrgPermission, requireProjectInOrg } from "./authz";
+import { dashboardUrl } from "./dashboardUrl";
+import { isPlaceholderEmail } from "./email";
 import { getServerEnv } from "./env";
 import { NotFoundError, ValidationError } from "./errors";
+import { enqueueEmail } from "./queue";
 import { CACHE_KEYS, getRedis } from "./redis";
 
 export interface CreateApiKeyInput {
@@ -101,6 +104,38 @@ async function insertKey(input: CreateApiKeyInput, actor: Actor) {
   return { record, secret: generated.secret };
 }
 
+/**
+ * Tells the acting user that a key was created or rotated, so an unexpected one gets noticed. Runs
+ * after the key is persisted and must never fail or fail-slow the operation: every error is swallowed.
+ * Only the display prefix goes into the job; the secret and hash never leave insertKey.
+ */
+async function emailKeyCreated(actor: Actor, organizationId: string, key: { id: string; name: string; displayPrefix: string; createdAt: Date }, rotated: boolean) {
+  if (actor.type !== "USER") return;
+  try {
+    const [user, org] = await Promise.all([
+      prisma.user.findUnique({ where: { id: actor.id }, select: { name: true, email: true, deletedAt: true } }),
+      prisma.organization.findUnique({ where: { id: organizationId }, select: { name: true } }),
+    ]);
+    if (!user || user.deletedAt || !org || isPlaceholderEmail(user.email)) return;
+    await enqueueEmail(
+      user.email,
+      "api_key_created",
+      {
+        name: user.name,
+        keyName: key.name,
+        keyPrefix: key.displayPrefix,
+        workspaceName: org.name,
+        createdAtIso: key.createdAt.toISOString(),
+        manageUrl: dashboardUrl("/keys"),
+        ...(rotated ? { rotated } : {}),
+      },
+      { jobId: `email:api_key_created:${key.id}` },
+    );
+  } catch (err) {
+    console.error(`Could not prepare the API key email: ${err instanceof Error ? err.message : String(err)}`);
+  }
+}
+
 /** Creates a key. The plaintext secret is returned exactly once and never stored. */
 export async function createApiKey(actor: Actor, input: CreateApiKeyInput) {
   if (actor.type === "USER") await requireOrgPermission(actor.id, input.organizationId, "keys:write");
@@ -116,6 +151,7 @@ export async function createApiKey(actor: Actor, input: CreateApiKeyInput) {
     ipHash: actor.ipHash,
     userAgent: actor.userAgent,
   });
+  await emailKeyCreated(actor, input.organizationId, result.record, false);
   return result;
 }
 
@@ -181,6 +217,7 @@ export async function rotateApiKey(actor: Actor, organizationId: string, keyId: 
   ]);
   await invalidateCache(old.id);
   await recordAudit({ organizationId, actorType: actor.type, actorId: actor.id, action: "api_key.rotated", targetType: "api_key", targetId: old.id, metadata: { newKeyId: result.record.id } });
+  await emailKeyCreated(actor, organizationId, result.record, true);
   return result;
 }
 
