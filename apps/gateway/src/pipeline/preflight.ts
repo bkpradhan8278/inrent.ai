@@ -2,6 +2,7 @@ import { Errors, estimateMaxCharge, formatUsd, type InrentError, type RouteCandi
 import { getSpendState, type SpendState } from "@inrent/services";
 import type { GatewayAuth, GatewayDeps } from "../types";
 import type { CandidateMeta } from "./candidates";
+import { isFreeCandidate } from "./freeTier";
 
 function exceeds(spent: bigint, estimate: bigint, limit: bigint | null): boolean {
   if (limit === null) return false;
@@ -34,6 +35,8 @@ export interface PreflightResult {
  * Server-side credit and budget checks before any provider is called. Platform-funded
  * candidates require a positive balance covering the estimated maximum charge and must fit
  * every configured budget; if they don't, BYOK candidates (if any) can still serve.
+ * Free (zero-priced) routes cost nothing, so they never need a balance; the daily free-tier
+ * quota limits them instead.
  */
 export async function preflight(
   auth: GatewayAuth,
@@ -48,14 +51,15 @@ export async function preflight(
   if (!platform.length && !byokFee) return { ranked, spend: null, estimateNano: 0n };
 
   const spend = await getSpendState(auth.organizationId, auth.projectId, auth.keyId);
+  const paid = platform.filter((c) => !isFreeCandidate(c));
   let estimate = 0n;
-  for (const c of platform.slice(0, 3)) {
+  for (const c of paid.slice(0, 3)) {
     const price = meta.get(c.endpointId)?.price;
     if (!price) continue;
     const e = estimateMaxCharge(price, estimatedInputTokens, maxOutputTokens);
     if (e > estimate) estimate = e;
   }
-  const violation = platform.length ? budgetViolation(auth, spend, estimate) : null;
+  const violation = paid.length ? budgetViolation(auth, spend, estimate) : null;
   if (!violation) {
     if (byokFee && spend.balanceNano <= 0n) {
       const platformOnly = ranked.filter((c) => c.billingMode === "PLATFORM");
@@ -64,7 +68,8 @@ export async function preflight(
     }
     return { ranked, spend, estimateNano: estimate };
   }
-  const byok = byokFee && spend.balanceNano <= 0n ? [] : ranked.filter((c) => c.billingMode === "BYOK");
-  if (byok.length) return { ranked: byok, spend, estimateNano: 0n };
+  const allowByok = !(byokFee && spend.balanceNano <= 0n);
+  const fallback = ranked.filter((c) => isFreeCandidate(c) || (allowByok && c.billingMode === "BYOK"));
+  if (fallback.length) return { ranked: fallback, spend, estimateNano: 0n };
   throw violation;
 }
