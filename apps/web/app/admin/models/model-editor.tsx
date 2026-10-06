@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { formatDate, formatPerMillion } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { setEndpointPriceAction, updateEndpointAction, updateModelAction } from "../actions";
+import { NewEndpointForm, type ProviderOption } from "./catalog-forms";
 
 type Tri = boolean | null;
 interface Price {
@@ -274,7 +275,7 @@ function EndpointRow({ e, canWrite, canPrice, defaultMarkup }: { e: Endpoint; ca
   );
 }
 
-export function ModelEditor({ rows, canWrite, canPrice, defaultMarkup }: { rows: ModelRow[]; canWrite: boolean; canPrice: boolean; defaultMarkup: string }) {
+export function ModelEditor({ rows, canWrite, canPrice, defaultMarkup, providers }: { rows: ModelRow[]; canWrite: boolean; canPrice: boolean; defaultMarkup: string; providers: ProviderOption[] }) {
   const [open, setOpen] = React.useState<string | null>(null);
   if (!rows.length) return <p className="panel rounded-xl px-5 py-8 text-center text-sm text-fg-subtle">No models match.</p>;
   return (
@@ -310,8 +311,9 @@ export function ModelEditor({ rows, canWrite, canPrice, defaultMarkup }: { rows:
                       ))}
                     </ul>
                   ) : (
-                    <p className="px-5 py-3 text-[13px] text-fg-subtle">No endpoints. Endpoints are created when a provider mapping is added (seed or migration).</p>
+                    <p className="px-5 py-3 text-[13px] text-fg-subtle">No endpoints yet. Add a provider endpoint to serve this model.</p>
                   )}
+                  {canWrite ? <NewEndpointForm modelId={m.id} providers={providers} /> : null}
                 </div>
               </div>
             ) : null}

@@ -4,6 +4,7 @@ import { AdminSearch } from "@/components/admin/search";
 import { PageHeader } from "@/components/dashboard/ui";
 import { requireAdmin } from "@/lib/session";
 import { NativeSelect } from "@/components/ui/input";
+import { NewModelForm } from "./catalog-forms";
 import { ModelEditor, type ModelRow } from "./model-editor";
 
 export const metadata: Metadata = { title: "Models & pricing" };
@@ -27,6 +28,7 @@ export default async function AdminModels({ searchParams }: { searchParams: Prom
       },
     },
   });
+  const providers = await prisma.provider.findMany({ select: { id: true, name: true, slug: true, enabled: true }, orderBy: { name: "asc" } });
   const rows: ModelRow[] = models.map((m) => ({
     id: m.id,
     slug: m.slug,
@@ -71,6 +73,7 @@ export default async function AdminModels({ searchParams }: { searchParams: Prom
   return (
     <>
       <PageHeader title="Models & pricing" description="Prices are versioned: saving creates a new active price and closes the previous one. Every change records its source and is audit-logged. A model is only served with platform credit when its license, resale status and price are verified." />
+      {admin.can("models:write") ? <NewModelForm /> : null}
       <AdminSearch action="/admin/models" q={q} placeholder="Search models">
         <NativeSelect name="filter" defaultValue={sp.filter ?? ""} className="w-auto min-w-36" aria-label="Filter">
           <option value="">All models</option>
@@ -78,7 +81,7 @@ export default async function AdminModels({ searchParams }: { searchParams: Prom
           <option value="unpriced">Has unpriced endpoint</option>
         </NativeSelect>
       </AdminSearch>
-      <ModelEditor rows={rows} canWrite={admin.can("models:write")} canPrice={admin.can("pricing:write")} defaultMarkup={process.env.DEFAULT_PLATFORM_MARKUP_PCT ?? "5.5"} />
+      <ModelEditor rows={rows} canWrite={admin.can("models:write")} canPrice={admin.can("pricing:write")} defaultMarkup={process.env.DEFAULT_PLATFORM_MARKUP_PCT ?? "5.5"} providers={providers} />
     </>
   );
 }
