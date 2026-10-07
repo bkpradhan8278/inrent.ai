@@ -178,7 +178,7 @@ export function WebhooksManager({ canWrite, events, hooks, deliveries }: { canWr
         </DialogContent>
       </Dialog>
 
-      <SecretDialog open={Boolean(secret)} onOpenChange={(o) => !o && setSecret(null)} title="Signing secret" description="Use this secret to verify the Inrent-Signature header on each delivery." secret={secret} />
+      <SecretDialog open={Boolean(secret)} onOpenChange={(o) => !o && setSecret(null)} title="Signing secret" description="Use this secret to verify the Inrent-Signature header on each delivery." secret={secret} hashedOnly={false} />
 
       <ConfirmDialog
         open={Boolean(rotating)}
