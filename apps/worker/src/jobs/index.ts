@@ -5,21 +5,19 @@ import {
   deliverWebhook,
   persistRequestRecord,
   purgeExpiredRequests,
+  queueWebhookRetry,
   rollupUsageDay,
   type RequestRecord,
 } from "@inrent/services";
 import { runAutoRecharge } from "@inrent/services/payments";
-import { enqueue, QUEUES } from "@inrent/services/queue";
 import { getRedis } from "@inrent/services/redis";
 import { runProviderHealthChecks } from "./providerHealth";
 
 export async function handleWebhookDelivery(deliveryId: string, logger: Logger): Promise<void> {
   const outcome = await deliverWebhook(deliveryId);
   if (outcome === "retry") {
-    const d = await prisma.webhookDelivery.findUnique({ where: { id: deliveryId }, select: { nextAttemptAt: true, attempts: true } });
-    if (d?.nextAttemptAt) {
-      await enqueue(QUEUES.webhooks, "deliver", { deliveryId }, { jobId: `${deliveryId}:${d.attempts}`, delay: Math.max(0, d.nextAttemptAt.getTime() - Date.now()), attempts: 1 });
-    }
+    const d = await prisma.webhookDelivery.findUnique({ where: { id: deliveryId }, select: { id: true, nextAttemptAt: true, attempts: true } });
+    if (d?.nextAttemptAt) await queueWebhookRetry(d);
   }
   logger.debug({ deliveryId, outcome }, "webhook delivery");
 }
@@ -28,13 +26,11 @@ export async function handleWebhookDelivery(deliveryId: string, logger: Logger):
 export async function sweepWebhookDeliveries(): Promise<number> {
   const due = await prisma.webhookDelivery.findMany({
     where: { status: "PENDING", nextAttemptAt: { lte: new Date() } },
-    select: { id: true, attempts: true },
+    select: { id: true, attempts: true, nextAttemptAt: true },
     take: 500,
     orderBy: { nextAttemptAt: "asc" },
   });
-  for (const d of due) {
-    await enqueue(QUEUES.webhooks, "deliver", { deliveryId: d.id }, { jobId: `${d.id}:${d.attempts}`, attempts: 1 });
-  }
+  for (const d of due) await queueWebhookRetry(d);
   return due.length;
 }
 

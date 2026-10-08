@@ -1,6 +1,6 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@inrent/db";
-import { createApiKey, getBalance } from "@inrent/services";
+import { createApiKey, getBalance, setOrganizationSuspended } from "@inrent/services";
 import { closeQueues } from "@inrent/services/queue";
 import { closeRedis, getRedis } from "@inrent/services/redis";
 import { createMockCatalog, createOrg, createUser, resetDatabase } from "@inrent/services/testing";
@@ -66,6 +66,21 @@ describe("authentication", () => {
     const res = await app.request("/v1/chat/completions", { method: "POST", body: chatBody(), headers: bearer(secret) });
     expect(res.status).toBe(401);
     expect((await res.json()).error.code).toBe("revoked_api_key");
+  });
+});
+
+describe("suspension", () => {
+  it("stops serving a suspended organization immediately, despite the key cache", async () => {
+    const { app, secret, org } = await setup();
+    const chat = () => app.request("/v1/chat/completions", { method: "POST", body: chatBody(), headers: bearer(secret) });
+    expect((await chat()).status).toBe(200); // warms the cached key context
+    const admin = await createUser({ platformRole: "ADMIN" });
+    await setOrganizationSuspended(admin.id, org.id, true, "abuse report");
+    const res = await chat();
+    expect(res.status).toBe(403);
+    expect((await res.json()).error.code).toBe("organization_suspended");
+    await setOrganizationSuspended(admin.id, org.id, false);
+    expect((await chat()).status).toBe(200);
   });
 });
 

@@ -155,6 +155,17 @@ export async function createApiKey(actor: Actor, input: CreateApiKeyInput) {
   return result;
 }
 
+/** Drops every cached key context of an organization, so a change to the organization (e.g. suspension) applies on the next request. */
+export async function invalidateOrganizationKeyCache(organizationId: string): Promise<void> {
+  const keys = await prisma.apiKey.findMany({ where: { organizationId, revokedAt: null }, select: { keyHash: true } });
+  if (!keys.length) return;
+  try {
+    await getRedis().del(...keys.map((k) => CACHE_KEYS.apiKey(k.keyHash)));
+  } catch {
+    // Cache entries also expire on their own (short TTL).
+  }
+}
+
 async function invalidateCache(keyId: string) {
   const key = await prisma.apiKey.findUnique({ where: { id: keyId }, select: { keyHash: true } });
   if (!key) return;
