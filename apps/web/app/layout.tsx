@@ -42,7 +42,7 @@ export const viewport: Viewport = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
-    { "@type": "Organization", name: "INRENT", url: site.url, logo: `${site.url}/icon.svg` },
+    { "@type": "Organization", name: "INRENT", url: site.url, logo: `${site.url}/brand/logo-512.png` },
     { "@type": "WebSite", name: "INRENT", url: site.url },
   ],
 };

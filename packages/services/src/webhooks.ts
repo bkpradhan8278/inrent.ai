@@ -161,6 +161,13 @@ export async function sendTestWebhook(userId: string, organizationId: string, we
   return delivery.id;
 }
 
+/** Queues the next attempt of a pending delivery for its nextAttemptAt (after a failed attempt, and from the sweeper). */
+export async function queueWebhookRetry(delivery: { id: string; attempts: number; nextAttemptAt: Date | null }): Promise<void> {
+  const delay = Math.max(0, (delivery.nextAttemptAt?.getTime() ?? Date.now()) - Date.now());
+  // One job per attempt. BullMQ rejects custom job ids that contain ":".
+  await enqueue(QUEUES.webhooks, "deliver", { deliveryId: delivery.id }, { jobId: `${delivery.id}-${delivery.attempts}`, delay, attempts: 1 });
+}
+
 /**
  * Delivers one webhook attempt (called by the worker). Re-validates the destination
  * immediately before connecting, never follows redirects and caps the response it reads.

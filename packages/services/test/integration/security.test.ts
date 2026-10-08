@@ -8,7 +8,7 @@ import { getServerEnv, resetServerEnvCache } from "../../src/env";
 import { closeQueues } from "../../src/queue";
 import { closeRedis } from "../../src/redis";
 import { aad, decrypt } from "../../src/secrets";
-import { createWebhook, deliverWebhook, emitWebhookEvent } from "../../src/webhooks";
+import { createWebhook, deliverWebhook, emitWebhookEvent, queueWebhookRetry } from "../../src/webhooks";
 import { createOrg, createUser, resetDatabase } from "../../src/testing";
 
 beforeEach(resetDatabase);
@@ -142,6 +142,8 @@ describe("webhooks", () => {
     const after = await prisma.webhookDelivery.findUniqueOrThrow({ where: { id: failing.id } });
     expect(after.attempts).toBe(1);
     expect(after.nextAttemptAt!.getTime()).toBeGreaterThan(Date.now());
+    // The retry must actually reach the queue (BullMQ rejects some custom job ids).
+    await expect(queueWebhookRetry(after)).resolves.toBeUndefined();
   });
 
   it("rejects private destinations when private URLs are not allowed (SSRF)", async () => {

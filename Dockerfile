@@ -71,8 +71,10 @@ FROM source AS build-web
 # Public values are inlined into the client bundle at build time.
 ARG NEXT_PUBLIC_APP_URL=http://localhost:3000
 ARG NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/v1
+ARG NEXT_PUBLIC_ROOT_DOMAIN=
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL \
     NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL \
+    NEXT_PUBLIC_ROOT_DOMAIN=$NEXT_PUBLIC_ROOT_DOMAIN \
     NODE_ENV=production
 RUN pnpm --filter @inrent/web build
 

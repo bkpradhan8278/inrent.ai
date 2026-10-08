@@ -7,6 +7,7 @@ import { getServerEnv } from "../env";
 import { ValidationError } from "../errors";
 import { emitWebhookEvent } from "../webhooks";
 import { notify } from "../notifications";
+import { queuePaymentEmail } from "./emails";
 import { RazorpayPaymentProvider } from "./razorpay";
 import { StripePaymentProvider } from "./stripe";
 import { PaymentProviderNotConfiguredError, type PaymentProvider, type PaymentWebhookEvent } from "./types";
@@ -189,6 +190,8 @@ export async function applyPaymentEvent(providerName: PaymentProviderType, event
         link: "/dashboard/billing",
         dedupeKey: `${type}:${fresh.id}`,
       }).catch(() => undefined);
+      // `processed` only comes back for the call that made the transition, so this is once per payment.
+      await queuePaymentEmail(fresh, type === "payment.success" ? "receipt" : "failed");
     }
   }
   return outcome;
@@ -233,6 +236,7 @@ export async function runAutoRecharge(organizationId: string): Promise<"charged"
   if (result.status === "failed") {
     await prisma.payment.update({ where: { id: payment.id }, data: { status: "FAILED", failureReason: result.failureReason, providerPaymentId: result.providerPaymentId || payment.providerPaymentId } });
     await notify({ organizationId, type: "payment.failed", title: "Auto-recharge failed", body: result.failureReason ?? "The saved payment method was declined.", link: "/dashboard/billing", dedupeKey: `auto-recharge-failed:${payment.id}` });
+    await queuePaymentEmail({ ...payment, status: "FAILED", failureReason: result.failureReason ?? null }, "failed");
     return "failed";
   }
   await prisma.payment.update({ where: { id: payment.id }, data: { providerPaymentId: result.providerPaymentId } });

@@ -2,7 +2,7 @@ import { Queue, Worker, type Job } from "bullmq";
 import { prisma } from "@inrent/db";
 import { createErrorReporter, createLogger } from "@inrent/observability";
 import { sendTemplateEmail } from "@inrent/services/email";
-import { closeQueues, QUEUES, redisConnectionOptions, type BillingJob, type EmailJob, type UsageFinalizeJob, type WebhookDeliveryJob } from "@inrent/services/queue";
+import { closeQueues, emailFromJob, QUEUES, redisConnectionOptions, type BillingJob, type EmailJob, type UsageFinalizeJob, type WebhookDeliveryJob } from "@inrent/services/queue";
 import { closeRedis } from "@inrent/services/redis";
 import { getServerEnv } from "@inrent/services";
 import {
@@ -38,12 +38,7 @@ const workers = [
     if (job.data.kind === "auto_recharge") await handleAutoRecharge(job.data.organizationId, logger);
   }),
   worker<EmailJob>(QUEUES.email, 5, async (job) => {
-    await sendTemplateEmail(job.data.to, {
-      subject: job.data.data.subject ?? "INRENT",
-      title: job.data.data.title ?? "INRENT",
-      intro: job.data.data.intro ?? "",
-      action: job.data.data.actionUrl ? { label: job.data.data.actionLabel ?? "Open", url: job.data.data.actionUrl } : undefined,
-    });
+    await sendTemplateEmail(job.data.to, emailFromJob(job.data));
   }),
   worker<Record<string, never>>(QUEUES.maintenance, 1, async (job) => {
     const started = Date.now();

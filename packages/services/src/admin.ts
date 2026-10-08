@@ -1,5 +1,6 @@
 import { Prisma, prisma, type HealthStatus, type IntegrationMode, type ModelStatus, type PlatformRole, type VerificationStatus } from "@inrent/db";
 import { parseDecimalScaled } from "@inrent/core";
+import { invalidateOrganizationKeyCache } from "./apiKeys";
 import { recordAudit } from "./audit";
 import { requireAdminPermission } from "./authz";
 import { NotFoundError, ValidationError } from "./errors";
@@ -112,6 +113,105 @@ export async function updateModel(
   await recordAudit({ actorType: "ADMIN", actorId: adminId, action: "model.updated", targetType: "model", targetId: modelId, metadata: diff(before, input) as Prisma.InputJsonValue });
   if (input.status || input.verificationStatus) await broadcastModelUpdated(updated.slug, { status: updated.status });
   return updated;
+}
+
+export const MODEL_CAPABILITIES = ["chat", "streaming", "tools", "vision", "reasoning", "coding", "json_mode", "structured_output", "embedding"] as const;
+export type ModelCapability = (typeof MODEL_CAPABILITIES)[number];
+
+const MODEL_SLUG = /^[a-z0-9][a-z0-9._-]{0,60}\/[a-z0-9][a-z0-9._:-]{0,100}$/;
+
+export interface NewModelInput {
+  slug: string;
+  displayName: string;
+  vendor: string;
+  description: string;
+  capabilities: ModelCapability[];
+  contextLength?: number | null;
+  maxOutputTokens?: number | null;
+  openWeights?: boolean;
+}
+
+function positiveOrNull(name: string, v: number | null | undefined) {
+  if (v === null || v === undefined) return null;
+  if (!Number.isInteger(v) || v <= 0 || v > 10_000_000) throw new ValidationError(`${name} must be a positive whole number.`);
+  return v;
+}
+
+/**
+ * Adds a catalog model. It starts in preview and needs review, so nothing is served until an
+ * admin records the license, verifies it, adds a provider endpoint and publishes a price.
+ */
+export async function createModel(adminId: string, input: NewModelInput) {
+  await requireAdminPermission(adminId, "models:write");
+  const slug = input.slug.trim().toLowerCase();
+  if (!MODEL_SLUG.test(slug)) throw new ValidationError("Slug must look like vendor/model-name (lowercase letters, digits, . _ - :).");
+  const displayName = input.displayName.trim();
+  const vendor = input.vendor.trim().toLowerCase();
+  if (displayName.length < 2 || displayName.length > 80) throw new ValidationError("Display name must be 2–80 characters.");
+  if (!/^[a-z0-9][a-z0-9._-]{0,40}$/.test(vendor)) throw new ValidationError("Vendor must be a short lowercase name, e.g. google.");
+  const capabilities = [...new Set(input.capabilities)];
+  if (!capabilities.length || capabilities.some((c) => !MODEL_CAPABILITIES.includes(c))) throw new ValidationError("Pick at least one known capability.");
+  if (await prisma.model.findUnique({ where: { slug }, select: { id: true } })) throw new ValidationError(`A model with slug ${slug} already exists.`);
+  const created = await prisma.model.create({
+    data: {
+      slug,
+      displayName,
+      vendor,
+      description: input.description.trim().slice(0, 500),
+      capabilities,
+      contextLength: positiveOrNull("Context length", input.contextLength),
+      maxOutputTokens: positiveOrNull("Max output tokens", input.maxOutputTokens),
+      openWeights: input.openWeights ?? false,
+      status: "PREVIEW",
+      verificationStatus: "NEEDS_REVIEW",
+    },
+  });
+  await recordAudit({ actorType: "ADMIN", actorId: adminId, action: "model.created", targetType: "model", targetId: created.id, metadata: { slug, vendor, capabilities } });
+  return created;
+}
+
+export interface NewEndpointInput {
+  providerId: string;
+  providerModelId: string;
+  contextLength?: number | null;
+  maxOutputTokens?: number | null;
+  supportsStreaming?: boolean;
+  supportsTools?: boolean;
+  supportsVision?: boolean;
+  priority?: number;
+}
+
+/** Maps a model to a provider. Created disabled: enable it once a price is published. */
+export async function addModelEndpoint(adminId: string, modelId: string, input: NewEndpointInput) {
+  await requireAdminPermission(adminId, "models:write");
+  const providerModelId = input.providerModelId.trim();
+  if (!providerModelId || providerModelId.length > 200 || /\s/.test(providerModelId)) throw new ValidationError("Provider model ID is the exact name the provider expects, without spaces.");
+  const [model, provider] = await Promise.all([
+    prisma.model.findUnique({ where: { id: modelId }, select: { id: true, slug: true } }),
+    prisma.provider.findUnique({ where: { id: input.providerId }, select: { id: true, slug: true } }),
+  ]);
+  if (!model) throw new NotFoundError("Model");
+  if (!provider) throw new NotFoundError("Provider");
+  const priority = input.priority ?? 100;
+  if (!Number.isInteger(priority) || priority < 0 || priority > 10_000) throw new ValidationError("Priority must be a whole number between 0 and 10000.");
+  const exists = await prisma.modelProvider.findFirst({ where: { modelId, providerId: provider.id, providerModelId }, select: { id: true } });
+  if (exists) throw new ValidationError(`${provider.slug} already serves ${model.slug} as ${providerModelId}.`);
+  const created = await prisma.modelProvider.create({
+    data: {
+      modelId,
+      providerId: provider.id,
+      providerModelId,
+      enabled: false,
+      priority,
+      contextLength: positiveOrNull("Context length", input.contextLength),
+      maxOutputTokens: positiveOrNull("Max output tokens", input.maxOutputTokens),
+      supportsStreaming: input.supportsStreaming ?? true,
+      supportsTools: input.supportsTools ?? false,
+      supportsVision: input.supportsVision ?? false,
+    },
+  });
+  await recordAudit({ actorType: "ADMIN", actorId: adminId, action: "endpoint.created", targetType: "model_provider", targetId: created.id, metadata: { model: model.slug, provider: provider.slug, providerModelId } });
+  return created;
 }
 
 export async function updateEndpoint(
@@ -229,7 +329,8 @@ export async function setOrganizationSuspended(adminId: string, organizationId: 
   await requireAdminPermission(adminId, "orgs:write");
   if (suspended && (!reason || reason.trim().length < 3)) throw new ValidationError("A suspension reason is required.");
   await prisma.organization.update({ where: { id: organizationId }, data: { suspendedAt: suspended ? new Date() : null, suspensionReason: suspended ? reason!.trim() : null } });
-  // Cached key contexts expire within a minute; suspension is also enforced from the DB on cache miss.
+  // The gateway caches key contexts (including the suspension flag) for a minute; drop them so this applies now.
+  await invalidateOrganizationKeyCache(organizationId);
   await recordAudit({ organizationId, actorType: "ADMIN", actorId: adminId, action: suspended ? "organization.suspended" : "organization.unsuspended", targetType: "organization", targetId: organizationId, metadata: { reason } });
 }
 

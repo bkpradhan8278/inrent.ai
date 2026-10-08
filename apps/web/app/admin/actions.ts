@@ -4,8 +4,10 @@ import { revalidatePath } from "next/cache";
 import { usdToNano, type AdminPermission } from "@inrent/core";
 import type { HealthStatus, IntegrationMode, ModelStatus, PlatformRole, VerificationStatus } from "@inrent/db";
 import {
+  addModelEndpoint,
   adjustCredits,
   createIncident,
+  createModel,
   ServiceError,
   setEndpointPrice,
   setFeatureFlag,
@@ -17,6 +19,8 @@ import {
   updateModel,
   updateProvider,
   updateTicketStatus,
+  type NewEndpointInput,
+  type NewModelInput,
   type PriceInput,
 } from "@inrent/services";
 import { requireAdmin } from "@/lib/session";
@@ -52,6 +56,20 @@ export async function updateModelAction(
 ) {
   return run("models:write", async (adminId) => {
     await updateModel(adminId, id, input);
+  }, "/admin/models");
+}
+
+export async function createModelAction(input: NewModelInput) {
+  return run("models:write", async (adminId) => {
+    const m = await createModel(adminId, input);
+    return { id: m.id, slug: m.slug };
+  }, "/admin/models");
+}
+
+export async function addEndpointAction(modelId: string, input: NewEndpointInput) {
+  return run("models:write", async (adminId) => {
+    const ep = await addModelEndpoint(adminId, modelId, input);
+    return { id: ep.id };
   }, "/admin/models");
 }
 

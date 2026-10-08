@@ -2,7 +2,8 @@
 # secret manager (External Secrets Operator, Sealed Secrets, CSI driver…) — never commit it.
 # Required keys in inrent-secrets: DATABASE_URL, REDIS_URL, BETTER_AUTH_SECRET, API_KEY_PEPPER,
 # INTERNAL_SERVICE_SECRET, INRENT_ENCRYPTION_KEYS, IP_HASH_SALT, METRICS_TOKEN
-# Optional: STRIPE_*, RAZORPAY_*, RESEND_API_KEY / SENDGRID_API_KEY, SENTRY_DSN, provider API keys.
+# Optional: STRIPE_*, RAZORPAY_*, RESEND_API_KEY / SENDGRID_API_KEY, SENTRY_DSN, provider API keys,
+# GOOGLE_* / GITHUB_* / OPENAI_SIGNIN_* sign-in clients, SMS_PROVIDER + TWILIO_* for phone sign-in.
 apiVersion: v1
 kind: ConfigMap
 metadata:

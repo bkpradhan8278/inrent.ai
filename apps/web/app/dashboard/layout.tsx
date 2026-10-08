@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { nanoToUsdString, platformRoleCan } from "@inrent/core";
 import { listNotifications } from "@inrent/services";
+import { isPlaceholderEmail } from "@inrent/services/email";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { getPlatformRole, getWorkspace } from "@/lib/session";
 
@@ -12,7 +13,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <DashboardShell
       data={{
-        user: { name: ws.user.name, email: ws.user.email, image: ws.user.image ?? null },
+        // Phone-only accounts show their number rather than the placeholder address.
+        user: { name: ws.user.name, email: isPlaceholderEmail(ws.user.email) ? (ws.user.phoneNumber ?? "") : ws.user.email, image: ws.user.image ?? null },
         isAdmin: platformRoleCan(role, "admin:access"),
         orgs: ws.memberships.map((m) => ({ id: m.organizationId, name: m.organization.name, type: m.organization.type, role: m.role })),
         activeOrgId: ws.org.id,

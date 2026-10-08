@@ -23,6 +23,7 @@ import type { GatewayState } from "../state";
 import type { GatewayAuth, GatewayDeps, GatewayEnv } from "../types";
 import { buildCandidates, explainUnavailable, type CandidateMeta, type CandidateSet, type EndpointKind } from "./candidates";
 import { preflight } from "./preflight";
+import { enforceFreeTierQuota } from "./freeTier";
 import { enforceRateLimits, recordTokenUsage } from "./rateLimits";
 
 export interface Attempt {
@@ -128,6 +129,7 @@ export async function prepare(c: Context<GatewayEnv>, deps: GatewayDeps, state: 
 
   const checked = await preflight(input.auth, ranked, meta, input.estimatedInputTokens, input.maxOutputTokens, deps);
   ranked = checked.ranked;
+  await enforceFreeTierQuota(input.auth, ranked[0], deps);
   return { ranked, meta, decision, rules, rateLimitHeaders: headers, byokKeys };
 }
 
