@@ -1,5 +1,6 @@
 import { Prisma, prisma, type HealthStatus, type IntegrationMode, type ModelStatus, type PlatformRole, type VerificationStatus } from "@inrent/db";
 import { parseDecimalScaled } from "@inrent/core";
+import { invalidateOrganizationKeyCache } from "./apiKeys";
 import { recordAudit } from "./audit";
 import { requireAdminPermission } from "./authz";
 import { NotFoundError, ValidationError } from "./errors";
@@ -229,7 +230,8 @@ export async function setOrganizationSuspended(adminId: string, organizationId: 
   await requireAdminPermission(adminId, "orgs:write");
   if (suspended && (!reason || reason.trim().length < 3)) throw new ValidationError("A suspension reason is required.");
   await prisma.organization.update({ where: { id: organizationId }, data: { suspendedAt: suspended ? new Date() : null, suspensionReason: suspended ? reason!.trim() : null } });
-  // Cached key contexts expire within a minute; suspension is also enforced from the DB on cache miss.
+  // The gateway caches key contexts (including the suspension flag) for a minute; drop them so this applies now.
+  await invalidateOrganizationKeyCache(organizationId);
   await recordAudit({ organizationId, actorType: "ADMIN", actorId: adminId, action: suspended ? "organization.suspended" : "organization.unsuspended", targetType: "organization", targetId: organizationId, metadata: { reason } });
 }
 

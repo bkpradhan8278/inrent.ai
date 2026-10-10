@@ -67,6 +67,13 @@ class SendGridEmailProvider implements EmailProvider {
 
 let provider: EmailProvider | null = null;
 
+/** Domain of the stand-in address given to phone-only accounts. `.invalid` never resolves (RFC 2606). */
+export const PLACEHOLDER_EMAIL_DOMAIN = "phone.inrent.invalid";
+
+export function isPlaceholderEmail(email: string): boolean {
+  return email.toLowerCase().endsWith(`@${PLACEHOLDER_EMAIL_DOMAIN}`);
+}
+
 export function getEmailProvider(): EmailProvider {
   if (provider) return provider;
   const from = process.env.EMAIL_FROM ?? "INRENT <no-reply@inrent.ai>";
@@ -108,6 +115,8 @@ export function renderEmail(opts: { title: string; intro: string; action?: { lab
 }
 
 export async function sendTemplateEmail(to: string, opts: Parameters<typeof renderEmail>[0] & { subject: string }): Promise<void> {
+  // Phone-only accounts have no mailbox; skip rather than bounce through the provider.
+  if (isPlaceholderEmail(to)) return;
   const { html, text } = renderEmail(opts);
   await getEmailProvider().send({ to, subject: opts.subject, html, text });
 }

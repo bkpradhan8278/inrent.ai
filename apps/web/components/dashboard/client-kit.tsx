@@ -40,7 +40,7 @@ export function useAction() {
 }
 
 /** Displays a secret exactly once with copy + reveal controls. */
-export function SecretReveal({ secret, label = "Secret" }: { secret: string; label?: string }) {
+export function SecretReveal({ secret, label = "Secret", hashedOnly = true }: { secret: string; label?: string; hashedOnly?: boolean }) {
   const [visible, setVisible] = React.useState(false);
   return (
     <div className="grid gap-2">
@@ -55,13 +55,13 @@ export function SecretReveal({ secret, label = "Secret" }: { secret: string; lab
       </div>
       <p className="flex items-start gap-1.5 text-xs text-amber">
         <AlertTriangle className="mt-px size-3.5 shrink-0" />
-        Copy it now — it won&apos;t be shown again. INRENT stores only a hash.
+        Copy it now — it won&apos;t be shown again.{hashedOnly ? " INRENT stores only a hash." : null}
       </p>
     </div>
   );
 }
 
-export function SecretDialog({ open, onOpenChange, title, description, secret, children }: { open: boolean; onOpenChange: (o: boolean) => void; title: string; description?: string; secret: string | null; children?: React.ReactNode }) {
+export function SecretDialog({ open, onOpenChange, title, description, secret, hashedOnly, children }: { open: boolean; onOpenChange: (o: boolean) => void; title: string; description?: string; secret: string | null; hashedOnly?: boolean; children?: React.ReactNode }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent onInteractOutside={(e) => e.preventDefault()}>
@@ -69,7 +69,7 @@ export function SecretDialog({ open, onOpenChange, title, description, secret, c
           <DialogTitle>{title}</DialogTitle>
           {description ? <DialogDescription>{description}</DialogDescription> : null}
         </DialogHeader>
-        {secret ? <SecretReveal secret={secret} /> : null}
+        {secret ? <SecretReveal secret={secret} hashedOnly={hashedOnly} /> : null}
         {children}
         <DialogFooter>
           <Button onClick={() => onOpenChange(false)}>I&apos;ve saved it</Button>

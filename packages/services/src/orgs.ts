@@ -128,13 +128,32 @@ export async function inviteMember(userId: string, organizationId: string, email
   if (role === "OWNER") throw new ValidationError("Invite as Admin, then transfer ownership.");
   const org = await prisma.organization.findUniqueOrThrow({ where: { id: organizationId }, include: { plan: true, _count: { select: { memberships: true } } } });
   if (org.type === "PERSONAL") throw new ValidationError("Personal workspaces can't have members. Create a team organization.");
-  if (org.plan && org._count.memberships >= org.plan.maxMembers) throw new ValidationError(`Your plan allows ${org.plan.maxMembers} members.`);
+  if (await prisma.membership.findFirst({ where: { organizationId, user: { email: normalized } } })) throw new ValidationError("This person is already a member.");
+  const now = new Date();
+  // Pending invitations hold a seat; one to the same address is replaced below, so it doesn't count.
+  const pending = await prisma.invitation.count({ where: { organizationId, acceptedAt: null, revokedAt: null, expiresAt: { gt: now }, email: { not: normalized } } });
+  if (org.plan && org._count.memberships + pending >= org.plan.maxMembers) throw new ValidationError(`Your plan allows ${org.plan.maxMembers} members, including pending invitations.`);
   const token = randomBytes(32).toString("base64url");
-  const invitation = await prisma.invitation.create({
-    data: { organizationId, email: normalized, role, tokenHash: hashToken(token), invitedById: userId, expiresAt: new Date(Date.now() + INVITE_TTL_MS) },
-  });
+  const [, invitation] = await prisma.$transaction([
+    // Re-inviting an address replaces its pending invitation, so only the newest link works.
+    prisma.invitation.updateMany({ where: { organizationId, email: normalized, acceptedAt: null, revokedAt: null }, data: { revokedAt: now } }),
+    prisma.invitation.create({
+      data: { organizationId, email: normalized, role, tokenHash: hashToken(token), invitedById: userId, expiresAt: new Date(Date.now() + INVITE_TTL_MS) },
+    }),
+  ]);
   await recordAudit({ organizationId, actorType: "USER", actorId: userId, action: "member.invited", targetType: "invitation", targetId: invitation.id, metadata: { email: normalized, role } });
   return { invitation, token };
+}
+
+export type InvitationStatus = "pending" | "accepted" | "revoked" | "expired";
+
+/** What the invite page shows before accepting. Null when the token matches no invitation. */
+export async function getInvitationPreview(token: string) {
+  const invitation = await prisma.invitation.findUnique({ where: { tokenHash: hashToken(token) }, include: { organization: { select: { name: true } } } });
+  if (!invitation) return null;
+  const inviter = await prisma.user.findUnique({ where: { id: invitation.invitedById }, select: { name: true } });
+  const status: InvitationStatus = invitation.acceptedAt ? "accepted" : invitation.revokedAt ? "revoked" : invitation.expiresAt < new Date() ? "expired" : "pending";
+  return { organizationId: invitation.organizationId, organizationName: invitation.organization.name, invitedByName: inviter?.name ?? null, email: invitation.email, role: invitation.role, status };
 }
 
 export async function acceptInvitation(user: { id: string; email: string }, token: string) {
@@ -143,14 +162,20 @@ export async function acceptInvitation(user: { id: string; email: string }, toke
     throw new NotFoundError("Invitation");
   }
   if (invitation.email !== user.email.toLowerCase()) throw new ForbiddenError("This invitation was sent to a different email address.");
-  await prisma.$transaction([
-    prisma.membership.upsert({
-      where: { organizationId_userId: { organizationId: invitation.organizationId, userId: user.id } },
-      create: { organizationId: invitation.organizationId, userId: user.id, role: invitation.role },
-      update: {},
-    }),
-    prisma.invitation.update({ where: { id: invitation.id }, data: { acceptedAt: new Date() } }),
-  ]);
+  await prisma.$transaction(async (tx) => {
+    // Lock the organization so concurrent acceptances can't both take the last seat.
+    await tx.$queryRaw`SELECT id FROM "Organization" WHERE id = ${invitation.organizationId}::uuid FOR UPDATE`;
+    const org = await tx.organization.findUniqueOrThrow({ where: { id: invitation.organizationId }, include: { plan: true, _count: { select: { memberships: true } } } });
+    const existing = await tx.membership.findUnique({ where: { organizationId_userId: { organizationId: invitation.organizationId, userId: user.id } } });
+    if (!existing && org.plan && org._count.memberships >= org.plan.maxMembers) {
+      throw new ValidationError("This organization has no free seats. Ask an admin to upgrade the plan or remove a member.");
+    }
+    if (!existing) await tx.membership.create({ data: { organizationId: invitation.organizationId, userId: user.id, role: invitation.role } });
+    const now = new Date();
+    await tx.invitation.update({ where: { id: invitation.id }, data: { acceptedAt: now } });
+    // Other pending invitations to the same address would otherwise keep holding seats.
+    await tx.invitation.updateMany({ where: { organizationId: invitation.organizationId, email: invitation.email, acceptedAt: null, revokedAt: null }, data: { revokedAt: now } });
+  });
   await recordAudit({ organizationId: invitation.organizationId, actorType: "USER", actorId: user.id, action: "member.joined", targetType: "user", targetId: user.id });
   return invitation.organizationId;
 }

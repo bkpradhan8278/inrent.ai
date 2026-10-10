@@ -110,7 +110,7 @@ export function OrgSettingsForm({ initial, canWrite, maxRetention }: { initial: 
   );
 }
 
-export function AccountForms({ name: initialName, email }: { name: string; email: string }) {
+export function AccountForms({ name: initialName, email, signedInAs }: { name: string; email: string; signedInAs: string }) {
   const [name, setName] = React.useState(initialName);
   const [deleting, setDeleting] = React.useState(false);
   const { pending, run } = useAction();
@@ -128,7 +128,7 @@ export function AccountForms({ name: initialName, email }: { name: string; email
           <div className="grid flex-1 gap-1.5">
             <Label htmlFor="profile-name">Name</Label>
             <Input id="profile-name" value={name} onChange={(e) => setName(e.target.value)} required maxLength={80} />
-            <FieldHint>Signed in as {email}</FieldHint>
+            <FieldHint>Signed in as {signedInAs}</FieldHint>
           </div>
           <Button type="submit" variant="secondary" disabled={pending || name === initialName} className="sm:mb-5">
             Save

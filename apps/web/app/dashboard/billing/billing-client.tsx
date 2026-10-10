@@ -66,6 +66,8 @@ export function BuyCredits({ presets, providers }: { presets: number[]; provider
       await loadRazorpay();
       const rz = new window.Razorpay!({
         ...r.data.clientParams,
+        // Without a logo, Razorpay shows the one set on the merchant account, which may belong to another brand.
+        image: new URL("/checkout-logo.png", window.location.origin).href,
         theme: { color: "#5cebc0" },
         handler: () => {
           navigate(router, "/dashboard/billing?payment=success");

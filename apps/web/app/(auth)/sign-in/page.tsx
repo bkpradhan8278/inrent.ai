@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { AuthCard } from "@/components/auth/auth-card";
 import { SignInForm } from "@/components/auth/auth-forms";
-import { enabledSocialProviders } from "@/lib/auth";
+import { enabledSocialProviders, phoneSignInEnabled } from "@/lib/auth";
 import { getSession } from "@/lib/session";
 import { hrefFor } from "@/lib/hosts";
 
@@ -26,7 +26,7 @@ export default async function SignInPage() {
       }
     >
       <Suspense>
-        <SignInForm providers={enabledSocialProviders} />
+        <SignInForm providers={enabledSocialProviders} phone={phoneSignInEnabled} />
       </Suspense>
     </AuthCard>
   );
